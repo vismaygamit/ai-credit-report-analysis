@@ -2,7 +2,7 @@ import React from "react";
 import "./App.css"; // Ensure you have Tailwind CSS imported
 import Home from "./pages/Home";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Layout from "./components/layout";
+import Layout from "./components/Layout";
 import Analyzer from "./pages/Analyzer";
 const App = () => {
   return (
