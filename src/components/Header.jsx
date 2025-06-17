@@ -1,21 +1,39 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const toggleMenu = () => setIsOpen(!isOpen);
+  const { i18n, t } = useTranslation();
+
+  const changeLanguage = (lng) => {
+    console.log("Changing language to:", lng);
+
+    i18n.changeLanguage(lng); // this updates globally
+    toggleMenu(); // close the menu after changing language
+  };
+
+  const languages = [
+    { code: "en", label: "English" },
+    { code: "ru", label: "Русский" },
+    { code: "uk", label: "Українська" },
+    { code: "es", label: "Español" },
+    { code: "fr", label: "Français" },
+    { code: "ar", label: "العربية" },
+    { code: "hi", label: "हिंदी" },
+  ];
 
   return (
     <header className="bg-[#0A1F44] text-white w-full">
       <nav className="flex items-center justify-between px-4 py-4 max-w-6xl mx-auto">
-        <div className="text-xl font-bold">StartupName</div>
+        <div className="text-xl font-bold">Scorewise</div>
         <button onClick={toggleMenu} className="md:hidden focus:outline-none">
           <svg
             className="w-6 h-6"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
           >
             {isOpen ? (
               <path
@@ -36,43 +54,49 @@ const Header = () => {
         </button>
 
         <ul
-          className={`md:flex md:space-x-6 absolute md:static top-16 left-0 w-full md:w-auto bg-blue-600 md:bg-transparent px-4 md:px-0 transition-all duration-300 ${
-            isOpen ? "block" : "hidden"
+          className={`md:flex md:space-x-6 absolute md:static top-16 left-0 w-full md:w-auto px-4 md:px-0 transition-all duration-300 ${
+            isOpen ? "block bg-[#0A1F44]" : "hidden"
           }`}
         >
-          <li className="py-2 md:py-0">
+          <li
+            className="py-2 md:py-0"
+            onClick={isOpen ? toggleMenu : undefined}
+          >
             <Link
               to="/"
-            
               className="block px-3 py-1 rounded hover:bg-white hover:text-black transition"
             >
-              Home
+              {t("header.nav.home")}
             </Link>
           </li>
-          <li className="py-2 md:py-0">
+          <li
+            className="py-2 md:py-0"
+            onClick={isOpen ? toggleMenu : undefined}
+          >
             <Link
               to="/analyzer"
               className="block px-3 py-1 rounded hover:bg-white hover:text-black transition"
             >
-              Analyze
+              {t("header.nav.analyze")}
             </Link>
           </li>
-          {/* <li className="py-2 md:py-0">
-            <a
-              href="#"
-              className="block px-3 py-1 rounded hover:bg-white hover:text-black transition"
+          <li className="py-2 md:py-0">
+            <select
+              className="border-0 focus:outline-none block px-3 py-1 rounded hover:bg-white hover:text-black transition"
+              onChange={(e) => changeLanguage(e.target.value)}
             >
-              Pricing
-            </a>
-          </li> */}
-          {/* <li className="py-2 md:py-0">
-            <Link
-              to="/about"
-              className="block px-3 py-1 rounded hover:bg-white hover:text-black transition"
-            >
-              Contact Us
-            </Link>
-          </li> */}
+              {languages.map((lang) => (
+                <option
+                  key={lang.code}
+                  value={lang.code}
+                  className="text-black"
+                  onClick={() => changeLanguage(lang.code)}
+                >
+                  {lang.label}
+                </option>
+              ))}
+            </select>
+          </li>
         </ul>
       </nav>
     </header>
