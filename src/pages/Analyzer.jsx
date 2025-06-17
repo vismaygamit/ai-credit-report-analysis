@@ -12,6 +12,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.j
 const Analyzer = () => {
   const { t } = useTranslation();
   const [dragActive, setDragActive] = useState(false);
+  const [isPlanShow, setisPlanShow] = useState(false);
 
   const [thumbnail, setThumbnail] = useState(null);
   const [fileName, setFileName] = useState("");
@@ -103,6 +104,11 @@ const Analyzer = () => {
   const handleReset = () => {
     setFileName("");
     setThumbnail(null);
+    setisPlanShow(false);
+  };
+
+  const onUnlock = () => {
+    
   };
   const fileInputRef = useRef(null);
 
@@ -204,6 +210,7 @@ You have a mix of credit cards and loans, but high credit card balances and some
                   : "bg-blue-600 hover:bg-blue-700 text-white"
               }`}
               disabled={fileName.length === 0}
+              onClick={() => setisPlanShow(true)}
             >
               {t("analyzePage.analyzeButton")}
             </button>
@@ -220,56 +227,65 @@ You have a mix of credit cards and loans, but high credit card balances and some
             </button>
           </div>
 
-          <div className="mt-4 sm:mt-8 max-w-full sm:max-w-md md:max-w-lg lg:max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="w-full p-4 sm:p-6 rounded-xl shadow-lg bg-gradient-to-br from-teal-400 to-indigo-600 text-white">
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-center mb-3 sm:mb-4">
-                Basic Insights
-              </h2>
-              <div className="flex justify-between items-center mb-3 sm:mb-4">
-                <div>
-                  <h3 className="text-lg sm:text-xl font-bold">
-                    Credit Score & Ranking
-                  </h3>
-                  <ul className="mt-1 sm:mt-2 text-xs sm:text-sm space-y-1 list-disc list-inside">
-                    <li>VantageScore 2.0: 600</li>
-                    <li>
-                      This score is considered fair to below average, ranking in
-                      the 24th percentile, meaning it falls below the majority
-                      of individuals' scores.
-                    </li>
-                  </ul>
-                   <h3 className="text-lg sm:text-xl font-bold mt-2">
-                    Major Negative Items
-                  </h3>
-                  <ul className="mt-1 sm:mt-2 text-xs sm:text-sm space-y-1 list-disc list-inside">
-                    <li>Late Payments: There are 11 accounts with 30-day late payments and 1 with a 60-day late payment.</li>
-                    {/* <li>
+          {isPlanShow && (
+            <div className="mt-4 sm:mt-8 max-w-full sm:max-w-md md:max-w-lg lg:max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="w-full p-4 sm:p-6 rounded-xl shadow-lg bg-gradient-to-br from-teal-400 to-indigo-600 text-white">
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-center mb-3 sm:mb-4">
+                  Basic Insights
+                </h2>
+                <div className="flex justify-between items-center mb-3 sm:mb-4">
+                  <div>
+                    <h3 className="text-lg sm:text-xl font-bold">
+                      Credit Score & Ranking
+                    </h3>
+                    <ul className="mt-1 sm:mt-2 text-xs sm:text-sm space-y-1 list-disc list-inside">
+                      <li>VantageScore 2.0: 600</li>
+                      <li>
+                        This score is considered fair to below average, ranking
+                        in the 24th percentile, meaning it falls below the
+                        majority of individuals' scores.
+                      </li>
+                    </ul>
+                    <h3 className="text-lg sm:text-xl font-bold mt-2">
+                      Major Negative Items
+                    </h3>
+                    <ul className="mt-1 sm:mt-2 text-xs sm:text-sm space-y-1 list-disc list-inside">
+                      <li>
+                        Late Payments: There are 11 accounts with 30-day late
+                        payments and 1 with a 60-day late payment.
+                      </li>
+                      {/* <li>
                       This score is considered fair to below average, ranking in
                       the 24th percentile, meaning it falls below the majority
                       of individuals' scores.
                     </li> */}
-                  </ul>
-                   <h3 className="text-lg sm:text-xl font-bold mt-2">
-                    Breakdown of Accounts (from page 3):
-                  </h3>
-                  <ul className="mt-1 sm:mt-2 text-xs sm:text-sm space-y-1 list-disc list-inside">
-                    <li>Revolving Accounts (like credit cards): 15 accounts (11 have a balance)</li>
-                    <li>
-                      Installment Loans (like auto loans): 10 accounts (2 have a balance)
-                    </li>
-                  </ul>
+                    </ul>
+                    <h3 className="text-lg sm:text-xl font-bold mt-2">
+                      Breakdown of Accounts (from page 3):
+                    </h3>
+                    <ul className="mt-1 sm:mt-2 text-xs sm:text-sm space-y-1 list-disc list-inside">
+                      <li>
+                        Revolving Accounts (like credit cards): 15 accounts (11
+                        have a balance)
+                      </li>
+                      <li>
+                        Installment Loans (like auto loans): 10 accounts (2 have
+                        a balance)
+                      </li>
+                    </ul>
+                  </div>
                 </div>
+                <div className="flex justify-center">
+                  <button onClick={onUnlock} className="px-4 sm:px-6 py-2 sm:py-3 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 transition-all duration-300 text-white font-semibold text-sm sm:text-base">
+                    Unlock Personalized Insights for $100
+                  </button>
+                </div>
+                <p className="text-xs text-center mt-2 sm:mt-3 opacity-80">
+                  Processing Time: 2-3 mins
+                </p>
               </div>
-              <div className="flex justify-center">
-                <button className="px-4 sm:px-6 py-2 sm:py-3 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 transition-all duration-300 text-white font-semibold text-sm sm:text-base">
-                  Unlock Personalized Insights for $100
-                </button>
-              </div>
-              <p className="text-xs text-center mt-2 sm:mt-3 opacity-80">
-                Processing Time: 2-3 mins
-              </p>
             </div>
-          </div>
+          )}
 
           {/* <div className="p-4 whitespace-pre-wrap"> */}
           {/* <button onClick={handlePrompt}>Get Response</button> */}
