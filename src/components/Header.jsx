@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  UserButton,
+} from "@clerk/clerk-react";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -69,16 +75,42 @@ const Header = () => {
               {t("header.nav.home")}
             </Link>
           </li>
+          <SignedIn>
+            <li
+              className="py-2 md:py-0"
+              onClick={isOpen ? toggleMenu : undefined}
+            >
+              <Link
+                to="/analyzer"
+                className="block px-3 py-1 rounded hover:bg-white hover:text-black transition"
+              >
+                {t("header.nav.analyze")}
+              </Link>
+            </li>
+          </SignedIn>
           <li
             className="py-2 md:py-0"
             onClick={isOpen ? toggleMenu : undefined}
           >
             <Link
-              to="/analyzer"
+              to="/privacypolicy"
               className="block px-3 py-1 rounded hover:bg-white hover:text-black transition"
             >
-              {t("header.nav.analyze")}
+              {t("privacyPage.title")}
             </Link>
+          </li>
+          <li className="py-2 md:py-0">
+            <SignedOut>
+              <SignInButton mode="modal" className="block px-3 py-1 rounded hover:bg-white hover:text-black transition">
+                  {t("header.nav.signIn")}
+              </SignInButton>
+            </SignedOut>
+            <SignedIn>
+              <button className="block px-3 py-1 rounded hover:bg-white hover:text-black transition">
+
+              <UserButton/>
+              </button>
+            </SignedIn>
           </li>
           <li className="py-2 md:py-0">
             <select

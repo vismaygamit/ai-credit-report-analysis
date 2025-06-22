@@ -4,21 +4,32 @@ import Home from "./pages/Home";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import Analyzer from "./pages/Analyzer";
-import Test from "./pages/test";
-import "./i18n"
+import "./i18n";
+import Privacypolicy from "./pages/Privacypolicy";
+import Paymentsuccess from "./pages/Paymentsuccess";
+import Paymentfail from "./pages/Paymentfail";
+import ProtectedRoute from "./util/ProtectedRoute";
 
 const App = () => {
+  
   return (
     <Router>
       <Layout>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/analyzer" element={<Analyzer />} />
-          <Route path="/test" element={<Test />} />
-          {/* Add more routes here as needed */}
+          <Route path="/privacypolicy" element={<Privacypolicy />} />
+          <Route path="/success" element={<Paymentsuccess />} />
+          <Route path="/fail" element={<Paymentfail />} />
+          {/* 🔐 Protected Routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/analyzer" element={<Analyzer />} />
+          </Route>
+
+          {/* Fallback */}
+          <Route path="*" element={<Home />} />
         </Routes>
       </Layout>
-     </Router>
+    </Router>
   );
 };
 
