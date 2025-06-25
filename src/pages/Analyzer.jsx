@@ -4,34 +4,224 @@ import * as pdfjsLib from "pdfjs-dist";
 import "pdfjs-dist/build/pdf.worker.entry";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
-import { useMemo } from "react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-import { useUser } from "@clerk/clerk-react";
-import { Navigate, useLocation } from "react-router-dom";
+import { useUser, useClerk } from "@clerk/clerk-react";
+import { useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchReport, getReportByReportId } from "../store/reportSlice";
+import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import * as fontkit from "fontkit";
+import reshape from "arabic-reshaper";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 const Analyzer = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [dragActive, setDragActive] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const { openSignIn } = useClerk();
   const [thumbnail, setThumbnail] = useState(null);
   const [fileName, setFileName] = useState("");
   const [pdfFile, setPdfFile] = useState(null);
-  const [result, setResult] = useState({});
   const [isReport, setIsReport] = useState(false);
+  const [reportLanguage, setReportLanguage] = useState("en");
+  const dispatch = useDispatch();
+  const { data, loading, error, statusCode } = useSelector(
+    (state) => state.report
+  );
+  const currentLanguage = i18n.language;
+  const [result, setResult] = useState(data?.data);
   const [creditData, setcreditData] = useState({});
+  const [isReset, setIsReset] = useState(false);
+
   const fileInputRef = useRef(null);
   const location = useLocation();
   const referrer = location.state?.from;
   const { isSignedIn, user } = useUser();
+  const [paymentStatus, setPaymentStatus] = useState("false");
+
+  const statusColorClass = (status) => {
+    const map = {
+      Excellent: "text-green-700",
+      Strong: "text-emerald-700",
+      Good: "text-green-600",
+      Moderate: "text-yellow-600",
+      "Neutral / Concern": "text-gray-500",
+      Short: "text-gray-600",
+      "Recent Inquiries": "text-yellow-600",
+      Poor: "text-red-600",
+      Limited: "text-gray-500",
+      "No Data": "text-gray-400",
+      "Moderate Risk": "text-yellow-700",
+      Positive: "text-green-500",
+      Mixed: "text-orange-500",
+      "Elevated Activity": "text-orange-600",
+      "Good Diversification": "text-blue-600",
+    };
+    return map[status] || "text-gray-700";
+  };
+
+  const scoreCategory =
+    creditData?.creditScore < 660
+      ? t("analyzePage.fair")
+      : creditData?.creditScore < 725
+      ? t("analyzePage.good")
+      : creditData?.creditScore < 760
+      ? t("analyzePage.veryGood")
+      : t("analyzePage.excellent");
+
+  const scoreColors = {
+    [t("analyzePage.fair")]: "bg-yellow-300",
+    [t("analyzePage.good")]: "bg-green-300",
+    [t("analyzePage.veryGood")]: "bg-green-400",
+    [t("analyzePage.excellent")]: "bg-green-600",
+  };
+
+  const generateActionPlanPDF = async () => {
+    console.log("reportLanguage", reportLanguage);
+    try {
+      let fontUrl, fontBytes, font, doc;
+      let actionPlanTranslation, threeMonthActionPlan;
+
+      if (reportLanguage.startsWith("en")) {
+        actionPlanTranslation = "Action Plan";
+        threeMonthActionPlan = "3-Month Action Plan";
+      } else if (reportLanguage.startsWith("es")) {
+        // Spanish
+        actionPlanTranslation = "Plan de acción";
+        threeMonthActionPlan = "Plan de acción de 3 meses";
+      } else if (reportLanguage.startsWith("fr")) {
+        // French
+        actionPlanTranslation = "Plan d'action";
+        threeMonthActionPlan = "Plan d'action sur 3 mois";
+      } else if (reportLanguage.startsWith("ru")) {
+        // Russian
+        actionPlanTranslation = "План действий";
+        threeMonthActionPlan = "План действий на 3 месяца";
+      } else if (reportLanguage.startsWith("uk")) {
+        // Ukrainian
+        actionPlanTranslation = "План дій";
+        threeMonthActionPlan = "План дій на 3 місяці";
+      } else if (reportLanguage.startsWith("hi")) {
+        // Hindi
+        actionPlanTranslation = "कार्य योजना";
+        threeMonthActionPlan = "3 महीने की कार्य योजना";
+      } else if (reportLanguage.startsWith("ar")) {
+        // Arabic (RTL)
+        actionPlanTranslation = "خطة العمل";
+        threeMonthActionPlan = "خطة عمل لمدة 3 أشهر";
+      } else {
+        // Fallback
+        actionPlanTranslation = "Action Plan";
+        threeMonthActionPlan = "3-Month Action Plan";
+      }
+
+      if (
+        reportLanguage.startsWith("en") ||
+        reportLanguage.startsWith("es") ||
+        reportLanguage.startsWith("fr")
+      ) {
+        doc = await PDFDocument.create();
+        font = await doc.embedFont(StandardFonts.Helvetica);
+      } else if (
+        reportLanguage.startsWith("ru") ||
+        reportLanguage.startsWith("uk")
+      ) {
+        fontUrl = "/fonts/Roboto-Regular.ttf";
+      } else if (reportLanguage.startsWith("hi")) {
+        fontUrl = "/fonts/NotoSansDevanagari-Regular.ttf";
+      } else if (reportLanguage.startsWith("ar")) {
+        fontUrl = "/fonts/Amiri-Regular.ttf";
+      }
+
+      if (fontUrl) {
+        fontBytes = await fetch(fontUrl).then((res) => res.arrayBuffer());
+        doc = await PDFDocument.create();
+        doc.registerFontkit(fontkit);
+        font = await doc.embedFont(fontBytes);
+      }
+
+      const page = doc.addPage([595, 842]); // A4 size
+      // Logo
+      const logoBytes = await fetch("/assets/logo.png").then((res) =>
+        res.arrayBuffer()
+      );
+      const logoImage = await doc.embedPng(logoBytes);
+      const logoDims = logoImage.scale(0.1);
+      page.drawImage(logoImage, {
+        x: 240,
+        y: 790,
+        width: logoDims.width,
+        height: logoDims.height,
+      });
+
+      // Draw helper
+      let y = 755;
+      const lineHeight = 18;
+      const pageWidth = 595;
+
+      const drawText = (text, size = 12, bold = false, align = "left") => {
+        if (y < 50) {
+          y = 700;
+          doc.addPage();
+        }
+
+        // let shaped;
+
+        const shaped = reportLanguage.startsWith("ar")
+          ? reshape.convertArabic(text)
+          : text;
+
+        const textWidth = font.widthOfTextAtSize(shaped, size);
+        const x = align === "center" ? (pageWidth - textWidth) / 2 : 50;
+
+        page.drawText(shaped, {
+          x,
+          y,
+          size,
+          font,
+          color: rgb(0, 0, 0),
+        });
+
+        y -= lineHeight;
+      };
+      // Centered heading: Action Plan
+      drawText(t(actionPlanTranslation), 20, true, "center");
+
+      // Underlines
+      // page.drawLine({
+      //   start: { x: 50, y: 780 },
+      //   end: { x: 545, y: 780 },
+      //   thickness: 1,
+      //   color: rgb(0, 0, 0),
+      // });
+      // page.drawLine({
+      //   start: { x: 50, y: 750 },
+      //   end: { x: 545, y: 750 },
+      //   thickness: 1,
+      //   color: rgb(0, 0, 0),
+      // });
+
+      // Centered subtitle
+      drawText(t(threeMonthActionPlan), 14, true);
+      // Action Plan Content
+      creditData?.actionPlan.forEach((month) => {
+        drawText(month.month, 12, true);
+        month.actions.forEach((action) => {
+          drawText(`- ${action}`, 10);
+        });
+      });
+
+      const pdfBytes = await doc.save();
+
+      // Trigger download
+      const blob = new Blob([pdfBytes], { type: "application/pdf" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "credit_report_summary.pdf";
+      link.click();
+    } catch (error) {
+      // console.log("error", error);
+    }
+  };
 
   const handleDrag = (e) => {
     e.preventDefault();
@@ -113,36 +303,43 @@ const Analyzer = () => {
     }
   };
 
-  const handleReset = () => {
+  const handleReset = async () => {
     setFileName("");
     setThumbnail(null);
     setIsReport(false);
-    setLoading(false);
+    setIsReset(true);
   };
 
   const onUnlock = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/checkout`,
-        JSON.stringify({ userId: user?.id }),
-        { headers: { "Content-Type": "application/json" } }
-      );
-      if (response.status === 200) {
-        setLoading(false);
-        window.location.href = response.data.url;
-        return;
-      }
-    } catch (error) {
-      if (error.status === 400) {
-        toast.error("Invalid data1");
-        return;
-      }
-      console.log("Error during payment process:", error);
+    if (!isSignedIn) {
+      openSignIn();
+      return;
+    }
 
-      toast.error("Something went wrong. Please try again later!");
-    } finally {
-      setLoading(false);
+    if (isSignedIn && data?.data && data?.data?.count > 0) {
+      try {
+        const response = await axios.post(
+          `${import.meta.env.VITE_API_URL}/checkout`,
+          JSON.stringify({
+            userId: user?.id,
+            reportId: data?.data?.result._id,
+          }),
+          { headers: { "Content-Type": "application/json" } }
+        );
+        if (response.status === 200) {
+          // setLoading(false);
+          window.location.href = response.data.url;
+          return;
+        }
+      } catch (error) {
+        if (error.status === 400) {
+          toast.error("Invalid data");
+          return;
+        }
+        toast.error("Something went wrong. Please try again later!");
+      }
+    } else {
+      toast.error("Invalid data");
     }
   };
 
@@ -151,95 +348,67 @@ const Analyzer = () => {
       toast.error("No file selected.");
       return;
     }
-    setLoading(true);
     try {
       const formData = new FormData();
       formData.append("file", pdfFile);
-      formData.append("userId", user?.id);
 
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/analyze`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      if (response.status === 200 && response.data?.result) {
-        setResult(response.data);
-      } else {
-        toast.error("1Something went wrong. Please try again later!");
-      }
+      formData.append("userId", user?.id ? user.id : "");
+      formData.append("reportId", data?.result?._id ? data?.result._id : "");
+      dispatch(fetchReport({ formData, language: currentLanguage }));
     } catch (error) {
       if (error.response && error.response.status === 400) {
         toast.error("Credit report is empty or invalid file.");
         return;
       }
       toast.error("Something went wrong. Please try again later!");
-    } finally {
-      setLoading(false);
     }
   };
 
-  const getReport = async (userId) => {
-    setLoading(true);
+  useEffect(() => {
+    if (statusCode && statusCode != 200) {
+      error && toast.error(error.message);
+    }
+  }, [statusCode, error]);
+
+  const getReport = async () => {
     try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/report/${userId}`
-      );
-      if (response.data.count === 0) {
-        setIsReport(false);
-        // toast.info("No previous report found.");
-      } else {
-        setResult(response.data);
+      if (isSignedIn) {
+        dispatch(getReportByReportId(user.id));
         setIsReport(true);
       }
     } catch (error) {
       setIsReport(false);
       toast.error("Failed to fetch report. Please try again later.");
-    } finally {
-      setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (isSignedIn) {
-      referrer === "paymentSuccess" ? handleReset() : getReport(user.id);
-    }
+    referrer === "paymentSuccess" && getReport();
   }, []);
 
-  const sections = useMemo(() => {
-    if (result.count > 0) {
-      setIsReport(true);
-      if (result.ispro) {
-        setcreditData(result.result);
-      } else {
-        return [
-          {
-            title: "📊 Credit Score",
-            items: result.result.credit_score || [],
-            color: "text-blue-700",
-          },
-          {
-            title: "⚠️ Main Concerns",
-            items: result.result.main_concerns || [],
-            color: "text-red-600",
-          },
-          {
-            title: "📂 Types of Accounts",
-            items: result.result.types_of_accounts || [],
-            color: "text-gray-700",
-          },
-        ];
-      }
+  useEffect(() => {
+    if (isSignedIn) {
+      referrer != "paymentSuccess" && getReport();
     }
-  }, [result]);
+  }, [isSignedIn]);
+
+  useEffect(() => {
+    if (data?.data && data?.data?.count === 0) {
+      setIsReport(false);
+    }
+
+    if (data?.data && data?.data?.count > 0) {
+      setcreditData(data?.data?.result);
+      setPaymentStatus(data?.data.ispro ? "paid" : "fail");
+      setIsReport(true);
+      setReportLanguage(data?.data.result.reportLanguage);
+    }
+  }, [data]);
 
   return (
     <div
-      className={`px-4 sm:px-6 md:px-10 py-10 lg:p-12 lg:py-12 mx-auto max-w-7xl w-full`}>
+      className={`px-4 sm:px-6 md:px-10 py-10 lg:p-12 lg:py-12 mx-auto max-w-6xl w-full`}
+    >
       {!loading && (
         <>
           {!fileName && !isReport && !thumbnail && (
@@ -293,10 +462,9 @@ const Analyzer = () => {
               </p>
             </>
           )}
-
           {(thumbnail || isReport) && (
             <div className={`mb-6 w-full ${loading ? "opacity-20" : ""}`}>
-              {!isReport && (
+              {thumbnail && (
                 <>
                   <h2 className="text-2xl sm:text-3xl font-semibold mb-4 text-center">
                     {t("analyzePage.preview")}
@@ -339,408 +507,290 @@ const Analyzer = () => {
                   </div>
                 </>
               )}
-              {result.count > 0 && (
-                <>
+              <>
+                {Object.keys(creditData || {}).length > 0 && isReport && (
                   <div className="max-w-full md:max-w-7xl lg:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="p-4 sm:p-6 rounded-xl shadow-lg bg-gradient-to-br from-teal-400 to-indigo-600 text-black">
-                      <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-white text-center mb-3 sm:mb-4">
-                        {result.ispro
-                          ? t("analyzePage.proTitle")
-                          : t("analyzePage.planTitle")}
+                    <div className="p-4 sm:p-6 rounded-xl shadow-lg bg-gradient-to-br text-black">
+                      <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-3">
+                        {t("analyzePage.planTitle")}
                       </h2>
-                      {result.ispro === true &&
-                        Object.keys(creditData).length > 0 && (
-                          <div
-                            className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4"
-                          >
-                            <div className="bg-white border border-gray-200 rounded-2xl shadow p-4 transition-shadow duration-300 hover:shadow-md">
-                              <h2 className="text-lg font-semibold mb-4">
-                                Credit Scores
-                              </h2>
-                              {creditData?.credit_scores ? (
-                                <ResponsiveContainer width="100%" height={200}>
-                                  <BarChart
-                                    data={Object.entries(
-                                      creditData?.credit_scores || {}
-                                    ).map(([label, value]) => ({
-                                      label,
-                                      value,
-                                    }))}
-                                  >
-                                    <XAxis dataKey="label" />
-                                    <YAxis />
-                                    <Tooltip />
-                                    <Bar
-                                      dataKey="value"
-                                      fill="#3b82f6"
-                                      radius={[6, 6, 0, 0]}
-                                    />
-                                  </BarChart>
-                                </ResponsiveContainer>
-                              ) : (
-                                <p className="text-center">{t("emptyData")}</p>
-                              )}
-                            </div>
+                      <div className="text-xl font-semibold mb-6">
+                        <p className="text-[18px] font-semibold border-b pb-2 mb-2">
+                          {t("analyzePage.creditScoreOverview")}
+                        </p>
 
-                            <div className="bg-white border border-gray-200 rounded-2xl shadow p-4 transition-shadow duration-300 hover:shadow-md">
-                              <h2 className="text-lg font-semibold mb-4">
-                                Income & Employment
-                              </h2>
-                              <div className="space-y-1 text-sm ">
-                                {creditData.income_employment ? (
-                                  Object.entries(
-                                    creditData?.income_employment
-                                  ).map(([k, v]) => (
-                                    <p key={k}>
-                                      <strong className="capitalize">
-                                        {k.replace(/_/g, " ")}:
-                                      </strong>{" "}
-                                      {v != null ? v.toString() : "-"}
-                                    </p>
-                                  ))
-                                ) : (
-                                  <p className="text-center">
-                                    {t("emptyData")}
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-
-                            <div className="bg-white border-gray-200 transition-shadow duration-300 hover:shadow-md border rounded-2xl shadow p-4 md:col-span-2">
-                              <h2 className="text-lg font-semibold mb-4">
-                                Liabilities Summary
-                              </h2>
-
-                              <div className="overflow-x-auto">
-                                <table className="w-full text-sm border-t min-w-[600px]">
-                                  <thead>
-                                    <tr className="text-left border-b">
-                                      <th className="py-2">Type</th>
-                                      <th>Balance</th>
-                                      <th>Credit Limit</th>
-                                      <th>High Credit</th>
-                                      <th>Scheduled Payment</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {creditData.liabilities_summary ? (
-                                      Object.entries(
-                                        creditData.liabilities_summary
-                                      ).map(([type, details]) => (
-                                        <tr key={type} className="border-b">
-                                          <td className="capitalize py-2">
-                                            {type}
-                                          </td>
-                                          <td>
-                                            {details?.balance
-                                              ? `$${details.balance}`
-                                              : "-"}
-                                          </td>
-                                          <td>
-                                            {details?.credit_limit
-                                              ? `$${details.credit_limit}`
-                                              : "-"}
-                                          </td>
-                                          <td>
-                                            {details?.high_credit
-                                              ? `$${details.high_credit}`
-                                              : "-"}
-                                          </td>
-                                          <td>
-                                            {details?.scheduled_payment
-                                              ? `$${details.scheduled_payment}`
-                                              : "-"}
-                                          </td>
-                                        </tr>
-                                      ))
-                                    ) : (
-                                      <tr className="text-center">
-                                        <td colSpan={5}>{t("emptyData")}</td>
-                                      </tr>
-                                    )}
-                                  </tbody>
-                                </table>
-                              </div>
-                            </div>
-
-                            <div className="bg-white border-gray-200 transition-shadow duration-300 hover:shadow-md border rounded-2xl shadow p-4">
-                              <h2 className="text-lg font-semibold mb-4">
-                                Risk Ratios
-                              </h2>
-                              {creditData.ratios ? (
-                                <>
-                                  <p className="text-sm">
-                                    <strong>DTI Ratio:</strong>{" "}
-                                    {creditData.ratios &&
-                                    creditData.ratios.dti_ratio != null
-                                      ? creditData.ratios.dti_ratio + "%"
-                                      : "-"}
-                                  </p>
-                                  <p className="text-sm">
-                                    <strong>Revolving Utilization:</strong>{" "}
-                                    {creditData.ratios &&
-                                    creditData.ratios
-                                      .revolving_utilization_ratio != null
-                                      ? creditData.ratios
-                                          .revolving_utilization_ratio + "%"
-                                      : "-"}
-                                  </p>
-                                </>
-                              ) : (
-                                <p className="text-center">{t("emptyData")}</p>
-                              )}
-                            </div>
-
-                            <div className="bg-white border border-gray-200 rounded-2xl shadow p-4 transition-shadow duration-300 hover:shadow-md">
-                              <h2 className="text-lg font-semibold mb-4">
-                                Credit History
-                              </h2>
-                              <div className="space-y-1 text-sm">
-                                {creditData?.credit_history_summary ? (
-                                  Object.entries(
-                                    creditData.credit_history_summary
-                                  ).map(([k, v]) => (
-                                    <p key={k}>
-                                      <strong className="capitalize">
-                                        {k.replace(/_/g, " ")}:
-                                      </strong>{" "}
-                                      {v != null ? v.toString() : "-"}
-                                    </p>
-                                  ))
-                                ) : (
-                                  <p className="text-center">
-                                    {t("emptyData")}
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-
-                            <div className="bg-white border border-gray-200 rounded-2xl shadow p-4 transition-shadow duration-300 hover:shadow-md">
-                              <h2 className="text-lg font-semibold mb-4">
-                                Inquiries
-                              </h2>
-                              {creditData.inquiries_summary ? (
-                                <>
-                                  <p className="text-sm">
-                                    <strong>Count:</strong>{" "}
-                                    {creditData.inquiries_summary &&
-                                    creditData.inquiries_summary
-                                      .recent_inquiries != null
-                                      ? creditData.inquiries_summary
-                                          .recent_inquiries
-                                      : "-"}
-                                  </p>
-                                  <p className="text-sm">
-                                    <strong>Sources:</strong>{" "}
-                                    {creditData.inquiries_summary &&
-                                    Array.isArray(
-                                      creditData.inquiries_summary.sources
-                                    )
-                                      ? creditData.inquiries_summary.sources.join(
-                                          ", "
-                                        )
-                                      : "-"}
-                                  </p>
-                                </>
-                              ) : (
-                                <p className="text-center">{t("emptyData")}</p>
-                              )}
-                            </div>
-
-                            <div className="bg-white border border-gray-200 rounded-2xl shadow p-4 transition-shadow duration-300 hover:shadow-md">
-                              <h2 className="text-lg font-semibold mb-4">
-                                Red Flags
-                              </h2>
-                              <ul className="list-disc ml-6 text-sm space-y-1">
-                                {creditData.red_flags?.length > 0 ? (
-                                  creditData.red_flags.map((item, i) => (
-                                    <li key={i}>{item}</li>
-                                  ))
-                                ) : (
-                                  <p className="text-center">
-                                    {t("emptyData")}
-                                  </p>
-                                )}
-                              </ul>
-                            </div>
-
-                            <div className="bg-white border border-gray-200 rounded-2xl shadow p-4 transition-shadow duration-300 hover:shadow-md">
-                              <h2 className="text-lg font-semibold mb-4">
-                                Positive Indicators
-                              </h2>
-                              <ul className="list-disc ml-6 text-sm space-y-1">
-                                {creditData.positive_indicators?.length > 0 ? (
-                                  creditData.positive_indicators.map(
-                                    (item, i) => <li key={i}>{item}</li>
-                                  )
-                                ) : (
-                                  <p className="text-center">
-                                    {t("emptyData")}
-                                  </p>
-                                )}
-                              </ul>
-                            </div>
-
-                            <div className="bg-white border border-gray-200 rounded-2xl shadow p-4 transition-shadow duration-300 hover:shadow-md">
-                              <h2 className="text-lg font-semibold mb-4">
-                                DataX Derogatory Info
-                              </h2>
-                              <p className="text-sm">
-                                <strong>Returned Payments:</strong>{" "}
-                                {creditData.datx_derogatory_info &&
-                                creditData.datx_derogatory_info
-                                  .returned_payments != null
-                                  ? creditData.datx_derogatory_info
-                                      .returned_payments
-                                  : "-"}
-                              </p>
-                              <p className="text-sm">
-                                <strong>Subprime Lenders:</strong>{" "}
-                                {Array.isArray(
-                                  creditData.datx_derogatory_info
-                                    .subprime_lenders
-                                )
-                                  ? creditData.datx_derogatory_info.subprime_lenders.join(
-                                      ", "
-                                    )
-                                  : "-"}
-                              </p>
-                              <p className="text-sm">
-                                <strong>Notes:</strong>{" "}
-                                {creditData.datx_derogatory_info &&
-                                creditData.datx_derogatory_info.notes
-                                  ? creditData.datx_derogatory_info.notes
-                                  : "-"}
-                              </p>
-                            </div>
-
-                            <div className="bg-white border border-gray-200 rounded-2xl shadow p-4 transition-shadow duration-300 hover:shadow-md">
-                              <h2 className="text-lg font-semibold mb-4">
-                                Recommendations
-                              </h2>
-                              <div className="text-sm space-y-2">
-                                <div>
-                                  <strong>For Underwriters:</strong>
-                                  <ul className="list-disc ml-6">
-                                    {creditData.recommendations &&
-                                    creditData.recommendations?.for_borrower
-                                      ?.length > 0 &&
-                                    Array.isArray(
-                                      creditData.recommendations
-                                        .for_underwriters
-                                    ) ? (
-                                      creditData.recommendations.for_underwriters.map(
-                                        (rec, i) => <li key={i}>{rec}</li>
-                                      )
-                                    ) : (
-                                      <p className="text-center">
-                                        {t("emptyData")}
-                                      </p>
-                                    )}
-                                  </ul>
-                                </div>
-                                <div>
-                                  <strong>For Borrower:</strong>
-                                  <ul className="list-disc ml-6">
-                                    {creditData.recommendations &&
-                                    creditData.recommendations?.for_borrower
-                                      ?.length > 0 &&
-                                    Array.isArray(
-                                      creditData.recommendations.for_borrower
-                                    ) ? (
-                                      creditData.recommendations.for_borrower.map(
-                                        (rec, i) => <li key={i}>{rec}</li>
-                                      )
-                                    ) : (
-                                      <p className="text-center">
-                                        {t("emptyData")}
-                                      </p>
-                                    )}
-                                  </ul>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="bg-white border border-gray-200 rounded-2xl shadow p-4 transition-shadow duration-300 hover:shadow-md">
-                              <h2 className="text-lg font-semibold mb-4">
-                                Final Risk Assessment
-                              </h2>
-                              <div className="grid text-sm">
-                                {creditData.final_assessment ? (
-                                  Object.entries(
-                                    creditData.final_assessment
-                                  ).map(([k, v]) => (
-                                    <p key={k}>
-                                      <strong className="capitalize">
-                                        {k.replace(/_/g, " ")}:
-                                      </strong>{" "}
-                                      {v}
-                                    </p>
-                                  ))
-                                ) : (
-                                  <p className="text-center">
-                                    {t("emptyData")}
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-                          </div>
+                        {creditData?.creditScore ? (
+                          <>
+                            <p className="text-[15px]">
+                              {t("analyzePage.score")}:
+                              <span
+                                className={`${
+                                  paymentStatus === "paid" && !isReset
+                                    ? "font-normal"
+                                    : "flex italic justify-center font-normal text-gray-500"
+                                }`}
+                              >
+                                {paymentStatus === "paid" && !isReset
+                                  ? creditData?.creditScore
+                                  : t("analyzePage.exactScoreAfterPayment")}
+                              </span>
+                            </p>
+                            <p className="text-sm mt-2">
+                              {t("analyzePage.yourScoreIsInThe")}
+                              <span
+                                className={`px-4 py-1 mx-1 rounded-full text-sm font-semibold ${scoreColors[scoreCategory]}`}
+                              >
+                                {scoreCategory}
+                              </span>{" "}
+                              {t("analyzePage.range")}
+                            </p>
+                          </>
+                        ) : (
+                          <span className="font-normal text-[15px]">
+                            {t("emptyData")}
+                          </span>
                         )}
-                      {result.ispro === false &&
-                        sections.map((section, idx) => (
-                          <div
-                            key={idx}
-                            className="bg-white rounded-2xl mb-3 shadow-sm border border-gray-200 p-5 hover:shadow-md transition-shadow duration-300"
-                          >
-                            <h3
-                              className={`text-xl font-semibold mb-3 ${section.color}`}
-                            >
-                              {section.title}
-                            </h3>
-                            <ul className="list-disc list-inside space-y-2 text-gray-700">
-                              {section.items.map((item, i) => (
-                                <li key={i} className="leading-relaxed">
-                                  {item}
-                                </li>
-                              ))}
-                            </ul>
+                        <div className="mt-4 grid grid-cols-4 text-center text-sm font-semibold border border-gray-300">
+                          <div className="bg-yellow-300 py-2 border-r border-gray-300">
+                            {t("analyzePage.fair")}
                           </div>
-                        ))}
+                          <div className="bg-green-300 py-2 border-r border-gray-300">
+                            {t("analyzePage.good")}
+                          </div>
+                          <div className="bg-green-400 py-2 border-r border-gray-300">
+                            {t("analyzePage.veryGood")}
+                          </div>
+                          <div className="bg-green-600 py-2 text-white">
+                            {t("analyzePage.excellent")}
+                          </div>
+                        </div>
+                      </div>
 
-                      {result.ispro === false && (
-                        <div className="flex justify-center">
+                      <div className="mb-6">
+                        <h3 className="text-[18px] font-semibold border-b pb-2 mb-2">
+                          {t("analyzePage.factorAnalysis")}
+                        </h3>
+                        <div className="overflow-auto">
+                          <table className="w-full text-left">
+                            <thead>
+                              <tr className="bg-gray-100 border-collapse">
+                                <th className="p-2">
+                                  {t("analyzePage.factor")}
+                                </th>
+                                <th className="p-2">
+                                  {t("analyzePage.status")}
+                                </th>
+                                <th className="p-2">
+                                  {t("analyzePage.details")}
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {creditData.factorAnalysis ? (
+                                creditData.factorAnalysis.map((item, i) => (
+                                  <tr
+                                    key={i}
+                                    className={`border-collapse ${
+                                      i > 1 &&
+                                      paymentStatus &&
+                                      paymentStatus != "paid" &&
+                                      "bg-gray-100"
+                                    }`}
+                                  >
+                                    <td className="p-2">{item.factor}</td>
+                                    <td
+                                      className={`p-2 font-semibold
+                                       ${
+                                         i > 1
+                                           ? paymentStatus &&
+                                             paymentStatus === "paid" &&
+                                             !isReset
+                                             ? statusColorClass(item.status)
+                                             : "italic text-gray-500"
+                                           : statusColorClass(item.status)
+                                       }`}
+                                    >
+                                      {i > 1
+                                        ? paymentStatus &&
+                                          paymentStatus === "paid" &&
+                                          !isReset
+                                          ? item.status
+                                          : t(
+                                              "analyzePage.availableAfterPayment"
+                                            )
+                                        : item.status}
+                                    </td>
+                                    <td
+                                      className={`p-2 transition-colors duration-200 ${
+                                        i > 1 &&
+                                        (paymentStatus != "paid" || isReset) &&
+                                        "italic text-gray-500"
+                                      }`}
+                                    >
+                                      {i > 1
+                                        ? paymentStatus &&
+                                          paymentStatus === "paid" &&
+                                          !isReset
+                                          ? item.details
+                                          : t(
+                                              "analyzePage.availableAfterPayment"
+                                            )
+                                        : item.details}
+                                    </td>
+                                  </tr>
+                                ))
+                              ) : (
+                                <tr>
+                                  <td colSpan={3}>
+                                    <div className="flex items-center justify-center h-32 w-full text-center font-semibold">
+                                      {t("emptyData")}
+                                    </div>
+                                  </td>
+                                </tr>
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      <div className="mb-6">
+                        <h3 className="text-[18px] font-semibold border-b pb-2 mb-2">
+                          {t("analyzePage.threeMonthActionPlan")}
+                        </h3>
+                        {creditData.actionPlan ? (
+                          <>
+                            <ul className="list-decimal pl-6 space-y-2 text-[15px]">
+                              {creditData.actionPlan &&
+                                creditData.actionPlan.map((item, i) => {
+                                  const isFirst = i === 0;
+                                  const shouldRender =
+                                    isFirst ||
+                                    (paymentStatus === "paid" && !isReset);
+
+                                  if (!shouldRender) return null;
+
+                                  return (
+                                    <li key={i}>
+                                      <strong>{item.month}:</strong>
+                                      <ul className="list-disc pl-6 mt-1 space-y-1">
+                                        {Array.isArray(item.actions) &&
+                                          item.actions.map((action, index) => (
+                                            <li key={index}>{action}</li>
+                                          ))}
+                                      </ul>
+                                    </li>
+                                  );
+                                })}
+                            </ul>
+                            {(paymentStatus != "paid" || isReset) && (
+                              <span className="flex mt-2 italic text-[15px] text-gray-500 justify-center text-center">
+                                {t(
+                                  "analyzePage.monthTwoThreePlansAfterPayment"
+                                )}
+                              </span>
+                            )}
+                          </>
+                        ) : (
+                          <span className="font-normal text-[15px]">
+                            {t("emptyData")}
+                          </span>
+                        )}
+                      </div>
+
+                      <div>
+                        <h3 className="text-[18px] font-semibold border-b pb-2 mb-2">
+                          {t("analyzePage.delinquencyExpiry")}
+                        </h3>
+                        {creditData.delinquencyStatus ? (
+                          <p
+                            className={`${
+                              paymentStatus === "paid" && !isReset
+                                ? "text-black"
+                                : "italic text-gray-500 text-center"
+                            } text-[15px]`}
+                          >
+                            {paymentStatus === "paid" && !isReset
+                              ? creditData.delinquencyStatus
+                              : t("analyzePage.availableAfterPayment")}
+                          </p>
+                        ) : (
+                          <span className="font-normal text-[15px]">
+                            {t("emptyData")}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex justify-center mt-6 gap-4">
+                        {(isReset || paymentStatus != "paid") && (
                           <button
                             disabled={loading}
                             onClick={onUnlock}
-                            className="cursor-pointer px-4 sm:px-6 py-2 sm:py-3 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 transition-all duration-300 text-white font-semibold text-sm sm:text-base"
+                            className={`cursor-pointer px-4 sm:px-6 py-2 sm:py-3 rounded-full transition-all duration-300 text-white font-semibold text-sm sm:text-base ${
+                              loading
+                                ? "bg-blue-300 cursor-not-allowed text-white"
+                                : "bg-blue-600 hover:bg-blue-700 text-white"
+                            }`}
                           >
                             {t("analyzePage.unlockButton")}
                           </button>
-                        </div>
-                      )}
+                        )}
+                        <button
+                          disabled={loading}
+                          onClick={handleReset}
+                          className={`cursor-pointer px-4 sm:px-6 py-2 sm:py-3 rounded-full transition-all duration-300 text-white font-semibold text-sm sm:text-base ${
+                            loading
+                              ? "bg-blue-300 cursor-not-allowed text-white"
+                              : "bg-green-600 hover:bg-green-700 text-white"
+                          }`}
+                        >
+                          {t("analyzePage.resetButton")}
+                        </button>
+                        {paymentStatus === "paid" && data?.data?.ispro && (
+                          <button
+                            disabled={loading}
+                            onClick={generateActionPlanPDF}
+                            className={`cursor-pointer px-4 sm:px-6 py-2 sm:py-3 rounded-full transition-all duration-300 text-white font-semibold text-sm sm:text-base ${
+                              loading
+                                ? "bg-blue-300 cursor-not-allowed text-white"
+                                : "bg-blue-600 hover:bg-blue-700 text-white"
+                            }`}
+                          >
+                            {t("analyzePage.downloadActionPlan")}
+                          </button>
+                        )}
+                      </div>
 
-                      {result.ispro === false && (
+                      {/* {!isReport && (
                         <p className="text-xs text-center mt-2 sm:mt-3 opacity-80">
                           {t("analyzePage.processingTime")}
                         </p>
-                      )}
+                      )} */}
                     </div>
                   </div>
-                  <div className="flex justify-center mt-4">
+                )}
+                {/* {isEmpty && isReport && (
+                  <div className="flex flex-col items-center justify-center p-6 rounded-lg">
+                    <div className="text-3xl mb-2">⚠️</div>
+                    <p className="text-center font-medium text-[16px]">
+                      Credit report is empty or the uploaded file is invalid.
+                    </p>
+                    {!thumbnail &&
                     <button
-                      className={`px-6 py-3 mt-2 rounded-lg cursor-pointer transition font-medium ${
-                        fileName.length === 0 && !isReport
-                          ? "bg-green-300 cursor-not-allowed text-white"
+                      disabled={loading}
+                      onClick={handleReset}
+                      className={`cursor-pointer mt-2 px-4 sm:px-6 py-2 sm:py-3 rounded-full transition-all duration-300 text-white font-semibold text-sm sm:text-base ${
+                        loading
+                          ? "bg-blue-300 cursor-not-allowed text-white"
                           : "bg-green-600 hover:bg-green-700 text-white"
                       }`}
-                      // disabled={fileName.length === 0}
-                      onClick={handleReset}
                     >
                       {t("analyzePage.resetButton")}
                     </button>
+                    }
                   </div>
-                </>
-              )}
+                )} */}
+              </>
+              {/* )} */}
             </div>
           )}
         </>

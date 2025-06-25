@@ -75,7 +75,6 @@ const Header = () => {
               {t("header.nav.home")}
             </Link>
           </li>
-          <SignedIn>
             <li
               className="py-2 md:py-0"
               onClick={isOpen ? toggleMenu : undefined}
@@ -87,7 +86,6 @@ const Header = () => {
                 {t("header.nav.analyze")}
               </Link>
             </li>
-          </SignedIn>
           <li
             className="py-2 md:py-0"
             onClick={isOpen ? toggleMenu : undefined}

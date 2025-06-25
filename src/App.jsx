@@ -8,10 +8,8 @@ import "./i18n";
 import Privacypolicy from "./pages/Privacypolicy";
 import Paymentsuccess from "./pages/Paymentsuccess";
 import Paymentfail from "./pages/Paymentfail";
-import ProtectedRoute from "./util/ProtectedRoute";
 
 const App = () => {
-  
   return (
     <Router>
       <Layout>
@@ -20,12 +18,7 @@ const App = () => {
           <Route path="/privacypolicy" element={<Privacypolicy />} />
           <Route path="/success" element={<Paymentsuccess />} />
           <Route path="/fail" element={<Paymentfail />} />
-          {/* 🔐 Protected Routes */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/analyzer" element={<Analyzer />} />
-          </Route>
-
-          {/* Fallback */}
+          <Route path="/analyzer" element={<Analyzer />} />
           <Route path="*" element={<Home />} />
         </Routes>
       </Layout>

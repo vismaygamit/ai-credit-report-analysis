@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Link, Navigate } from "react-router-dom";
-import { CheckCircle, Download } from "lucide-react";
+import { Link } from "react-router-dom";
+import { CheckCircle } from "lucide-react";
 import jsPDF from "jspdf";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";

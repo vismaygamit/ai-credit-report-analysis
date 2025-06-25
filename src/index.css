@@ -22,3 +22,15 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #555; 
 }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
