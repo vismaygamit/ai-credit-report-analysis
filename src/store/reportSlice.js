@@ -5,15 +5,14 @@ import axios from "axios";
 // Analysis
 export const fetchReport = createAsyncThunk(
   "report/fetchReport",
-  async ({formData, language}, { rejectWithValue }) => {
+  async (formData, { rejectWithValue }) => {
     try {
        const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/analyze`,
         formData,
         {
           headers: {
-            "Content-Type": "multipart/form-data",
-            "Accept-Language": language || "en"
+            "Content-Type": "multipart/form-data"
           },
         }
       );

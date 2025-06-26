@@ -76,61 +76,60 @@ const Analyzer = () => {
   };
 
   const generateActionPlanPDF = async () => {
-    console.log("reportLanguage", reportLanguage);
     try {
       let fontUrl, fontBytes, font, doc;
       let actionPlanTranslation, threeMonthActionPlan;
 
-      if (reportLanguage.startsWith("en")) {
-        actionPlanTranslation = "Action Plan";
-        threeMonthActionPlan = "3-Month Action Plan";
-      } else if (reportLanguage.startsWith("es")) {
-        // Spanish
-        actionPlanTranslation = "Plan de acción";
-        threeMonthActionPlan = "Plan de acción de 3 meses";
-      } else if (reportLanguage.startsWith("fr")) {
-        // French
-        actionPlanTranslation = "Plan d'action";
-        threeMonthActionPlan = "Plan d'action sur 3 mois";
-      } else if (reportLanguage.startsWith("ru")) {
-        // Russian
-        actionPlanTranslation = "План действий";
-        threeMonthActionPlan = "План действий на 3 месяца";
-      } else if (reportLanguage.startsWith("uk")) {
-        // Ukrainian
-        actionPlanTranslation = "План дій";
-        threeMonthActionPlan = "План дій на 3 місяці";
-      } else if (reportLanguage.startsWith("hi")) {
-        // Hindi
-        actionPlanTranslation = "कार्य योजना";
-        threeMonthActionPlan = "3 महीने की कार्य योजना";
-      } else if (reportLanguage.startsWith("ar")) {
-        // Arabic (RTL)
-        actionPlanTranslation = "خطة العمل";
-        threeMonthActionPlan = "خطة عمل لمدة 3 أشهر";
-      } else {
-        // Fallback
-        actionPlanTranslation = "Action Plan";
-        threeMonthActionPlan = "3-Month Action Plan";
-      }
+      // if (reportLanguage.startsWith("en")) {
+      actionPlanTranslation = "Action Plan";
+      threeMonthActionPlan = "3-Month Action Plan";
+      // } else if (reportLanguage.startsWith("es")) {
+      //   // Spanish
+      //   actionPlanTranslation = "Plan de acción";
+      //   threeMonthActionPlan = "Plan de acción de 3 meses";
+      // } else if (reportLanguage.startsWith("fr")) {
+      //   // French
+      //   actionPlanTranslation = "Plan d'action";
+      //   threeMonthActionPlan = "Plan d'action sur 3 mois";
+      // } else if (reportLanguage.startsWith("ru")) {
+      //   // Russian
+      //   actionPlanTranslation = "План действий";
+      //   threeMonthActionPlan = "План действий на 3 месяца";
+      // } else if (reportLanguage.startsWith("uk")) {
+      //   // Ukrainian
+      //   actionPlanTranslation = "План дій";
+      //   threeMonthActionPlan = "План дій на 3 місяці";
+      // } else if (reportLanguage.startsWith("hi")) {
+      //   // Hindi
+      //   actionPlanTranslation = "कार्य योजना";
+      //   threeMonthActionPlan = "3 महीने की कार्य योजना";
+      // } else if (reportLanguage.startsWith("ar")) {
+      //   // Arabic (RTL)
+      //   actionPlanTranslation = "خطة العمل";
+      //   threeMonthActionPlan = "خطة عمل لمدة 3 أشهر";
+      // } else {
+      //   // Fallback
+      //   actionPlanTranslation = "Action Plan";
+      //   threeMonthActionPlan = "3-Month Action Plan";
+      // }
 
-      if (
-        reportLanguage.startsWith("en") ||
-        reportLanguage.startsWith("es") ||
-        reportLanguage.startsWith("fr")
-      ) {
-        doc = await PDFDocument.create();
-        font = await doc.embedFont(StandardFonts.Helvetica);
-      } else if (
-        reportLanguage.startsWith("ru") ||
-        reportLanguage.startsWith("uk")
-      ) {
-        fontUrl = "/fonts/Roboto-Regular.ttf";
-      } else if (reportLanguage.startsWith("hi")) {
-        fontUrl = "/fonts/NotoSansDevanagari-Regular.ttf";
-      } else if (reportLanguage.startsWith("ar")) {
-        fontUrl = "/fonts/Amiri-Regular.ttf";
-      }
+      // if (
+      //   reportLanguage.startsWith("en") ||
+      //   reportLanguage.startsWith("es") ||
+      //   reportLanguage.startsWith("fr")
+      // ) {
+      doc = await PDFDocument.create();
+      font = await doc.embedFont(StandardFonts.Helvetica);
+      // } else if (
+      //   reportLanguage.startsWith("ru") ||
+      //   reportLanguage.startsWith("uk")
+      // ) {
+      //   fontUrl = "/fonts/Roboto-Regular.ttf";
+      // } else if (reportLanguage.startsWith("hi")) {
+      //   fontUrl = "/fonts/NotoSansDevanagari-Regular.ttf";
+      // } else if (reportLanguage.startsWith("ar")) {
+      //   fontUrl = "/fonts/Amiri-Regular.ttf";
+      // }
 
       if (fontUrl) {
         fontBytes = await fetch(fontUrl).then((res) => res.arrayBuffer());
@@ -166,9 +165,10 @@ const Analyzer = () => {
 
         // let shaped;
 
-        const shaped = reportLanguage.startsWith("ar")
-          ? reshape.convertArabic(text)
-          : text;
+        // const shaped = reportLanguage.startsWith("ar")
+        //   ? reshape.convertArabic(text)
+        //   : text;
+        const shaped = text;
 
         const textWidth = font.widthOfTextAtSize(shaped, size);
         const x = align === "center" ? (pageWidth - textWidth) / 2 : 50;
@@ -308,6 +308,7 @@ const Analyzer = () => {
     setThumbnail(null);
     setIsReport(false);
     setIsReset(true);
+    sessionStorage.removeItem("creditReport");
   };
 
   const onUnlock = async () => {
@@ -316,30 +317,35 @@ const Analyzer = () => {
       return;
     }
 
-    if (isSignedIn && data?.data && data?.data?.count > 0) {
-      try {
-        const response = await axios.post(
-          `${import.meta.env.VITE_API_URL}/checkout`,
-          JSON.stringify({
-            userId: user?.id,
-            reportId: data?.data?.result._id,
-          }),
-          { headers: { "Content-Type": "application/json" } }
-        );
-        if (response.status === 200) {
-          // setLoading(false);
-          window.location.href = response.data.url;
-          return;
-        }
-      } catch (error) {
-        if (error.status === 400) {
-          toast.error("Invalid data");
-          return;
-        }
+    const hasCreditData = creditData && Object.keys(creditData).length > 0;
+    const reportId = creditData?._id;
+
+    if (!hasCreditData || !reportId) {
+      toast.error("Invalid data");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/checkout`,
+        JSON.stringify({
+          userId: user?.id,
+          reportId,
+        }),
+        { headers: { "Content-Type": "application/json" } }
+      );
+
+      if (response.status === 200 && response.data?.url) {
+        window.location.href = response.data.url;
+      } else {
+        toast.error("Failed to process checkout.");
+      }
+    } catch (error) {
+      if (error?.response?.status === 400) {
+        toast.error("Invalid data");
+      } else {
         toast.error("Something went wrong. Please try again later!");
       }
-    } else {
-      toast.error("Invalid data");
     }
   };
 
@@ -351,10 +357,9 @@ const Analyzer = () => {
     try {
       const formData = new FormData();
       formData.append("file", pdfFile);
-
       formData.append("userId", user?.id ? user.id : "");
       formData.append("reportId", data?.result?._id ? data?.result._id : "");
-      dispatch(fetchReport({ formData, language: currentLanguage }));
+      dispatch(fetchReport(formData));
     } catch (error) {
       if (error.response && error.response.status === 400) {
         toast.error("Credit report is empty or invalid file.");
@@ -394,7 +399,9 @@ const Analyzer = () => {
 
   useEffect(() => {
     if (data?.data && data?.data?.count === 0) {
-      setIsReport(false);
+      setIsReport(true);
+      const savedData = JSON.parse(sessionStorage.getItem("creditReport"));
+      setcreditData(savedData);
     }
 
     if (data?.data && data?.data?.count > 0) {
@@ -402,6 +409,16 @@ const Analyzer = () => {
       setPaymentStatus(data?.data.ispro ? "paid" : "fail");
       setIsReport(true);
       setReportLanguage(data?.data.result.reportLanguage);
+
+      if (!isSignedIn) {
+        sessionStorage.setItem(
+          "creditReport",
+          JSON.stringify(data?.data?.result)
+        );
+      }
+      if (isSignedIn) {
+        sessionStorage.removeItem("creditReport");
+      }
     }
   }, [data]);
 

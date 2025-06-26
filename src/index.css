@@ -1,6 +1,6 @@
 @import "tailwindcss";
 body {
- color: black;
+  color: black;
 }
 
 /* width */
@@ -10,17 +10,17 @@ body {
 
 /* Track */
 ::-webkit-scrollbar-track {
-  background: #f1f1f1; 
+  background: #f1f1f1;
 }
- 
+
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #888; 
+  background: #888;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #555; 
+  background: #555;
 }
 
 table {
@@ -29,8 +29,48 @@ table {
   margin-top: 15px;
 }
 
-th, td {
+th,
+td {
   padding: 12px;
   text-align: left;
   border-bottom: 1px solid #ddd;
+}
+
+.goog-te-gadget-icon {
+  display: none !important;
+}
+
+.VIpgJd-ZVi9od-xl07Ob-lTBxed > img {
+  display: none;
+}
+
+.goog-te-gadget {
+  background-color: #0a1f44;
+}
+
+.VIpgJd-ZVi9od-xl07Ob-lTBxed > span {
+  margin-right: 4px;
+  color: white;
+}
+
+.VIpgJd-ZVi9od-xl07Ob-lTBxed > span > span:hover {
+  background-color:  white !important;
+  /* margin-right: 4px; */
+  color: black;
+}
+
+
+.goog-te-gadget-simple:hover + .VIpgJd-ZVi9od-xl07Ob-lTBxed > a {
+  background-color: white !important;
+  color: black !important;
+}
+
+.goog-te-gadget-simple {
+  background-color: #0a1f44 !important;
+  border: 0px !important;
+  font-size: 10pt;
+  display: inline-block;
+  padding-top: 1px;
+  padding-bottom: 2px;
+  cursor: pointer;
 }

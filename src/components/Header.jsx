@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -75,17 +75,17 @@ const Header = () => {
               {t("header.nav.home")}
             </Link>
           </li>
-            <li
-              className="py-2 md:py-0"
-              onClick={isOpen ? toggleMenu : undefined}
+          <li
+            className="py-2 md:py-0"
+            onClick={isOpen ? toggleMenu : undefined}
+          >
+            <Link
+              to="/analyzer"
+              className="block px-3 py-1 rounded hover:bg-white hover:text-black transition"
             >
-              <Link
-                to="/analyzer"
-                className="block px-3 py-1 rounded hover:bg-white hover:text-black transition"
-              >
-                {t("header.nav.analyze")}
-              </Link>
-            </li>
+              {t("header.nav.analyze")}
+            </Link>
+          </li>
           <li
             className="py-2 md:py-0"
             onClick={isOpen ? toggleMenu : undefined}
@@ -99,19 +99,27 @@ const Header = () => {
           </li>
           <li className="py-2 md:py-0">
             <SignedOut>
-              <SignInButton mode="modal" className="block px-3 py-1 rounded hover:bg-white hover:text-black transition">
-                  {t("header.nav.signIn")}
+              <SignInButton
+                mode="modal"
+                className="block px-3 py-1 rounded hover:bg-white hover:text-black transition"
+              >
+                {t("header.nav.signIn")}
               </SignInButton>
             </SignedOut>
             <SignedIn>
               <button className="block px-3 py-1 rounded hover:bg-white hover:text-black transition">
-
-              <UserButton/>
+                <UserButton />
               </button>
             </SignedIn>
           </li>
           <li className="py-2 md:py-0">
-            <select
+            <div
+              id="google_translate_element"
+              className="pl-4 pr-4 block px-3 py-2 rounded transition"
+            ></div>
+            {/* <div className="translate-container pl-4 pr-4 block px-3 py-1 rounded hover:bg-white hover:text-black transition"> */}
+            {/* </div> */}
+            {/* <select
               className="border-0 focus:outline-none block px-3 py-1 rounded hover:bg-white hover:text-black transition"
               onChange={(e) => changeLanguage(e.target.value)}
             >
@@ -125,7 +133,7 @@ const Header = () => {
                   {lang.label}
                 </option>
               ))}
-            </select>
+            </select> */}
           </li>
         </ul>
       </nav>
