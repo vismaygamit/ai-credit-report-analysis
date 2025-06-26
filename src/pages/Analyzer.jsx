@@ -308,7 +308,7 @@ const Analyzer = () => {
     setThumbnail(null);
     setIsReport(false);
     setIsReset(true);
-    sessionStorage.removeItem("creditReport");
+    localStorage.removeItem("creditReport");
   };
 
   const onUnlock = async () => {
@@ -398,9 +398,13 @@ const Analyzer = () => {
   }, [isSignedIn]);
 
   useEffect(() => {
-    if (data?.data && data?.data?.count === 0) {
+    const savedData = JSON.parse(localStorage.getItem("creditReport"));
+
+    if (
+      (data?.data && data?.data?.count === 0) ||
+      (savedData && Object.keys(savedData).length > 0)
+    ) {
       setIsReport(true);
-      const savedData = JSON.parse(sessionStorage.getItem("creditReport"));
       setcreditData(savedData);
     }
 
@@ -411,13 +415,13 @@ const Analyzer = () => {
       setReportLanguage(data?.data.result.reportLanguage);
 
       if (!isSignedIn) {
-        sessionStorage.setItem(
+        localStorage.setItem(
           "creditReport",
           JSON.stringify(data?.data?.result)
         );
       }
       if (isSignedIn) {
-        sessionStorage.removeItem("creditReport");
+        localStorage.removeItem("creditReport");
       }
     }
   }, [data]);
