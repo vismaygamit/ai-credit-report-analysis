@@ -115,7 +115,7 @@ const Header = () => {
           <li className="py-2 md:py-0">
             <div
               id="google_translate_element"
-              className="pl-4 pr-4 block px-3 py-2 rounded transition"
+              className="block px-2 py-1 rounded transition"
             ></div>
             {/* <div className="translate-container pl-4 pr-4 block px-3 py-1 rounded hover:bg-white hover:text-black transition"> */}
             {/* </div> */}
