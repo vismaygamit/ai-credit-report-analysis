@@ -401,9 +401,11 @@ const Analyzer = () => {
     const savedData = JSON.parse(localStorage.getItem("creditReport"));
 
     if (
-      (data?.data && data?.data?.count === 0) ||
-      (savedData && Object.keys(savedData).length > 0)
+      ((data?.data && data?.data?.count === 0) ||
+        (savedData && Object.keys(savedData).length > 0)) &&
+      loading === false
     ) {
+
       setIsReport(true);
       setcreditData(savedData);
     }
@@ -746,7 +748,7 @@ const Analyzer = () => {
                           <button
                             disabled={loading}
                             onClick={onUnlock}
-                            className={`cursor-pointer px-4 sm:px-6 py-2 sm:py-3 rounded-full transition-all duration-300 text-white font-semibold text-sm sm:text-base ${
+                            className={`cursor-pointer px-4 sm:px-6 py-2 sm:py-3 rounded-lg transition-all duration-300 text-white font-semibold text-sm sm:text-base ${
                               loading
                                 ? "bg-blue-300 cursor-not-allowed text-white"
                                 : "bg-blue-600 hover:bg-blue-700 text-white"
@@ -758,7 +760,7 @@ const Analyzer = () => {
                         <button
                           disabled={loading}
                           onClick={handleReset}
-                          className={`cursor-pointer px-4 sm:px-6 py-2 sm:py-3 rounded-full transition-all duration-300 text-white font-semibold text-sm sm:text-base ${
+                          className={`cursor-pointer px-4 sm:px-6 py-2 sm:py-3 rounded-lg transition-all duration-300 text-white font-semibold text-sm sm:text-base ${
                             loading
                               ? "bg-blue-300 cursor-not-allowed text-white"
                               : "bg-green-600 hover:bg-green-700 text-white"
@@ -770,7 +772,7 @@ const Analyzer = () => {
                           <button
                             disabled={loading}
                             onClick={generateActionPlanPDF}
-                            className={`cursor-pointer px-4 sm:px-6 py-2 sm:py-3 rounded-full transition-all duration-300 text-white font-semibold text-sm sm:text-base ${
+                            className={`cursor-pointer px-4 sm:px-6 py-2 sm:py-3 rounded-lg transition-all duration-300 text-white font-semibold text-sm sm:text-base ${
                               loading
                                 ? "bg-blue-300 cursor-not-allowed text-white"
                                 : "bg-blue-600 hover:bg-blue-700 text-white"
@@ -799,7 +801,7 @@ const Analyzer = () => {
                     <button
                       disabled={loading}
                       onClick={handleReset}
-                      className={`cursor-pointer mt-2 px-4 sm:px-6 py-2 sm:py-3 rounded-full transition-all duration-300 text-white font-semibold text-sm sm:text-base ${
+                      className={`cursor-pointer mt-2 px-4 sm:px-6 py-2 sm:py-3 rounded-lg transition-all duration-300 text-white font-semibold text-sm sm:text-base ${
                         loading
                           ? "bg-blue-300 cursor-not-allowed text-white"
                           : "bg-green-600 hover:bg-green-700 text-white"
