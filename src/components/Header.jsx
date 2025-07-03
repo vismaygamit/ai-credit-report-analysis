@@ -5,7 +5,7 @@ import {
   SignedIn,
   SignedOut,
   SignInButton,
-  UserButton,
+  UserButton
 } from "@clerk/clerk-react";
 
 const Header = () => {
@@ -100,6 +100,7 @@ const Header = () => {
           <li className="py-2 md:py-0">
             <SignedOut>
               <SignInButton
+                forceRedirectUrl="/analyzer"
                 mode="modal"
                 className="block px-3 py-1 rounded hover:bg-white hover:text-black transition"
               >
@@ -108,7 +109,7 @@ const Header = () => {
             </SignedOut>
             <SignedIn>
               <button className="block px-3 py-1 rounded hover:bg-white hover:text-black transition">
-                <UserButton />
+                <UserButton/>
               </button>
             </SignedIn>
           </li>

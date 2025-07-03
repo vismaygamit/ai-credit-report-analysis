@@ -60,10 +60,10 @@ const reportSlice = createSlice({
     statusCode: null,
   },
   reducers: {
-    clearReport: (state) => {
-      state.data = null;
+    resetReportErrorAndStatus: (state) => {
       state.error = null;
-      state.loading = false;
+      state.statusCode = null;
+      // state.loading = false;
     },
   },
   extraReducers: (builder) => {
@@ -101,5 +101,5 @@ const reportSlice = createSlice({
   },
 });
 
-export const { clearReport } = reportSlice.actions;
+export const { resetReportErrorAndStatus } = reportSlice.actions;
 export default reportSlice.reducer;

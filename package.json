@@ -19,6 +19,7 @@
     "@tailwindcss/vite": "^4.1.10",
     "arabic-reshaper": "^1.1.0",
     "axios": "^1.10.0",
+    "file-saver": "^2.0.5",
     "fontkit": "^2.0.4",
     "i18next": "^25.2.1",
     "i18next-browser-languagedetector": "^8.2.0",
@@ -32,6 +33,7 @@
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.6.2",
     "react-toastify": "^11.0.5",
+    "recharts": "^3.0.2",
     "tailwindcss": "^4.1.10"
   },
   "devDependencies": {
