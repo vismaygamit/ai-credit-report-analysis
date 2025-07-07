@@ -11,11 +11,11 @@ import {
   fetchReport,
   getReportByReportId,
   resetReportErrorAndStatus,
+  translateObject,
 } from "../store/reportSlice";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import fs from "fs/promises";
 import * as fontkit from "fontkit";
-import reshape from "arabic-reshaper";
 import { saveAs } from "file-saver";
 import {
   LineChart,
@@ -37,194 +37,671 @@ const Analyzer = () => {
   const [fileName, setFileName] = useState("");
   const [pdfFile, setPdfFile] = useState(null);
   const [isReport, setIsReport] = useState(false);
-  const [reportLanguage, setReportLanguage] = useState("en");
   const dispatch = useDispatch();
-  const { data, loading, error, statusCode } = useSelector(
+  const { data, loading, translated, error, statusCode } = useSelector(
     (state) => state.report
   );
-  const currentLanguage = i18n.language;
-  const [result, setResult] = useState(data?.data);
+  let inquiriesCombined = [];
+  const chartRef = useRef();
+  const disputeRef = useRef();
+  const goodWillRef = useRef();
+  const [chartImage, setChartImage] = useState(null);
+  // const [result, setResult] = useState(data?.data);
   const [creditData, setcreditData] = useState({});
   const [isReset, setIsReset] = useState(false);
-
+  const selectedLanguage = localStorage.getItem("selectedLanguage") || "en";
   const fileInputRef = useRef(null);
   const location = useLocation();
   const referrer = location.state?.from;
   const { isSignedIn, user } = useUser();
   const [paymentStatus, setPaymentStatus] = useState("false");
 
-  // const statusColorClass = (status) => {
-  //   const map = {
-  //     Excellent: "text-green-700",
-  //     Strong: "text-emerald-700",
-  //     Good: "text-green-600",
-  //     Moderate: "text-yellow-600",
-  //     "Neutral / Concern": "text-gray-500",
-  //     Short: "text-gray-600",
-  //     "Recent Inquiries": "text-yellow-600",
-  //     Poor: "text-red-600",
-  //     Limited: "text-gray-500",
-  //     "No Data": "text-gray-400",
-  //     "Moderate Risk": "text-yellow-700",
-  //     Positive: "text-green-500",
-  //     Mixed: "text-orange-500",
-  //     "Elevated Activity": "text-orange-600",
-  //     "Good Diversification": "text-blue-600",
-  //   };
-  //   return map[status] || "text-gray-700";
-  // };
+  const handleTranslate = async (lng) => {
+    try {
+      let creditReportFortranslate = creditData;
+      // if (i18n.language != "en") {
+      //   creditReportFortranslate = JSON.parse(localStorage.getItem("creditReportFortranslate"));
+      // }
+
+      dispatch(
+        translateObject({
+          object: creditReportFortranslate,
+          targetLanguage: selectedLanguage,
+        })
+      );
+      // localStorage.setItem("selectedLanguage", "");
+    } catch (error) {
+      console.error("Translation failed", error);
+    }
+  };
+
+  const exportChartAsImage = async () => {
+    const svg = chartRef.current?.querySelector("svg");
+    if (!svg) return;
+
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const svgBlob = new Blob([svgData], {
+      type: "image/svg+xml;charset=utf-8",
+    });
+    const url = URL.createObjectURL(svgBlob);
+
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = svg.clientWidth;
+      canvas.height = svg.clientHeight;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+
+      const base64Image = canvas.toDataURL("image/png");
+
+      setChartImage(base64Image);
+
+      URL.revokeObjectURL(url); // Clean up
+    };
+    img.src = url;
+  };
+
+  useEffect(() => {
+    if (translated) {
+      setcreditData(translated);
+      if (isSignedIn) {
+        setTimeout(() => {
+          exportChartAsImage();
+        }, 3000);
+      }
+    }
+
+  }, [translated]);
 
   const generateActionPlanPDF = async () => {
     try {
-      // Create a new PDF document
-      const pdfDoc = await PDFDocument.create();
-      const page = pdfDoc.addPage([595.28, 841.89]); // A4 size in points (1/72 inch)
+      let fontUrl, boldFontUrl, font, doc, boldFont;
+      const selectedLanguage = i18n.language;
 
-      // Embed a font that supports basic Unicode (Helvetica)
-      const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+      if (
+        selectedLanguage.startsWith("en") ||
+        selectedLanguage.startsWith("es") ||
+        selectedLanguage.startsWith("fr")
+      ) {
+        doc = await PDFDocument.create();
+        font = await doc.embedFont(StandardFonts.Helvetica);
+        boldFont = await doc.embedFont(StandardFonts.HelveticaBold);
+      } else if (
+        selectedLanguage.startsWith("ru") ||
+        selectedLanguage.startsWith("uk")
+      ) {
+        fontUrl = "/fonts/Roboto-Regular.ttf";
+        boldFontUrl = "/fonts/Roboto-Bold.ttf";
+      } else if (selectedLanguage.startsWith("hi")) {
+        fontUrl = "/fonts/NotoSansDevanagari-Regular.ttf";
+        boldFontUrl = "/fonts/NotoSansDevanagari-Bold.ttf";
+      }
 
-      // Define fonts and styles
-      const fontSize = 12;
-      const titleFontSize = 20;
-      const subTitleFontSize = 16;
-      const lineHeight = 15;
-      const margin = 50;
-      let y = 830; // Starting y-position near the top
+      if (fontUrl) {
+        doc = await PDFDocument.create();
+        const regularBytes = await fetch(fontUrl).then((res) =>
+          res.arrayBuffer()
+        );
+        const boldBytes = await fetch(boldFontUrl).then((res) =>
+          res.arrayBuffer()
+        );
 
-      // Helper function to add text
-      const addText = (text, x, y, size, color = rgb(0, 0, 0)) => {
-        page.drawText(text, { x, y, size, font, color });
-        return y - lineHeight;
+        doc.registerFontkit(fontkit);
+        font = await doc.embedFont(regularBytes);
+        boldFont = await doc.embedFont(boldBytes);
+      }
+
+      let page = doc.addPage([612, 792]);
+
+      const fontSize = 10;
+      const margin = 40;
+      let y = page.getHeight() - margin;
+
+      const newPage = () => {
+        page = doc.addPage([612, 792]);
+        y = page.getHeight() - margin;
       };
 
-      // Embed and add logo at top middle
-      const logoBytes = await fetch("/assets/logo.png").then((res) =>
-        res.arrayBuffer()
-      ); // Adjust path
-      const logoImage = await pdfDoc.embedPng(logoBytes); // Use embedJpg for .jpg
-      const logoDims = logoImage.scale(0.2); // Scale to 20% of original size (adjust as needed)
-      const pageWidth = 595.28; // A4 width in points
-      const logoX = (pageWidth - 140) / 2; // Center horizontally
-      console.log("width", logoDims.width);
-      console.log("height", logoDims.height);
+      const checkSpace = (neededHeight = fontSize + 4) => {
+        if (y < margin + neededHeight) newPage();
+      };
 
-      // return;
-      page.drawImage(logoImage, {
-        x: logoX,
-        y: 770, // Place logo at the top
-        width: 140,
-        height: 50,
-      });
-      y -= logoDims.height + 20; // Move y past logo and add extra space
-
-      // Title and Timestamp below logo
-      y = addText("Score Progress Report", margin, y, titleFontSize);
-      // y = addText(
-      //   `As of ${new Date().toLocaleString("en-US", {
-      //     timeZone: "Asia/Kolkata",
-      //     hour12: true,
-      //     month: "long",
-      //     day: "numeric",
-      //     year: "numeric",
-      //     hour: "2-digit",
-      //     minute: "2-digit",
-      //   })} IST`, // 12:55 PM IST, July 02, 2025
-      //   margin,
-      //   y,
-      //   fontSize
-      // );
-      y -= 20;
-
-      // Credit Summary
-      y = addText("Credit Summary", margin, y, subTitleFontSize);
-      const creditSummary = creditData.scoreProgress.creditSummary;
-      const summaryItems = [
-        `Score: ${creditSummary.score} (${creditData.summary.rating})`,
-        `Utilization: ${creditSummary.utilization}`,
-        `On-time Payments: ${creditSummary.onTimePayments}`,
-        `Accounts in Good Standing: ${creditSummary.activeAccounts}`,
-        `Inquiries: ${creditSummary.hardInquiries} hard, ${creditSummary.softInquiries}`,
-        `Derogatory Marks: ${creditSummary.derogatoryMarks || "None"}`,
-      ];
-      summaryItems.forEach((item) => {
-        y = addText(`• ${item}`, margin + 10, y, fontSize);
-      });
-      y -= 20;
-
-      // Score Simulator (Replace "→" with "-")
-      y = addText("Score Simulator", margin, y, subTitleFontSize);
-      creditData.scoreProgress.scoreSimulator.forEach((scenario, i) => {
-        y = addText(
-          `${i + 1}. ${scenario.scenario} - ${scenario.projectedScoreChange}`,
-          margin + 10,
+      const drawText = (text, isBold = false, offset = 0) => {
+        checkSpace();
+        page.drawText(text, {
+          x: margin + offset,
           y,
-          fontSize
-        );
-      });
-      y -= 20;
+          size: fontSize,
+          font: isBold ? boldFont : font,
+          color: rgb(0, 0, 0),
+        });
 
-      // Action Checklist (Replace "✔" with "X" and "⃣" with "O")
-      y = addText("Action Checklist", margin, y, subTitleFontSize);
-      Object.entries(creditData.scoreProgress.checklist).forEach(
-        ([action, completed], i) => {
-          const actionText =
-            action === "payCTB1"
-              ? "Pay off $500 on Canadian Tire #1"
-              : action === "keepCIBCOpen"
-              ? "Keep CIBC and Royal Bank accounts open"
-              : action === "requestCLI"
-              ? "Submit CLI request to Rogers Bank"
-              : action === "reportRent"
-              ? "Register rent reporting via FrontLobby"
-              : action === "avoidApplications"
-              ? "Avoid credit card applications until September 2025"
-              : "";
-          y = addText(
-            `${completed ? "X" : "O"} ${actionText}`,
-            margin + 10,
-            y,
-            fontSize,
-            completed ? rgb(0, 0.5, 0) : rgb(0.5, 0.5, 0.5)
-          );
+        y -= fontSize + 4;
+      };
+
+      const pageWidth = page.getWidth();
+      const availableWidth = pageWidth - margin * 2;
+
+      const drawWrappedText = (
+        text,
+        font,
+        fontSize,
+        offset = 0,
+        isBold = false
+      ) => {
+        const words = text.split(" ");
+        let line = "";
+        const lines = [];
+
+        for (const word of words) {
+          const testLine = line ? `${line} ${word}` : word;
+          const testWidth = font?.widthOfTextAtSize(testLine, fontSize);
+          if (testWidth > availableWidth) {
+            lines.push(line);
+            line = word;
+          } else {
+            line = testLine;
+          }
         }
-      );
-      y -= 20;
 
-      // Progress Projection (Text representation)
-      y = addText("Progress Projection", margin, y, subTitleFontSize);
-      creditData.scoreProgress.forecastChart.dataPoints.forEach((point) => {
-        y = addText(
-          `${new Date(point.date).toLocaleDateString("en-US", {
-            month: "short",
-            year: "numeric",
-          })}: ${point.score}`,
-          margin + 10,
+        if (line) lines.push(line);
+        for (const lineText of lines) {
+          checkSpace();
+          page.drawText(lineText, {
+            x: margin + offset,
+            y,
+            size: fontSize,
+            font: isBold ? boldFont : font,
+            color: rgb(0, 0, 0),
+          });
+          y -= fontSize + 4;
+        }
+      };
+
+      const drawSectionHeader = (text) => {
+        const headerHeight = 13;
+        checkSpace(headerHeight);
+        page.drawRectangle({
+          x: margin,
           y,
+          width: 530,
+          height: headerHeight,
+          color: rgb(0.9, 0.9, 0.9),
+        });
+
+        page.drawText(text, {
+          x: margin + 5,
+          y: y + 3,
+          size: 11,
+          font: boldFont,
+          color: rgb(0, 0, 0),
+        });
+
+        y -= headerHeight;
+      };
+
+      const drawTable = (headers, rows, tableType = "") => {
+        drawTableRow(headers, true, tableType);
+
+        rows.forEach((row, rowIndex) => {
+          checkSpace(fontSize + 8);
+
+          if (y < margin + fontSize + 8) {
+            newPage();
+            drawTableRow(headers, true, tableType);
+          }
+
+          drawTableRow(row, false, tableType);
+        });
+      };
+
+      const wrapText = (text, font, fontSize, maxWidth) => {
+        const words = text.split(" ");
+        const lines = [];
+        let currentLine = "";
+
+        for (let word of words) {
+          const testLine = currentLine ? `${currentLine} ${word}` : word;
+          const width = font?.widthOfTextAtSize(testLine, fontSize);
+          if (width < maxWidth) {
+            currentLine = testLine;
+          } else {
+            lines.push(currentLine);
+            currentLine = word;
+          }
+        }
+
+        if (currentLine) lines.push(currentLine);
+        return lines;
+      };
+
+      const drawSubHeading = (text) => {
+        checkSpace(20);
+        y -= 6;
+        page.drawText(text, {
+          x: margin,
+          y: y,
+          size: 11,
+          font: boldFont,
+          color: rgb(0.2, 0.2, 0.2),
+        });
+        y -= 16;
+      };
+
+      const drawTableRow = (row, isHeader = false, tableType = "") => {
+        let colWidths;
+        if (row.length === 2) {
+          colWidths = [120, 400];
+        } else if (row.length === 3) {
+          colWidths = [250, 100, 250];
+        } else if (row.length === 4) {
+          if (tableType === "inquiry") {
+            colWidths = [80, 140, 270, 70];
+          } else if (tableType === "actionPlan") {
+            colWidths = [200, 200, 50, 80];
+          } else if (tableType === "scoresimulator") {
+            colWidths = [200, 230, 80, 50];
+          } else {
+            colWidths = [100, 160, 120, 120];
+          }
+        } else if (row.length === 5) {
+          colWidths = [230, 40, 150, 50, 50];
+        } else {
+          colWidths = [60, 110, 65, 50, 60, 90, 60, 60];
+        }
+
+        let x = margin;
+
+        // Calculate wrapped lines
+        const wrappedLines = row.map((text, i) =>
+          wrapText(String(text ?? ""), font, fontSize - 1, colWidths[i])
+        );
+        const maxLines = Math.max(...wrappedLines.map((lines) => lines.length));
+        const rowHeight = maxLines * (fontSize + 2);
+
+        checkSpace(rowHeight);
+        wrappedLines.forEach((lines, i) => {
+          const colX = x;
+          const colY = y;
+
+          lines.forEach((line, j) => {
+            page.drawText(line, {
+              x: colX,
+              y: colY - j * (fontSize + 2),
+              size: fontSize - 1,
+              font: isHeader ? boldFont : font,
+              color: rgb(0, 0, 0),
+            });
+          });
+
+          x += colWidths[i];
+        });
+
+        y -= rowHeight;
+      };
+
+      const drawChecklist = (items) => {
+        const itemList = Object.values(items);
+        itemList.forEach((item) => {
+          drawText(`${item.istrue ? "[o]" : "[x]"} ${item.desc}`);
+        });
+      };
+
+      const drawMultilineBlock = (text) => {
+        const paragraphs = text.split("\n");
+
+        const processedParagraphs = paragraphs.map((p) => p);
+
+        const lineCount = processedParagraphs
+          .map((p) => wrapText(p, font, fontSize, 530).length)
+          .reduce((a, b) => a + b, 0);
+
+        const blockHeight = lineCount * (fontSize + 4);
+        if (y - blockHeight < margin) newPage();
+
+        drawMultiline(text);
+      };
+
+      const drawMultiline = (text) => {
+        const paragraphs = text.split("\n");
+
+        paragraphs.forEach((para) => {
+          const wrappedLines = wrapText(para, font, fontSize, 530);
+
+          wrappedLines.forEach((line) => {
+            checkSpace();
+            page.drawText(line, {
+              x: margin,
+              y,
+              size: fontSize,
+              font: font,
+              color: rgb(0, 0, 0),
+            });
+            y -= fontSize + 4;
+          });
+
+          y -= 4;
+        });
+      };
+
+      // Start PDF Content
+      drawSectionHeader(t("analyzePage.creditSummary"));
+      const summary = creditData.summary;
+      drawSubHeading(`${t("analyzePage.score")}:`);
+
+      drawText(`${summary.score} (${summary.rating})`);
+      drawSubHeading(`${t("analyzePage.tradelines")}:`);
+      drawSubHeading(
+        `${t("analyzePage.revolving")} ${t("analyzePage.accounts")}:`
+      );
+      summary.tradelines.revolving.forEach((t) => drawText(`• ${t}`));
+      drawSubHeading(
+        `${t("analyzePage.installment")} ${t("analyzePage.accounts")}:`
+      );
+      summary.tradelines.installment.forEach((t) => drawText(`• ${t}`));
+      drawSubHeading(`${t("analyzePage.open")} ${t("analyzePage.accounts")}:`);
+      summary.tradelines.open.forEach((t) => drawText(`• ${t}`));
+      drawSubHeading(`${t("analyzePage.mortgage")}:`);
+      summary.tradelines.mortgage.forEach((t) => drawText(`• ${t}`));
+      y -= 10;
+      drawText(
+        `${t("analyzePage.paymentHistory")}: ${
+          creditData.summary.paymentHistory.allCurrent
+            ? t("analyzePage.allCurrent")
+            : t("analyzePage.issuesDetected")
+        } ${summary.paymentHistory.missedOrLatePast24Months} ${t(
+          "analyzePage.missedLate24Months"
+        )}`
+      );
+      drawText(
+        `${t("analyzePage.onTimePayments")}: ${
+          creditData.scoreProgress.creditSummary.onTimePayments
+        }`
+      );
+      if (
+        creditData.securedLoan &&
+        typeof creditData.securedLoan === "object"
+      ) {
+        const loan = creditData.securedLoan;
+        drawWrappedText(
+          `${t("analyzePage.securedLoan")}: ${loan.lender} | ${t(
+            "analyzePage.registered"
+          )}: ${loan.registered} | ${t("analyzePage.amount")}: $${
+            loan.amount
+          } | ${t("analyzePage.maturity")}: ${loan.maturity}`,
+          font,
           fontSize
         );
-      });
-      y = addText(
-        `Target Score: ${
-          creditData.scoreProgress.forecastChart.targetScore
-        } by ${new Date(
-          creditData.scoreProgress.forecastChart.targetDate
-        ).toLocaleDateString("en-US", {
-          month: "long",
-          day: "numeric",
-          year: "numeric",
-        })}`,
-        margin + 10,
-        y,
-        fontSize
+      }
+      drawText(
+        `${t("analyzePage.goodStanding")} ${
+          creditData.scoreProgress.creditSummary.activeAccounts
+        }`
+      );
+      drawText(
+        `${t("analyzePage.derogatoryMarks")} ${
+          creditData.scoreProgress.creditSummary.derogatoryMarks
+        }`
       );
 
-      // Serialize the PDF to bytes
-      const pdfBytes = await pdfDoc.save();
+      drawSubHeading(`${t("analyzePage.inquiries")}`);
+      drawText(
+        `${t("analyzePage.hardInquiries")}: ${summary.inquiries.hard?.length}`
+      );
+      drawText(
+        `${t("analyzePage.softInquiries")}: ${summary.inquiries.soft?.length}`
+      );
+      drawSubHeading(`${t("analyzePage.creditUtilization")}`);
+      drawText(
+        `${t("analyzePage.totalLimit")}: $${
+          summary.creditUtilization.totalLimit
+        }`
+      );
+      drawText(
+        `${t("analyzePage.totalBalance")}: $${
+          summary.creditUtilization.totalBalance
+        }`
+      );
+      drawText(
+        `${t("analyzePage.utilizationRate")}: ${
+          summary.creditUtilization.utilizationRate
+        }% (${summary.creditUtilization.rating})`
+      );
 
-      // Save the PDF file
+      drawSubHeading(`${t("analyzePage.creditAge")}`);
+      drawText(
+        `${t("analyzePage.oldestAccount")}: ${
+          summary.creditAge.oldest.account
+        } (${summary.creditAge.oldest.opened})`
+      );
+      drawText(
+        `${t("analyzePage.newestAccount")}: ${
+          summary.creditAge.newest.account
+        } (${summary.creditAge.newest.opened})`
+      );
+      drawText(
+        `${t("analyzePage.averageAge")} ${
+          summary.creditAge.averageAgeYears
+        } ${t("analyzePage.years")}`
+      );
+      drawSubHeading(`${t("analyzePage.collections")} :`);
+      drawText(`${summary.collections}`);
+      drawSubHeading(`${t("analyzePage.judgments")} :`);
+
+      drawText(`${summary.judgments}`);
+
+      if (creditData.accountsAndBalances?.length) {
+        y -= 10;
+        drawSectionHeader(`${t("analyzePage.structuredData")}`);
+        drawSubHeading(`${t("analyzePage.accountsAndBalances")}`);
+        const headers = [
+          t("analyzePage.type"),
+          t("analyzePage.lender"),
+          t("analyzePage.openDate"),
+          t("analyzePage.limit"),
+          t("analyzePage.balance"),
+          t("analyzePage.status"),
+          t("analyzePage.closed"),
+          t("analyzePage.pastDue"),
+        ];
+        const rows = creditData.accountsAndBalances.map((acc) => [
+          acc.type.charAt(0).toUpperCase() + acc.type.slice(1) ||
+            t("analyzePage.na"),
+          acc.lender || t("analyzePage.na"),
+          acc.openDate || t("analyzePage.na"),
+          acc.limit ? `$${acc.limit}` : t("analyzePage.na"),
+          acc.balance ? `$${acc.balance}` : t("analyzePage.na"),
+          acc.status === "open"
+            ? t("analyzePage.open")
+            : acc.status === "closed"
+            ? t("analyzePage.closed")
+            : acc.status || t("analyzePage.na"),
+          acc.closed === true
+            ? t("analyzePage.yes")
+            : acc.closed === false
+            ? t("analyzePage.no")
+            : t("analyzePage.na"),
+          acc.pastDue ? `$${acc.pastDue}` : t("analyzePage.na"),
+        ]);
+        drawTable(headers, rows);
+      }
+
+      if (creditData.inquiries?.length) {
+        drawSubHeading(`${t("analyzePage.inquiryRecords")}`);
+        const headers = [
+          t("analyzePage.date"),
+          t("analyzePage.lender"),
+          t("analyzePage.type"),
+          t("analyzePage.affectsScore"),
+        ];
+        const rows = creditData.inquiries.map((i) => [
+          i.date,
+          i.lender,
+          i.type === "soft"
+            ? t("analyzePage.soft")
+            : i.type === "hard"
+            ? t("analyzePage.hard")
+            : t("analyzePage.na"),
+          i.affectsScore === true
+            ? t("analyzePage.yes")
+            : i.affectsScore === false
+            ? t("analyzePage.no")
+            : t("analyzePage.na"),
+        ]);
+        drawTable(headers, rows);
+        y -= 10;
+      }
+
+      if (creditData.accountsAndBalances?.length) {
+        drawSectionHeader(`${t("analyzePage.creditEvaluation")}`);
+        const headers = [t("analyzePage.metric"), t("analyzePage.analysis")];
+        const rows = Object.entries(creditData.creditEvaluation).map(
+          ([key, value], i) => [
+            i === 0
+              ? t("analyzePage.utilization")
+              : i === 1
+              ? t("analyzePage.creditMix")
+              : i === 2
+              ? t("analyzePage.paymentHistory")
+              : i === 3
+              ? t("analyzePage.delinquency")
+              : i === 4
+              ? t("analyzePage.inquiryFrequency")
+              : i === 5
+              ? t("analyzePage.derogatoryMarks")
+              : i === 6
+              ? t("analyzePage.fileDepth")
+              : t("analyzePage.na"),
+            value || t("analyzePage.na"),
+          ]
+        );
+        drawTable(headers, rows);
+        y -= 20;
+      }
+
+      if (creditData.scoreForecast?.length) {
+        drawSectionHeader(`${t("analyzePage.scoreForecast")}`);
+        const headers = [
+          t("analyzePage.action"),
+          t("analyzePage.impact"),
+          t("analyzePage.timeline"),
+          t("analyzePage.priority"),
+          t("analyzePage.confidence"),
+        ];
+        const rows = creditData.scoreForecast.map((f) => [
+          f.action,
+          f.estimatedImpact,
+          f.timeline,
+          f.priority,
+          f.confidence,
+        ]);
+        drawTable(headers, rows);
+        y -= 20;
+      }
+
+      if (creditData.actionPlan?.length) {
+        drawSectionHeader(`${t("analyzePage.aiActionPlan")}`);
+        const headers = [
+          t("analyzePage.recommendation"),
+          t("analyzePage.description"),
+          t("analyzePage.priority"),
+          t("analyzePage.timeline"),
+        ];
+        const rows = creditData.actionPlan.map((a) => [
+          a.recommendation,
+          a.description,
+          a.priority,
+          a.timeline,
+        ]);
+        drawTable(headers, rows, "actionPlan");
+        y -= 10;
+      }
+
+      const disputeHeading = `${t("analyzePage.dispute")} & ${t(
+        "analyzePage.removal"
+      )} ${t("analyzePage.toolkit")}`;
+      drawSectionHeader(disputeHeading);
+      drawSubHeading(
+        `${t("analyzePage.dispute") + " " + t("analyzePage.letter")} :`
+      );
+      drawMultilineBlock(creditData.disputeToolkit.disputeLetter);
+      drawSubHeading(
+        `${
+          t("analyzePage.goodwill") +
+          " " +
+          t("analyzePage.removal") +
+          " " +
+          t("analyzePage.letter")
+        } :`
+      );
+      if (selectedLanguage.startsWith("ru")) y += 7;
+      drawMultilineBlock(creditData.disputeToolkit.goodwillScript);
+      y -= 10;
+      if (creditData.scoreProgress) {
+        drawSectionHeader(`${t("analyzePage.scoreProgressTracker")}`);
+        drawSubHeading(`${t("analyzePage.scoreSimulator")}: `);
+        const headers = [
+          t("analyzePage.scenario"),
+          t("analyzePage.description"),
+          t("analyzePage.scoreChange"),
+          t("analyzePage.impact"),
+        ];
+        const rows = creditData.scoreProgress.scoreSimulator.map((s) => [
+          s.scenario,
+          s.description,
+          s.projectedScoreChange,
+          s.impactType,
+        ]);
+        drawTable(headers, rows, "scoresimulator");
+        y -= 10;
+
+        drawSubHeading(`${t("analyzePage.actionChecklist")}: `);
+        drawChecklist(creditData.scoreProgress.checklist);
+
+        if (chartImage) {
+          drawSubHeading(`${t("analyzePage.progressProjection")}: `);
+          const base64 = chartImage.split(",")[1]; // remove prefix
+          const byteArray = Uint8Array.from(atob(base64), (c) =>
+            c.charCodeAt(0)
+          );
+          const chartPng = await doc.embedPng(byteArray);
+          const chartDims = chartPng.scale(0.5);
+
+          if (y < margin + chartDims.height) newPage();
+
+          page.drawImage(chartPng, {
+            x: margin,
+            y: y - chartDims.height,
+            width: chartDims.width,
+            height: chartDims.height,
+          });
+
+          y -= chartDims.height + 10;
+        }
+        y -= 10;
+      }
+
+      if (creditData.reminders?.length) {
+        drawSectionHeader(`${t("analyzePage.aiReminderEngine")}`);
+
+        const headers = [
+          t("analyzePage.event"),
+          t("analyzePage.reminderDate"),
+          t("analyzePage.action"),
+        ];
+        const rows = creditData.reminders.map((r) => [
+          r.event,
+          r.reminderDate,
+          r.action,
+        ]);
+        drawTable(headers, rows, "aireminder");
+        y -= 10;
+      }
+      // Save and download
+      const pdfBytes = await doc.save();
       const blob = new Blob([pdfBytes], { type: "application/pdf" });
-      saveAs(blob, "score_progress.pdf");
-      console.log("PDF generated successfully as credit_summary.pdf");
+      saveAs(blob, "Credit_Report.pdf");
     } catch (error) {
       console.log("error", error);
     }
@@ -382,13 +859,14 @@ const Analyzer = () => {
       error && toast.error(error.message);
     }
     if (data?.data && data?.data?.count === 0) {
-      if (statusCode && statusCode === 200 && Object.keys(creditData).length === 0) {
+      if (
+        statusCode &&
+        statusCode === 200 &&
+        Object.keys(creditData).length === 0 
+      ) {
         toast.warn("No data found!");
       }
     }
-
-    console.log("status", statusCode, error, data);
-
     dispatch(resetReportErrorAndStatus());
   }, [statusCode, error]);
 
@@ -398,6 +876,8 @@ const Analyzer = () => {
         // await handleReset();
         dispatch(getReportByReportId(user.id));
         // setIsReport(true);
+      // localStorage.setItem("selectedLanguage", "");
+
       }
     } catch (error) {
       setIsReport(false);
@@ -406,54 +886,95 @@ const Analyzer = () => {
   };
 
   useEffect(() => {
-    referrer === "paymentSuccess" && getReport();
+    console.log("i18n.language", i18n.language);
+    
+    // if (i18n.language === "en") {
+      referrer === "paymentSuccess" && getReport();
+    // } else {
+    //   handleTranslate(selectedLanguage);
+    // }
+
+    console.log("data", data?.data);
+    
   }, []);
 
   useEffect(() => {
+    // if (isSignedIn && i18n.language === "en") {
+    //   referrer != "paymentSuccess" && getReport();
+    // }
     if (isSignedIn) {
-      referrer != "paymentSuccess" && getReport();
+    const savedData = JSON.parse(localStorage.getItem("creditReport"));
+if (savedData && Object.keys(savedData).length > 0 && loading === false) {
+      setIsReport(true);
+      setcreditData(savedData);
+    }
+      (referrer != "paymentSuccess" && !savedData) && getReport();
     }
   }, [isSignedIn]);
 
   useEffect(() => {
-    if (data) {
-      const savedData = JSON.parse(localStorage.getItem("creditReport"));
+    if (!data) return;
 
-      if (data?.data && data?.data?.count === 0) {
-        // setIsReport(true);
-        setFileName(false);
-        setIsReport(false);
-        setThumbnail(false);
-        setcreditData({});
-        // if (statusCode && statusCode === 200) {
-        //   toast.warn("No data found!");
+    const savedData = JSON.parse(localStorage.getItem("creditReport"));
+
+    const hasNoData = data?.data?.count === 0;
+    const hasData = data?.data?.count > 0;
+
+    if (hasNoData) {
+      setFileName(false);
+      setIsReport(false);
+      setThumbnail(false);
+      setcreditData({});
+    }
+    console.log("dataaa", data?.data);
+    
+    if (savedData && Object.keys(savedData).length > 0 && loading === false) {
+      setIsReport(true);
+      setcreditData(savedData);
+    }
+
+    console.log("hasData", hasData);
+    if (hasData) {
+      
+      const result = data.data.result;
+      setcreditData(result);
+      setPaymentStatus(data.data.ispro ? "paid" : "fail");
+      setIsReport(true);
+      inquiriesCombined = [
+        ...(result.summary.inquiries.hard || []),
+        ...(result.summary.inquiries.soft || []),
+      ];
+      inquiriesCombined.sort((a, b) => new Date(b.date) - new Date(a.date));
+      setcreditData({
+        ...result,
+        inquiries: inquiriesCombined,
+      });
+      if (!isSignedIn) {
+        localStorage.setItem("creditReport", JSON.stringify({
+        ...result,
+        inquiries: inquiriesCombined,
+      }));
+      } 
+      if(isSignedIn) {
+        console.log("isSignedIn", isSignedIn);
+        
+        localStorage.removeItem("creditReport");
+        // if (i18n.language === "en") {
+          // localStorage.setItem("creditReportFortranslate", JSON.stringify(result))
         // }
-      }
-
-      if (savedData && Object.keys(savedData).length > 0 && loading === false) {
-        setIsReport(true);
-        setcreditData(savedData);
-      }
-
-      if (data?.data && data?.data?.count > 0) {
-        setcreditData(data?.data?.result);
-        setPaymentStatus(data?.data.ispro ? "paid" : "fail");
-        setIsReport(true);
-        setReportLanguage(data?.data.result.reportLanguage);
-
-        if (!isSignedIn) {
-          localStorage.setItem(
-            "creditReport",
-            JSON.stringify(data?.data?.result)
-          );
-        }
-        if (isSignedIn) {
-          localStorage.removeItem("creditReport");
-        }
+        setTimeout(() => {
+          exportChartAsImage();
+        }, 1500);
       }
     }
-    console.log("data", data);
   }, [data]);
+
+  useEffect(() => {
+    if (Object.keys(creditData).length > 0) {
+      handleTranslate(selectedLanguage);
+    }
+    // i18n.changeLanguage(selectedLanguage);
+  }, [i18n?.language]);
 
   return (
     <div
@@ -568,29 +1089,30 @@ const Analyzer = () => {
                       <section className="space-y-0 border border-slate-200 shadow-lg mt-4 rounded-md">
                         <div className="p-4 bg-white rounded-2xl space-y-0">
                           <h2 className="text-2xl font-bold">
-                            Structured Summary
+                            {t("analyzePage.creditSummary")}
                           </h2>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm mt-1">
                             <div>
                               <p>
                                 <span className="font-semibold text-xl">
-                                  Score:{" "}
+                                  {t("analyzePage.score")}:{" "}
                                 </span>
                                 <span className="pr-1">
-                                  {creditData?.summary.score ?? "None"}
+                                  {creditData?.summary.score ??
+                                    t("analyzePage.none")}
                                 </span>
                                 {creditData?.summary.rating ?? ""}
                               </p>
                               <h3 className="font-semibold text-xl">
-                                Tradelines:
+                                {t("analyzePage.tradelines")}:
                               </h3>
                               <ul className="list-disc list-inside space-y-2">
                                 <li>
                                   <span className="font-semibold text-xl">
-                                    Revolving (
+                                    {t("analyzePage.revolving")} (
                                     {creditData?.summary.tradelines.revolving
                                       ?.length || 0}{" "}
-                                    accounts):
+                                    {t("analyzePage.accounts")}):
                                   </span>
                                   <ul className="list-disc list-inside pl-4">
                                     {creditData?.summary.tradelines.revolving
@@ -614,36 +1136,38 @@ const Analyzer = () => {
                                                 ? `${account
                                                     .split("(")[0]
                                                     .trim()} (${
-                                                    account.includes("closed")
-                                                      ? "Closed"
-                                                      : "Open"
+                                                    account.includes(
+                                                      t("analyzePage.close")
+                                                    )
+                                                      ? t("analyzePage.close")
+                                                      : t("analyzePage.open")
                                                   })`
-                                                : "Visible After Payment"
+                                                : t(
+                                                    "analyzePage.availableAfterPayment"
+                                                  )
                                               : `${account
                                                   .split("(")[0]
                                                   .trim()} (${
-                                                  account.includes("closed")
-                                                    ? "Closed"
-                                                    : "Open"
+                                                  account.includes(
+                                                    t("analyzePage.close")
+                                                  )
+                                                    ? t("analyzePage.close")
+                                                    : t("analyzePage.open")
                                                 })`}
                                           </li>
                                         )
                                       )
                                     ) : (
-                                      <li>None</li>
+                                      <li>{t("analyzePage.none")}</li>
                                     )}
                                   </ul>
                                 </li>
                                 <li>
                                   <span className="font-semibold text-xl">
-                                    Installment (
+                                    {t("analyzePage.installment")} (
                                     {creditData?.summary.tradelines.installment
                                       ?.length || 0}{" "}
-                                    account
-                                    {creditData?.summary.tradelines.installment
-                                      ?.length !== 1
-                                      ? "s"
-                                      : ""}
+                                    {t("analyzePage.accounts")}
                                     ):
                                   </span>
                                   <ul className="list-disc list-inside pl-4 p-1">
@@ -668,7 +1192,9 @@ const Analyzer = () => {
                                                 ? `${account
                                                     .split("(")[0]
                                                     .trim()}`
-                                                : "Visible After Payment"
+                                                : t(
+                                                    "analyzePage.availableAfterPayment"
+                                                  )
                                               : `${account
                                                   .split("(")[0]
                                                   .trim()}`}
@@ -676,20 +1202,18 @@ const Analyzer = () => {
                                         )
                                       )
                                     ) : (
-                                      <li className="p-1">None</li>
+                                      <li className="p-1">
+                                        {t("analyzePage.none")}
+                                      </li>
                                     )}
                                   </ul>
                                 </li>
                                 <li>
                                   <span className="font-semibold text-xl">
-                                    Open (
+                                    {t("analyzePage.open")} (
                                     {creditData?.summary.tradelines.open
                                       ?.length || 0}{" "}
-                                    account
-                                    {creditData?.summary.tradelines.open
-                                      ?.length !== 1
-                                      ? "s"
-                                      : ""}
+                                    {t("analyzePage.accounts")}
                                     ):
                                   </span>
                                   <ul className="list-disc list-inside pl-4 p-1">
@@ -714,7 +1238,9 @@ const Analyzer = () => {
                                                 ? `${account
                                                     .split("(")[0]
                                                     .trim()}`
-                                                : "Visible After Payment"
+                                                : t(
+                                                    "analyzePage.availableAfterPayment"
+                                                  )
                                               : `${account
                                                   .split("(")[0]
                                                   .trim()}`}
@@ -722,20 +1248,18 @@ const Analyzer = () => {
                                         )
                                       )
                                     ) : (
-                                      <li className="p-1">None</li>
+                                      <li className="p-1">
+                                        {t("analyzePage.none")}
+                                      </li>
                                     )}
                                   </ul>
                                 </li>
                                 <li>
                                   <span className="font-semibold text-xl">
-                                    Mortgage (
+                                    {t("analyzePage.mortgage")} (
                                     {creditData?.summary.tradelines.mortgage
                                       ?.length || 0}{" "}
-                                    account
-                                    {creditData?.summary.tradelines.mortgage
-                                      ?.length !== 1
-                                      ? "s"
-                                      : ""}
+                                    {t("analyzePage.accounts")}
                                     ):
                                   </span>
                                   <ul className="list-disc list-inside pl-4">
@@ -760,7 +1284,9 @@ const Analyzer = () => {
                                                 ? `${account
                                                     .split("(")[0]
                                                     .trim()}`
-                                                : "Visible After Payment"
+                                                : t(
+                                                    "analyzePage.availableAfterPayment"
+                                                  )
                                               : `${account
                                                   .split("(")[0]
                                                   .trim()}`}
@@ -768,7 +1294,9 @@ const Analyzer = () => {
                                         )
                                       )
                                     ) : (
-                                      <li className="p-1">None</li>
+                                      <li className="p-1">
+                                        {t("analyzePage.none")}
+                                      </li>
                                     )}
                                   </ul>
                                 </li>
@@ -778,35 +1306,92 @@ const Analyzer = () => {
                             <div>
                               <p>
                                 <span className="font-semibold text-xl">
-                                  Payment History:{" "}
+                                  {t("analyzePage.paymentHistory")}:{" "}
                                 </span>
                                 {creditData?.summary.paymentHistory
                                   ? `${
                                       creditData.summary.paymentHistory
                                         .allCurrent
-                                        ? "All Current"
-                                        : "Issues Detected"
+                                        ? t("analyzePage.allCurrent")
+                                        : t("analyzePage.issuesDetected")
                                     } (${
                                       creditData.summary.paymentHistory
                                         .missedOrLatePast24Months
-                                    } missed/late in 24 months)`
-                                  : "None"}
+                                    } ${t("analyzePage.missedLate24Months")})`
+                                  : t("analyzePage.none")}
+                              </p>
+                              <p>
+                                <span className="font-semibold text-xl">
+                                  {t("analyzePage.onTimePayments")}:{" "}
+                                </span>
+                                {creditData?.scoreProgress.creditSummary
+                                  ? `${creditData.scoreProgress.creditSummary.onTimePayments}`
+                                  : t("analyzePage.none")}
+                              </p>
+                              <p>
+                                <span className="font-semibold text-xl">
+                                  {t("analyzePage.securedLoan")}:
+                                </span>{" "}
+                                {creditData?.securedLoan?.lender
+                                  ? `${creditData.securedLoan.lender} - ${t(
+                                      "analyzePage.registered"
+                                    )}:
+                                    ${creditData.securedLoan.registered}
+                                 , ${t("analyzePage.amount")}: ${
+                                      creditData.securedLoan?.amount
+                                        ? "$" + creditData.securedLoan?.amount
+                                        : t("analyzePage.na")
+                                    }, ${t("analyzePage.maturity")}: ${
+                                      creditData.securedLoan.maturity
+                                    }`
+                                  : t("analyzePage.none")}
+                              </p>
+                              <p>
+                                <span className="font-semibold text-xl">
+                                  {t("analyzePage.goodStanding")}:{" "}
+                                </span>
+                                {creditData?.scoreProgress.creditSummary
+                                  ? `${creditData.scoreProgress.creditSummary.activeAccounts}`
+                                  : t("analyzePage.none")}
+                              </p>
+                              <p>
+                                <span className="font-semibold text-xl">
+                                  {t("analyzePage.derogatoryMarks")}:{" "}
+                                </span>
+                                {creditData?.scoreProgress.creditSummary
+                                  ? `${creditData.scoreProgress.creditSummary.derogatoryMarks}`
+                                  : t("analyzePage.none")}
+                              </p>
+                              <p className="mt-2">
+                                <span className="font-semibold text-xl">
+                                  {t("analyzePage.collections")}:{" "}
+                                </span>
+                                {creditData?.summary.collections !== undefined
+                                  ? creditData.summary.collections
+                                  : t("analyzePage.none")}
+                              </p>
+                              <p className="mt-1">
+                                <span className="font-semibold text-xl">
+                                  {t("analyzePage.judgments")}:{" "}
+                                </span>
+                                {creditData?.summary.judgments !== undefined
+                                  ? creditData.summary.judgments
+                                  : t("analyzePage.none")}
                               </p>
                               <h3 className="font-semibold mb-1 text-xl">
-                                Inquiries:
+                                {t("analyzePage.inquiries")}:
                                 {/* ({creditData?.summary.inquiries.total || "0"}): */}
                               </h3>
                               <ul className="list-disc list-inside space-y-2">
                                 <li className="p-1">
-                                  Hard Inquiries:{" "}
+                                  {t("analyzePage.hardInquiries")}:{" "}
                                   {creditData?.summary.inquiries.hard?.length >
                                   0
                                     ? creditData.summary.inquiries.hard.length
-                                    : "None"}{" "}
-                                  total
+                                    : t("analyzePage.none")}{" "}
                                 </li>
                                 <li className={`p-1`}>
-                                  Soft Inquiries:{" "}
+                                  {t("analyzePage.softInquiries")}:{" "}
                                   <span
                                     className={`${
                                       paymentStatus === "paid" && !isReset
@@ -817,27 +1402,26 @@ const Analyzer = () => {
                                     {creditData?.summary.inquiries.soft
                                       ?.length > 0
                                       ? paymentStatus === "paid" && !isReset
-                                        ? creditData.summary.inquiries.soft.join(
-                                            ", "
-                                          )
-                                        : "Visible After Payment"
-                                      : "None"}
+                                        ? creditData.summary.inquiries.soft
+                                            ?.length
+                                        : t("analyzePage.availableAfterPayment")
+                                      : t("analyzePage.none")}
                                   </span>
                                 </li>
                               </ul>
-                              <h3 className="font-semibold mt-1 text-xl">
-                                Credit Utilization:
+                              <h3 className="font-semibold text-xl">
+                                {t("analyzePage.creditUtilization")}:
                               </h3>
                               <ul className="list-disc list-inside space-y-1">
                                 <li className="p-1">
-                                  Total revolving credit limit:{" "}
+                                  {t("analyzePage.totalLimit")}:{" "}
                                   {creditData?.summary.creditUtilization
                                     .totalLimit
                                     ? `$${creditData.summary.creditUtilization.totalLimit.toLocaleString()}`
-                                    : "None"}
+                                    : t("analyzePage.none")}
                                 </li>
                                 <li className={`p-1`}>
-                                  Total revolving balance:{" "}
+                                  {t("analyzePage.totalBalance")}:{" "}
                                   <span
                                     className={`${
                                       paymentStatus === "paid" && !isReset
@@ -849,30 +1433,24 @@ const Analyzer = () => {
                                       .totalBalance
                                       ? paymentStatus === "paid" && !isReset
                                         ? `$${creditData.summary.creditUtilization.totalBalance.toLocaleString()}`
-                                        : "Visible After Payment"
-                                      : "None"}
+                                        : t("analyzePage.availableAfterPayment")
+                                      : t("analyzePage.none")}
                                   </span>
                                 </li>
                                 <li className="p-1">
-                                  Utilization rate:{" "}
+                                  {t("analyzePage.utilizationRate")}:{" "}
                                   {creditData?.summary.creditUtilization
                                     .utilizationRate
-                                    ? `${(
-                                        creditData.summary.creditUtilization
-                                          .utilizationRate * 100
-                                      ).toFixed(1)}% ✅ ${
-                                        creditData.summary.creditUtilization
-                                          .rating
-                                      }`
-                                    : "None"}
+                                    ? `${creditData.summary.creditUtilization.utilizationRate}% ✅ ${creditData.summary.creditUtilization.rating}`
+                                    : t("analyzePage.none")}
                                 </li>
                               </ul>
                               <h3 className="font-semibold mt-1 text-xl">
-                                Credit Age:
+                                {t("analyzePage.creditAge")}:
                               </h3>
                               <ul className="list-disc list-inside space-y-1">
                                 <li className="p-1">
-                                  Oldest Account:{" "}
+                                  {t("analyzePage.oldestAccount")}:{" "}
                                   {creditData?.summary.creditAge.oldest.account
                                     ? `${
                                         creditData.summary.creditAge.oldest
@@ -883,10 +1461,10 @@ const Analyzer = () => {
                                         month: "short",
                                         year: "numeric",
                                       })})`
-                                    : "None"}
+                                    : t("analyzePage.none")}
                                 </li>
                                 <li className="p-1">
-                                  Newest Account:{" "}
+                                  {t("analyzePage.newestAccount")}:{" "}
                                   <span
                                     className={`${
                                       paymentStatus === "paid" && !isReset
@@ -906,33 +1484,20 @@ const Analyzer = () => {
                                             month: "short",
                                             year: "numeric",
                                           })})`
-                                        : "Visible After Payment"
-                                      : "None"}
+                                        : t("analyzePage.availableAfterPayment")
+                                      : t("analyzePage.none")}
                                   </span>
                                 </li>
                                 <li className="p-1">
-                                  Average Age:{" "}
+                                  {t("analyzePage.averageAge")}:{" "}
                                   {creditData?.summary.creditAge.averageAgeYears
-                                    ? `${creditData.summary.creditAge.averageAgeYears} years (Thin File)`
-                                    : "None"}
+                                    ? `${
+                                        creditData.summary.creditAge
+                                          .averageAgeYears
+                                      } ${t("analyzePage.years")}`
+                                    : t("analyzePage.none")}
                                 </li>
                               </ul>
-                              <p className="mt-2">
-                                <span className="font-semibold text-xl">
-                                  Collections:{" "}
-                                </span>
-                                {creditData?.summary.collections !== undefined
-                                  ? creditData.summary.collections
-                                  : "None"}
-                              </p>
-                              <p className="mt-1">
-                                <span className="font-semibold text-xl">
-                                  Judgments:{" "}
-                                </span>
-                                {creditData?.summary.judgments !== undefined
-                                  ? creditData.summary.judgments
-                                  : "None"}
-                              </p>
                             </div>
                           </div>
                         </div>
@@ -941,23 +1506,39 @@ const Analyzer = () => {
                       <section className="space-y-0 border border-slate-200 shadow-lg mt-4 rounded-md">
                         <div className="p-4">
                           <h2 className="text-2xl font-semibold">
-                            Structured Data Extraction
+                            {t("analyzePage.structuredData")}
                           </h2>
                           <h3 className="text-xl font-semibold mt-1">
-                            Accounts & Balances
+                            {t("analyzePage.accountsAndBalances")}
                           </h3>
                           <div className="overflow-x-auto">
                             <table className="w-full text-sm border-collapse rounded-xl overflow-hidden shadow-sm">
                               <thead>
                                 <tr className="border-b bg-slate-100 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">
-                                  <th className="text-left p-2">Type</th>
-                                  <th className="text-left p-2">Lender</th>
-                                  <th className="text-left p-2">Open Date</th>
-                                  <th className="text-left p-2">Limit</th>
-                                  <th className="text-left p-2">Balance</th>
-                                  <th className="text-left p-2">Status</th>
-                                  <th className="text-left p-2">Closed</th>
-                                  <th className="text-left p-2">Past Due</th>
+                                  <th className="text-left p-2">
+                                    {t("analyzePage.type")}
+                                  </th>
+                                  <th className="text-left p-2">
+                                    {t("analyzePage.lender")}
+                                  </th>
+                                  <th className="text-left p-2">
+                                    {t("analyzePage.openDate")}
+                                  </th>
+                                  <th className="text-left p-2">
+                                    {t("analyzePage.limit")}
+                                  </th>
+                                  <th className="text-left p-2">
+                                    {t("analyzePage.balance")}
+                                  </th>
+                                  <th className="text-left p-2">
+                                    {t("analyzePage.status")}
+                                  </th>
+                                  <th className="text-left p-2">
+                                    {t("analyzePage.closed")}
+                                  </th>
+                                  <th className="text-left p-2">
+                                    {t("analyzePage.pastDue")}
+                                  </th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -976,7 +1557,9 @@ const Analyzer = () => {
                                             colSpan={8}
                                             className="p-3 text-sm text-center align-middle"
                                           >
-                                            Visible After Payment
+                                            {t(
+                                              "analyzePage.availableAfterPayment"
+                                            )}
                                           </td>
                                         </tr>
                                       ) : (
@@ -994,10 +1577,11 @@ const Analyzer = () => {
                                                   .charAt(0)
                                                   .toUpperCase() +
                                                 account.type.slice(1)
-                                              : "N/A"}
+                                              : t("analyzePage.na")}
                                           </td>
                                           <td className="p-3 text-sm text-slate-700 whitespace-nowrap">
-                                            {account.lender || "N/A"}
+                                            {account.lender ||
+                                              t("analyzePage.na")}
                                           </td>
                                           <td className="p-2">
                                             {account.openDate &&
@@ -1017,7 +1601,7 @@ const Analyzer = () => {
                                           <td className="p-2">
                                             {account.limit
                                               ? `$${account.limit.toLocaleString()}`
-                                              : "N/A"}
+                                              : t("analyzePage.na")}
                                           </td>
                                           <td className="p-2">
                                             {account.balance
@@ -1025,10 +1609,17 @@ const Analyzer = () => {
                                               : "$0"}
                                           </td>
                                           <td className="p-2">
-                                            {account.status || "N/A"}
+                                            {account.status === "open"
+                                              ? t("analyzePage.open")
+                                              : account.status === "closed"
+                                              ? t("analyzePage.closed")
+                                              : account.status ||
+                                                t("analyzePage.na")}
                                           </td>
                                           <td className="p-2">
-                                            {account.closed ? "Yes" : "No"}
+                                            {account.closed
+                                              ? t("analyzePage.yes")
+                                              : t("analyzePage.no")}
                                           </td>
                                           <td className="p-2">
                                             {account.pastDue
@@ -1044,7 +1635,7 @@ const Analyzer = () => {
                                       colSpan={8}
                                       className="p-3 text-sm text-slate-700 text-center"
                                     >
-                                      None
+                                      {t("analyzePage.none")}
                                     </td>
                                   </tr>
                                 )}
@@ -1054,28 +1645,29 @@ const Analyzer = () => {
                         </div>
                         <div className="p-4">
                           <h3 className="text-xl font-semibold">
-                            Inquiry Records
+                            {t("analyzePage.inquiryRecords")}
                           </h3>
                           <div className="overflow-x-auto">
                             <table className="w-full min-w-[600px] text-sm border-collapse rounded-xl overflow-hidden shadow-sm">
                               <thead>
                                 <tr className="border-b bg-slate-100 text-slate-600 uppercase tracking-wide text-xs font-semibold">
                                   <th className="p-3 text-left text-xs font-medium text-slate-600 tracking-wider">
-                                    Date
+                                    {t("analyzePage.date")}
                                   </th>
                                   <th className="p-3 text-left text-xs font-medium text-slate-600 tracking-wider">
-                                    Lender
+                                    {t("analyzePage.lender")}
                                   </th>
                                   <th className="p-3 text-left text-xs font-medium text-slate-600 tracking-wider">
-                                    Type
+                                    {t("analyzePage.type")}
                                   </th>
                                   <th className="p-3 text-left text-xs font-medium text-slate-600 tracking-wider">
-                                    Affects Score
+                                    {t("analyzePage.affectsScore")}
                                   </th>
                                 </tr>
                               </thead>
                               <tbody>
-                                {creditData?.inquiries?.length > 0 ? (
+                                {Array.isArray(creditData?.inquiries) &&
+                                creditData.inquiries.length > 0 ? (
                                   creditData.inquiries.map((inq, i) =>
                                     i > 2 &&
                                     (paymentStatus !== "paid" || isReset) ? (
@@ -1088,7 +1680,9 @@ const Analyzer = () => {
                                           colSpan={4}
                                           className="p-3 text-sm text-center align-middle"
                                         >
-                                          Visible After Payment
+                                          {t(
+                                            "analyzePage.availableAfterPayment"
+                                          )}
                                         </td>
                                       </tr>
                                     ) : (
@@ -1112,17 +1706,20 @@ const Analyzer = () => {
                                             : "Unknown"}
                                         </td>
                                         <td className="p-3 text-sm text-slate-700 whitespace-nowrap">
-                                          {inq.lender || "N/A"}
+                                          {inq.lender || t("analyzePage.na")}
                                         </td>
                                         <td className="p-3 text-sm text-slate-700 whitespace-nowrap">
-                                          {inq.type || "N/A"}
+                                          {inq.type === "soft"
+                                            ? t("analyzePage.soft")
+                                            : t("analyzePage.hard") ||
+                                              t("analyzePage.na")}
                                         </td>
                                         <td className="p-3 text-sm text-slate-700 whitespace-nowrap">
                                           {typeof inq.affectsScore === "boolean"
                                             ? inq.affectsScore
-                                              ? "Yes"
-                                              : "No"
-                                            : "N/A"}
+                                              ? t("analyzePage.yes")
+                                              : t("analyzePage.no")
+                                            : t("analyzePage.na")}
                                         </td>
                                       </tr>
                                     )
@@ -1133,7 +1730,7 @@ const Analyzer = () => {
                                       colSpan={4}
                                       className="p-3 text-sm text-slate-700 text-center"
                                     >
-                                      None
+                                      {t("analyzePage.none")}
                                     </td>
                                   </tr>
                                 )}
@@ -1141,54 +1738,22 @@ const Analyzer = () => {
                             </table>
                           </div>
                         </div>
-                        <div className="p-4">
-                          <h3 className="text-xl font-semibold">
-                            Collections & Public Records
-                          </h3>
-                          <ul className="list-disc pl-5 text-sm">
-                            <li className="p-1">
-                              Collections:{" "}
-                              {creditData?.publicRecords.collections !==
-                              undefined
-                                ? creditData.publicRecords.collections
-                                : "None"}
-                            </li>
-                            <li className="p-1">
-                              Judgments:{" "}
-                              {creditData?.publicRecords.judgments !== undefined
-                                ? creditData.publicRecords.judgments
-                                : "None"}
-                            </li>
-                            <li className="p-1">
-                              <span>Secured Loan:</span>{" "}
-                              {creditData?.securedLoan?.lender
-                                ? `${
-                                    creditData.securedLoan.lender
-                                  } - Registered: 
-                                    ${creditData.securedLoan.registered}
-                                 , Amount: $${creditData.securedLoan.amount.toLocaleString()}, Maturity: ${
-                                    creditData.securedLoan.maturity
-                                  }`
-                                : "None"}
-                            </li>
-                          </ul>
-                        </div>
                       </section>
 
                       <section className="space-y-0 border border-slate-200 shadow-lg mt-4 rounded-md">
                         <div className="p-4">
                           <h2 className="text-2xl font-semibold mb-2">
-                            Credit Evaluation
+                            {t("analyzePage.creditEvaluation")}
                           </h2>
                           <div className="overflow-x-auto">
                             <table className="w-full min-w-[600px] text-sm border-collapse rounded-xl overflow-hidden shadow-sm">
                               <thead>
                                 <tr className="border-b bg-slate-100 text-slate-600 uppercase tracking-wide text-xs font-semibold">
                                   <th className="p-3 text-left text-xs font-medium text-slate-600 tracking-wider">
-                                    Metric
+                                    {t("analyzePage.metric")}
                                   </th>
                                   <th className="p-3 text-left text-xs font-medium text-slate-600 tracking-wider">
-                                    Analysis
+                                    {t("analyzePage.analysis")}
                                   </th>
                                 </tr>
                               </thead>
@@ -1208,7 +1773,9 @@ const Analyzer = () => {
                                           colSpan={2}
                                           className="p-3 text-sm text-center align-middle"
                                         >
-                                          Visible After Payment
+                                          {t(
+                                            "analyzePage.availableAfterPayment"
+                                          )}
                                         </td>
                                       </tr>
                                     ) : (
@@ -1221,13 +1788,28 @@ const Analyzer = () => {
                                         }`}
                                       >
                                         <td className="p-3 text-sm text-slate-700 whitespace-nowrap">
-                                          {metric
+                                          {/* {metric
                                             ? metric.charAt(0).toUpperCase() +
                                               metric.slice(1)
-                                            : "N/A"}
+                                            : t("analyzePage.na")} */}
+                                          {i === 0
+                                            ? t("analyzePage.utilization")
+                                            : i === 1
+                                            ? t("analyzePage.creditMix")
+                                            : i === 2
+                                            ? t("analyzePage.paymentHistory")
+                                            : i === 3
+                                            ? t("analyzePage.delinquency")
+                                            : i === 4
+                                            ? t("analyzePage.inquiryFrequency")
+                                            : i === 5
+                                            ? t("analyzePage.derogatoryMarks")
+                                            : i === 6
+                                            ? t("analyzePage.fileDepth")
+                                            : ""}
                                         </td>
                                         <td className="p-3 text-sm text-slate-700 whitespace-nowrap">
-                                          {analysis || "None"}
+                                          {analysis || t("analyzePage.none")}
                                         </td>
                                       </tr>
                                     )
@@ -1238,7 +1820,7 @@ const Analyzer = () => {
                                       colSpan={2}
                                       className="p-3 text-sm text-slate-700 text-center"
                                     >
-                                      None
+                                      {t("analyzePage.none")}
                                     </td>
                                   </tr>
                                 )}
@@ -1251,16 +1833,26 @@ const Analyzer = () => {
                       <section className="space-y-0 border border-slate-200 shadow-lg mt-4 rounded-md">
                         <div className="p-4 overflow-x-auto w-full max-w-full">
                           <h2 className="text-2xl font-semibold">
-                            Score Forecast Engine
+                            {t("analyzePage.scoreForecast")}
                           </h2>
                           <table className="w-full min-w-[600px] text-sm border-collapse rounded-xl overflow-hidden shadow-sm">
                             <thead>
                               <tr className="border-b bg-slate-100 text-slate-600 uppercase tracking-wide text-xs font-semibold">
-                                <th className="text-left p-2">Action</th>
-                                <th className="text-left p-2">Impact (pts)</th>
-                                <th className="text-left p-2">Timeline</th>
-                                <th className="text-left p-2">Priority</th>
-                                <th className="text-left p-2">Confidence</th>
+                                <th className="text-left p-2">
+                                  {t("analyzePage.action")}
+                                </th>
+                                <th className="text-left p-2">
+                                  {t("analyzePage.impact")}
+                                </th>
+                                <th className="text-left p-2">
+                                  {t("analyzePage.timeline")}
+                                </th>
+                                <th className="text-left p-2">
+                                  {t("analyzePage.priority")}
+                                </th>
+                                <th className="text-left p-2">
+                                  {t("analyzePage.confidence")}
+                                </th>
                               </tr>
                             </thead>
                             <tbody>
@@ -1277,7 +1869,7 @@ const Analyzer = () => {
                                         colSpan={5}
                                         className="p-3 text-sm text-slate-700 text-center align-middle"
                                       >
-                                        Visible After Payment
+                                        {t("analyzePage.availableAfterPayment")}
                                       </td>
                                     </tr>
                                   ) : (
@@ -1288,22 +1880,23 @@ const Analyzer = () => {
                                       }`}
                                     >
                                       <td className="p-2">
-                                        {forecast.action || "N/A"}
+                                        {forecast.action || t("analyzePage.na")}
                                       </td>
                                       <td className="p-2">
-                                        {typeof forecast.estimatedImpact ===
-                                        "number"
-                                          ? forecast.estimatedImpact
-                                          : "N/A"}
+                                        {forecast.estimatedImpact ||
+                                          t("analyzePage.na")}
                                       </td>
                                       <td className="p-2">
-                                        {forecast.timeline || "N/A"}
+                                        {forecast.timeline ||
+                                          t("analyzePage.na")}
                                       </td>
                                       <td className="p-2">
-                                        {forecast.priority || "N/A"}
+                                        {forecast.priority ||
+                                          t("analyzePage.na")}
                                       </td>
                                       <td className="p-2">
-                                        {forecast.confidence || "N/A"}
+                                        {forecast.confidence ||
+                                          t("analyzePage.na")}
                                       </td>
                                     </tr>
                                   )
@@ -1314,7 +1907,7 @@ const Analyzer = () => {
                                     colSpan={5}
                                     className="p-3 text-sm text-slate-700 text-center"
                                   >
-                                    None
+                                    {t("analyzePage.none")}
                                   </td>
                                 </tr>
                               )}
@@ -1326,17 +1919,23 @@ const Analyzer = () => {
                       <section className="space-y-0 border border-slate-200 shadow-lg mt-4 rounded-md">
                         <div className="p-4 overflow-x-auto w-full max-w-full">
                           <h2 className="text-2xl font-semibold">
-                            AI Action Plan Generator
+                            {t("analyzePage.aiActionPlan")}
                           </h2>
                           <table className="w-full min-w-[600px] text-sm border-collapse rounded-xl overflow-hidden shadow-sm">
                             <thead>
                               <tr className="border-b bg-slate-100 text-slate-600 uppercase tracking-wide text-xs font-semibold">
                                 <th className="text-left p-2">
-                                  Recommendation
+                                  {t("analyzePage.recommendation")}
                                 </th>
-                                <th className="text-left p-2">Description</th>
-                                <th className="text-left p-2">Priority</th>
-                                <th className="text-left p-2">Timeline</th>
+                                <th className="text-left p-2">
+                                  {t("analyzePage.description")}
+                                </th>
+                                <th className="text-left p-2">
+                                  {t("analyzePage.priority")}
+                                </th>
+                                <th className="text-left p-2">
+                                  {t("analyzePage.timeline")}
+                                </th>
                               </tr>
                             </thead>
                             <tbody>
@@ -1353,7 +1952,7 @@ const Analyzer = () => {
                                         colSpan={5}
                                         className="p-3 text-sm text-slate-700 text-center align-middle"
                                       >
-                                        Visible After Payment
+                                        {t("analyzePage.availableAfterPayment")}
                                       </td>
                                     </tr>
                                   ) : (
@@ -1364,16 +1963,20 @@ const Analyzer = () => {
                                       }`}
                                     >
                                       <td className="p-2">
-                                        {forecast.recommendation || "N/A"}
+                                        {forecast.recommendation ||
+                                          t("analyzePage.na")}
                                       </td>
                                       <td className="p-2">
-                                        {forecast.description || "N/A"}
+                                        {forecast.description ||
+                                          t("analyzePage.na")}
                                       </td>
                                       <td className="p-2">
-                                        {forecast.priority || "N/A"}
+                                        {forecast.priority ||
+                                          t("analyzePage.na")}
                                       </td>
                                       <td className="p-2">
-                                        {forecast.timeline || "N/A"}
+                                        {forecast.timeline ||
+                                          t("analyzePage.na")}
                                       </td>
                                     </tr>
                                   )
@@ -1384,7 +1987,7 @@ const Analyzer = () => {
                                     colSpan={5}
                                     className="p-3 text-sm text-slate-700 text-center"
                                   >
-                                    None
+                                    {t("analyzePage.none")}
                                   </td>
                                 </tr>
                               )}
@@ -1396,22 +1999,33 @@ const Analyzer = () => {
                       <section className="space-y-0 border border-slate-200 shadow-lg mt-4 rounded-md">
                         <div className="p-4">
                           <h2 className="text-2xl font-semibold">
-                            Dispute & Removal Toolkit
+                            {t("analyzePage.dispute")} &{" "}
+                            {t("analyzePage.removal") +
+                              " " +
+                              t("analyzePage.toolkit")}
                           </h2>
                           <h3 className="text-xl font-semibold mb-2">
-                            Dispute Letter
+                            {t("analyzePage.dispute") +
+                              " " +
+                              t("analyzePage.letter")}
                           </h3>
                           <div className="bg-white border rounded-lg p-4 text-sm font-mono whitespace-pre-wrap">
                             {creditData?.disputeToolkit?.disputeLetter ? (
-                              <p>{creditData?.disputeToolkit.disputeLetter}</p>
+                              <p ref={disputeRef}>
+                                {creditData?.disputeToolkit.disputeLetter}
+                              </p>
                             ) : (
-                              <p>None</p>
+                              <p>{t("analyzePage.none")}</p>
                             )}
                           </div>
                         </div>
                         <div className="p-4">
                           <h3 className="text-xl font-semibold mb-2">
-                            Goodwill Removal Script
+                            {t("analyzePage.goodwill") +
+                              " " +
+                              t("analyzePage.removal") +
+                              " " +
+                              t("analyzePage.letter")}
                           </h3>
                           <div
                             className={`${
@@ -1420,201 +2034,204 @@ const Analyzer = () => {
                                 : "text-gray-400 bg-gray-200 italic text-center"
                             } border rounded-lg p-4 text-sm font-mono whitespace-pre-wrap`}
                           >
-                            {creditData?.disputeToolkit?.goodwillScript
-                              ? paymentStatus === "paid" && !isReset
-                                ? creditData.disputeToolkit.goodwillScript
-                                : "Visible After Payment"
-                              : "None"}
+                            <span ref={goodWillRef}>
+                              {creditData?.disputeToolkit?.goodwillScript
+                                ? paymentStatus === "paid" && !isReset
+                                  ? creditData.disputeToolkit.goodwillScript
+                                  : t("analyzePage.availableAfterPayment")
+                                : t("analyzePage.none")}
+                            </span>
                           </div>
                         </div>
                       </section>
 
                       <section className="space-y-0 border border-slate-200 shadow-lg mt-4 rounded-md">
-                        <div className="p-4">
+                        <div className="p-4 overflow-x-auto">
                           <h2 className="text-2xl font-semibold">
-                            Score Progress Tracker
+                            {t("analyzePage.scoreProgressTracker")}
                           </h2>
-                          <h3 className="text-lg font-semibold mb-2">
-                            Credit Summary
+                          <h3 className="text-lg font-semibold">
+                            {t("analyzePage.scoreSimulator")}
                           </h3>
-                          <ul className="grid grid-cols-2 gap-x-10 gap-y-2 text-sm text-slate-700">
-                            {creditData?.scoreProgress?.creditSummary ? (
-                              <>
-                                <li>
-                                  <strong>Score:</strong>{" "}
-                                  {creditData.scoreProgress.creditSummary.score}{" "}
-                                  ({creditData.summary.rating})
-                                </li>
-                                <li>
-                                  <strong>Utilization:</strong>{" "}
-                                  {
-                                    creditData.scoreProgress.creditSummary
-                                      .utilization
-                                  }
-                                </li>
-                                <li>
-                                  <strong>On-time payments:</strong>{" "}
-                                  {
-                                    creditData.scoreProgress.creditSummary
-                                      .onTimePayments
-                                  }
-                                </li>
-                                <li>
-                                  <strong>Accounts in Good Standing:</strong>{" "}
-                                  {
-                                    creditData.scoreProgress.creditSummary
-                                      .activeAccounts
-                                  }
-                                </li>
-                                <li>
-                                  <strong>Inquiries:</strong>{" "}
-                                  {
-                                    creditData.scoreProgress.creditSummary
-                                      .hardInquiries
-                                  }{" "}
-                                  hard,{" "}
-                                  {
-                                    creditData.scoreProgress.creditSummary
-                                      .softInquiries
-                                  }
-                                </li>
-                                <li>
-                                  <strong>Derogatory Marks:</strong>{" "}
-                                  {creditData.scoreProgress.creditSummary
-                                    .derogatoryMarks || "None"}
-                                </li>
-                              </>
-                            ) : (
-                              <li className="col-span-2">None</li>
-                            )}
-                          </ul>
-                        </div>
-
-                        <div className="p-4">
-                          <h3 className="text-lg font-semibold mb-2">
-                            Score Simulator
-                          </h3>
-                          <ul className="list-disc pl-5 text-sm text-slate-700 space-y-1">
-                            {creditData?.scoreProgress?.scoreSimulator?.length >
-                            0 ? (
-                              creditData.scoreProgress.scoreSimulator.map(
-                                (scenario, i) => (
-                                  <li
-                                    key={i}
-                                    className={`${
-                                      i > 0
-                                        ? paymentStatus === "paid" && !isReset
-                                          ? ""
-                                          : "bg-gray-200 italic text-gray-400"
-                                        : ""
-                                    }`}
-                                  >
-                                    {/* {scenario.scenario} →{" "}
-                                    {scenario.projectedScoreChange} */}
-                                    {i > 0 &&
+                          <table className="w-full min-w-[600px] text-sm border-collapse rounded-xl overflow-hidden shadow-sm">
+                            <thead>
+                              <tr className="border-b bg-slate-100 text-slate-600 uppercase tracking-wide text-xs font-semibold">
+                                <th className="text-left p-2">
+                                  {t("analyzePage.scenario")}
+                                </th>
+                                <th className="text-left p-2">
+                                  {t("analyzePage.description")}
+                                </th>
+                                <th className="text-left p-2">
+                                  {t("analyzePage.scoreChange")}
+                                </th>
+                                <th className="text-left p-2">
+                                  {t("analyzePage.impact")}
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {creditData?.scoreProgress?.scoreSimulator
+                                ?.length > 0 ? (
+                                creditData.scoreProgress.scoreSimulator.map(
+                                  (scenario, i) =>
+                                    i > 1 &&
                                     (paymentStatus !== "paid" || isReset) ? (
-                                      <span className="text-center block">
-                                        Visible After Payment
-                                      </span>
+                                      <tr
+                                        key={i}
+                                        className={`border-t hover:bg-slate-50 transition-colors italic text-gray-400 bg-gray-200`}
+                                      >
+                                        <td
+                                          style={{ textAlign: "center" }}
+                                          colSpan={5}
+                                          className="p-3 text-sm text-slate-700 text-center align-middle"
+                                        >
+                                          {t(
+                                            "analyzePage.availableAfterPayment"
+                                          )}
+                                        </td>
+                                      </tr>
                                     ) : (
-                                      <>
-                                        {scenario.scenario
-                                          ? scenario.scenario
-                                              .split("(")[0]
-                                              .trim()
-                                          : "N/A"}{" "}
-                                        →{" "}
-                                        {typeof scenario.projectedScoreChange ===
-                                        "number"
-                                          ? scenario.projectedScoreChange
-                                          : "N/A"}
-                                      </>
-                                    )}
-                                  </li>
+                                      <tr
+                                        key={i}
+                                        className={`border-t hover:bg-slate-50 transition-colors ${
+                                          i % 2 === 0
+                                            ? "bg-white"
+                                            : "bg-slate-50"
+                                        }`}
+                                      >
+                                        <td className="p-2">
+                                          {scenario.scenario ||
+                                            t("analyzePage.na")}
+                                        </td>
+                                        <td className="p-2">
+                                          {scenario.description ||
+                                            t("analyzePage.na")}
+                                        </td>
+                                        <td className="p-2">
+                                          {scenario.projectedScoreChange ||
+                                            t("analyzePage.na")}
+                                        </td>
+                                        <td className="p-2">
+                                          {scenario.impactType ||
+                                            t("analyzePage.na")}
+                                        </td>
+                                      </tr>
+                                    )
                                 )
-                              )
-                            ) : (
-                              <li>None</li>
-                            )}
-                          </ul>
+                              ) : (
+                                <tr>
+                                  <td
+                                    colSpan={5}
+                                    className="p-3 text-sm text-slate-700 text-center"
+                                  >
+                                    {t("analyzePage.none")}
+                                  </td>
+                                </tr>
+                              )}
+                            </tbody>
+                          </table>
                         </div>
 
-                        <div className="p-4">
+                        <div className="p-4 overflow-x-auto">
                           <h3 className="text-lg font-semibold mb-4">
-                            Action Checklist
+                            {t("analyzePage.actionChecklist")}
                           </h3>
                           <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {creditData?.scoreProgress?.checklist ? (
-                              Object.entries(
+                              Object.values(
                                 creditData.scoreProgress.checklist
-                              ).map(([action, completed], i) =>
-                                i > 2 &&
-                                (paymentStatus !== "paid" || isReset) ? (
-                                  <li
-                                    key={i}
-                                    className={`${
-                                      i > 0
-                                        ? paymentStatus === "paid" && !isReset
-                                          ? ""
-                                          : "bg-gray-200 italic text-gray-400 col-span-1 sm:col-span-2 p-4 text-sm"
-                                        : ""
-                                    }`}
-                                    aria-label="Restricted checklist item"
-                                  >
-                                    Visible After Payment
-                                  </li>
-                                ) : (
+                              ).map((item, i) => {
+                                const desc = item?.desc ?? t("analyzePage.na");
+                                const istrue = item?.istrue ?? false;
+
+                                if (
+                                  i > 2 &&
+                                  (paymentStatus !== "paid" || isReset)
+                                ) {
+                                  return (
+                                    <li
+                                      key={i}
+                                      className="bg-gray-200 italic text-gray-400 col-span-1 sm:col-span-2 p-4 text-sm"
+                                      aria-label="Restricted checklist item"
+                                    >
+                                      {t("analyzePage.availableAfterPayment")}
+                                    </li>
+                                  );
+                                }
+
+                                return (
                                   <li
                                     key={i}
                                     className={`flex items-center gap-3 p-4 rounded-lg border shadow-sm ${
-                                      completed
+                                      istrue
                                         ? "bg-gradient-to-r from-white to-blue-50 border-blue-200"
                                         : "bg-slate-50 border-slate-200"
                                     }`}
                                   >
-                                    <span
-                                      className={`text-2xl ml-2 mr-4 ${
-                                        completed
-                                          ? "text-green-500"
-                                          : "text-gray-500"
-                                      }`}
-                                    >
-                                      {completed ? "✔" : "⃣"}
+                                    <span>
+                                      {istrue ? (
+                                        <svg
+                                          className="w-8 h-8 text-green-500 dark:text-white"
+                                          aria-hidden="true"
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          width="24"
+                                          height="24"
+                                          fill="none"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path
+                                            stroke="currentColor"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="M5 11.917 9.724 16.5 19 7.5"
+                                          />
+                                        </svg>
+                                      ) : (
+                                        <svg
+                                          className="w-8 h-8 text-red-500 dark:text-white"
+                                          aria-hidden="true"
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          width="24"
+                                          height="24"
+                                          fill="none"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path
+                                            stroke="currentColor"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="M6 18 17.94 6M18 18 6.06 6"
+                                          />
+                                        </svg>
+                                      )}
                                     </span>
-                                    <span className="text-sm">
-                                      {action === "payCTB1" &&
-                                        "Pay off $500 on Canadian Tire #1"}
-                                      {action === "keepCIBCOpen" &&
-                                        "Keep CIBC and Royal Bank accounts open"}
-                                      {action === "requestCLI" &&
-                                        "Submit CLI request to Rogers Bank"}
-                                      {action === "reportRent" &&
-                                        "Register rent reporting via FrontLobby"}
-                                      {action === "avoidApplications" &&
-                                        "Avoid credit card applications until September 2025"}
-                                    </span>
+                                    <span className="text-sm">{desc}</span>
                                   </li>
-                                )
-                              )
+                                );
+                              })
                             ) : (
                               <li className="col-span-2 p-4 text-sm text-slate-700">
-                                None
+                                {t("analyzePage.none")}
                               </li>
                             )}
                           </ul>
                         </div>
 
-                        <div className="p-4">
+                        {/* ref={chartRef} */}
+                        <div className="p-4" ref={chartRef}>
                           <h3 className="text-lg font-semibold mb-2">
-                            Progress Projection
+                            {t("analyzePage.progressProjection")}
                           </h3>
                           <ResponsiveContainer width="100%" height={300}>
                             <LineChart
                               data={
                                 creditData?.scoreProgress?.forecastChart?.dataPoints?.map(
                                   (point) => ({
-                                    name: point.date,
-                                    score: point.score,
+                                    name: point?.date,
+                                    [t("analyzePage.score")]: point?.score,
                                   })
                                 ) || []
                               }
@@ -1625,7 +2242,7 @@ const Analyzer = () => {
                               <Tooltip />
                               <Line
                                 type="monotone"
-                                dataKey="score"
+                                dataKey={t("analyzePage.score")}
                                 stroke="#3b82f6"
                                 strokeWidth={2}
                               />
@@ -1637,17 +2254,21 @@ const Analyzer = () => {
                       <section className="space-y-0 border border-slate-200 shadow-lg mt-4 rounded-md">
                         <div className="p-4 overflow-x-auto w-full max-w-full">
                           <h2 className="text-2xl font-semibold">
-                            AI Reminder & Re-Evaluation Engine
+                            {t("analyzePage.aiReminderEngine")}
                           </h2>
                           <div className="overflow-auto">
                             <table className="w-full min-w-[600px] text-sm border-collapse rounded-xl overflow-hidden shadow-sm">
                               <thead>
                                 <tr className="border-b bg-slate-100 text-slate-600 uppercase tracking-wide text-xs font-semibold">
-                                  <th className="text-left p-2">Event</th>
                                   <th className="text-left p-2">
-                                    Reminder Date
+                                    {t("analyzePage.event")}
                                   </th>
-                                  <th className="text-left p-2">Action</th>
+                                  <th className="text-left p-2">
+                                    {t("analyzePage.reminderDate")}
+                                  </th>
+                                  <th className="text-left p-2">
+                                    {t("analyzePage.action")}
+                                  </th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -1666,7 +2287,9 @@ const Analyzer = () => {
                                           style={{ textAlign: "center" }}
                                           className="p-3 text-sm text-center align-middle"
                                         >
-                                          Visible After Payment
+                                          {t(
+                                            "analyzePage.availableAfterPayment"
+                                          )}
                                         </td>
                                       </tr>
                                     ) : (
@@ -1679,7 +2302,8 @@ const Analyzer = () => {
                                         }`}
                                       >
                                         <td className="p-2">
-                                          {reminder.event || "N/A"}
+                                          {reminder.event ||
+                                            t("analyzePage.na")}
                                         </td>
                                         <td className="p-2">
                                           {reminder.reminderDate &&
@@ -1698,7 +2322,8 @@ const Analyzer = () => {
                                             : "Unknown"}
                                         </td>
                                         <td className="p-2">
-                                          {reminder.action || "N/A"}
+                                          {reminder.action ||
+                                            t("analyzePage.na")}
                                         </td>
                                       </tr>
                                     )
@@ -1709,7 +2334,7 @@ const Analyzer = () => {
                                       colSpan={3}
                                       className="p-3 text-sm text-slate-700 text-center"
                                     >
-                                      None
+                                      {t("analyzePage.none")}
                                     </td>
                                   </tr>
                                 )}

@@ -1,21 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   SignedIn,
   SignedOut,
   SignInButton,
-  UserButton
+  UserButton,
 } from "@clerk/clerk-react";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const toggleMenu = () => setIsOpen(!isOpen);
   const { i18n, t } = useTranslation();
-
+  const selectedLanguage = localStorage.getItem("selectedLanguage") || "en";
   const changeLanguage = (lng) => {
-    console.log("Changing language to:", lng);
-
+    localStorage.setItem("selectedLanguage", lng);
     i18n.changeLanguage(lng); // this updates globally
     toggleMenu(); // close the menu after changing language
   };
@@ -26,7 +25,7 @@ const Header = () => {
     { code: "uk", label: "Українська" },
     { code: "es", label: "Español" },
     { code: "fr", label: "Français" },
-    { code: "ar", label: "العربية" },
+    // { code: "ar", label: "العربية" },
     { code: "hi", label: "हिंदी" },
   ];
 
@@ -109,20 +108,16 @@ const Header = () => {
             </SignedOut>
             <SignedIn>
               <button className="block px-3 py-1 rounded hover:bg-white hover:text-black transition">
-                <UserButton/>
+                <UserButton />
               </button>
             </SignedIn>
           </li>
           <li className="py-2 md:py-0">
-            <div
-              id="google_translate_element"
-              className="block px-2 py-1 rounded transition"
-            ></div>
-            {/* <div className="translate-container pl-4 pr-4 block px-3 py-1 rounded hover:bg-white hover:text-black transition"> */}
-            {/* </div> */}
-            {/* <select
+          
+            <select
               className="border-0 focus:outline-none block px-3 py-1 rounded hover:bg-white hover:text-black transition"
               onChange={(e) => changeLanguage(e.target.value)}
+              // value={selectedLanguage}
             >
               {languages.map((lang) => (
                 <option
@@ -134,7 +129,7 @@ const Header = () => {
                   {lang.label}
                 </option>
               ))}
-            </select> */}
+            </select>
           </li>
         </ul>
       </nav>
