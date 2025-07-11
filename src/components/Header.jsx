@@ -14,7 +14,7 @@ const Header = () => {
   const { i18n, t } = useTranslation();
   const selectedLanguage = localStorage.getItem("selectedLanguage") || "en";
   const changeLanguage = (lng) => {
-    localStorage.setItem("selectedLanguage", lng);
+    // localStorage.setItem("selectedLanguage", lng);
     i18n.changeLanguage(lng); // this updates globally
     toggleMenu(); // close the menu after changing language
   };
@@ -32,7 +32,9 @@ const Header = () => {
   return (
     <header className="bg-[#0A1F44] text-white w-full">
       <nav className="flex items-center justify-between px-4 py-4 max-w-6xl mx-auto">
-        <div className="text-xl font-bold">Scorewise</div>
+        <div className="text-xl font-bold">
+          <Link to="/">Scorewise</Link>
+        </div>
         <button onClick={toggleMenu} className="md:hidden focus:outline-none">
           <svg
             className="w-6 h-6"
@@ -112,7 +114,7 @@ const Header = () => {
               </button>
             </SignedIn>
           </li>
-          <li className="py-2 md:py-0">
+          {/* <li className="py-2 md:py-0">
           
             <select
               className="border-0 focus:outline-none block px-3 py-1 rounded hover:bg-white hover:text-black transition"
@@ -130,7 +132,7 @@ const Header = () => {
                 </option>
               ))}
             </select>
-          </li>
+          </li> */}
         </ul>
       </nav>
     </header>

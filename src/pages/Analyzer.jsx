@@ -111,7 +111,6 @@ const Analyzer = () => {
         }, 3000);
       }
     }
-
   }, [translated]);
 
   const generateActionPlanPDF = async () => {
@@ -152,15 +151,15 @@ const Analyzer = () => {
         boldFont = await doc.embedFont(boldBytes);
       }
 
-      let page = doc.addPage([612, 792]);
+      let page = doc.addPage([595.28, 841.89]);
 
       const fontSize = 10;
       const margin = 40;
-      let y = page.getHeight() - margin;
+      let y = 780;
 
       const newPage = () => {
-        page = doc.addPage([612, 792]);
-        y = page.getHeight() - margin;
+        page = doc.addPage([595.28, 841.89]);
+        y = 780;
       };
 
       const checkSpace = (neededHeight = fontSize + 4) => {
@@ -256,7 +255,7 @@ const Analyzer = () => {
         });
       };
 
-      const wrapText = (text, font, fontSize, maxWidth) => {
+      const wrapText = (text, font, fontSize, maxWidth = 495) => {
         const words = text.split(" ");
         const lines = [];
         let currentLine = "";
@@ -301,14 +300,14 @@ const Analyzer = () => {
           } else if (tableType === "actionPlan") {
             colWidths = [200, 200, 50, 80];
           } else if (tableType === "scoresimulator") {
-            colWidths = [200, 230, 80, 50];
+            colWidths = [200, 200, 70, 50];
           } else {
             colWidths = [100, 160, 120, 120];
           }
         } else if (row.length === 5) {
           colWidths = [230, 40, 150, 50, 50];
         } else {
-          colWidths = [60, 110, 65, 50, 60, 90, 60, 60];
+          colWidths = [60, 150, 65, 50, 60, 50, 50, 50];
         }
 
         let x = margin;
@@ -386,6 +385,22 @@ const Analyzer = () => {
       };
 
       // Start PDF Content
+      // --- Embed Logo Image ---
+      const logoBytes = await fetch("/assets/logo.png").then((res) => res.arrayBuffer());
+      const logoImage = await doc.embedPng(logoBytes);
+      const logoDims = logoImage.scale(0.25); // Resize (scale to 25%)
+
+      // const pageWidth = page.getWidth();
+      const logoX = (pageWidth - logoDims.width) / 2;
+      const logoY = page.getHeight() - 70; // Top margin
+      console.log("logoDims.width", logoDims.width, logoDims.height, logoX, logoY);
+      page.drawImage(logoImage, {
+        x: 235,
+        y: logoY,
+        width: 150,
+        height: 50,
+      });
+      y -= 40
       drawSectionHeader(t("analyzePage.creditSummary"));
       const summary = creditData.summary;
       drawSubHeading(`${t("analyzePage.score")}:`);
@@ -669,11 +684,10 @@ const Analyzer = () => {
           const chartDims = chartPng.scale(0.5);
 
           if (y < margin + chartDims.height) newPage();
-
           page.drawImage(chartPng, {
-            x: margin,
+            x: 30,
             y: y - chartDims.height,
-            width: chartDims.width,
+            width: chartDims.width - 30,
             height: chartDims.height,
           });
 
@@ -847,6 +861,7 @@ const Analyzer = () => {
       dispatch(fetchReport(formData));
     } catch (error) {
       if (error.response && error.response.status === 400) {
+        setIsReport(false)
         toast.error("Credit report is empty or invalid file.");
         return;
       }
@@ -862,7 +877,7 @@ const Analyzer = () => {
       if (
         statusCode &&
         statusCode === 200 &&
-        Object.keys(creditData).length === 0 
+        Object.keys(creditData).length === 0
       ) {
         toast.warn("No data found!");
       }
@@ -876,8 +891,7 @@ const Analyzer = () => {
         // await handleReset();
         dispatch(getReportByReportId(user.id));
         // setIsReport(true);
-      // localStorage.setItem("selectedLanguage", "");
-
+        // localStorage.setItem("selectedLanguage", "");
       }
     } catch (error) {
       setIsReport(false);
@@ -886,29 +900,17 @@ const Analyzer = () => {
   };
 
   useEffect(() => {
-    console.log("i18n.language", i18n.language);
-    
-    // if (i18n.language === "en") {
-      referrer === "paymentSuccess" && getReport();
-    // } else {
-    //   handleTranslate(selectedLanguage);
-    // }
-
-    console.log("data", data?.data);
-    
+    referrer === "paymentSuccess" && getReport();
   }, []);
 
   useEffect(() => {
-    // if (isSignedIn && i18n.language === "en") {
-    //   referrer != "paymentSuccess" && getReport();
-    // }
     if (isSignedIn) {
-    const savedData = JSON.parse(localStorage.getItem("creditReport"));
-if (savedData && Object.keys(savedData).length > 0 && loading === false) {
-      setIsReport(true);
-      setcreditData(savedData);
-    }
-      (referrer != "paymentSuccess" && !savedData) && getReport();
+      const savedData = JSON.parse(localStorage.getItem("creditReport"));
+      if (savedData && Object.keys(savedData).length > 0 && loading === false) {
+        setIsReport(true);
+        setcreditData(savedData);
+      }
+      referrer != "paymentSuccess" && !savedData && getReport();
     }
   }, [isSignedIn]);
 
@@ -926,16 +928,13 @@ if (savedData && Object.keys(savedData).length > 0 && loading === false) {
       setThumbnail(false);
       setcreditData({});
     }
-    console.log("dataaa", data?.data);
-    
+   
     if (savedData && Object.keys(savedData).length > 0 && loading === false) {
       setIsReport(true);
       setcreditData(savedData);
     }
 
-    console.log("hasData", hasData);
     if (hasData) {
-      
       const result = data.data.result;
       setcreditData(result);
       setPaymentStatus(data.data.ispro ? "paid" : "fail");
@@ -950,17 +949,18 @@ if (savedData && Object.keys(savedData).length > 0 && loading === false) {
         inquiries: inquiriesCombined,
       });
       if (!isSignedIn) {
-        localStorage.setItem("creditReport", JSON.stringify({
-        ...result,
-        inquiries: inquiriesCombined,
-      }));
-      } 
-      if(isSignedIn) {
-        console.log("isSignedIn", isSignedIn);
-        
+        localStorage.setItem(
+          "creditReport",
+          JSON.stringify({
+            ...result,
+            inquiries: inquiriesCombined,
+          })
+        );
+      }
+      if (isSignedIn) {
         localStorage.removeItem("creditReport");
         // if (i18n.language === "en") {
-          // localStorage.setItem("creditReportFortranslate", JSON.stringify(result))
+        // localStorage.setItem("creditReportFortranslate", JSON.stringify(result))
         // }
         setTimeout(() => {
           exportChartAsImage();
@@ -969,12 +969,12 @@ if (savedData && Object.keys(savedData).length > 0 && loading === false) {
     }
   }, [data]);
 
-  useEffect(() => {
-    if (Object.keys(creditData).length > 0) {
-      handleTranslate(selectedLanguage);
-    }
-    // i18n.changeLanguage(selectedLanguage);
-  }, [i18n?.language]);
+  // useEffect(() => {
+  //   if (Object.keys(creditData).length > 0) {
+  //     handleTranslate(selectedLanguage);
+  //   }
+  //   // i18n.changeLanguage(selectedLanguage);
+  // }, [i18n?.language]);
 
   return (
     <div
@@ -1415,9 +1415,9 @@ if (savedData && Object.keys(savedData).length > 0 && loading === false) {
                               <ul className="list-disc list-inside space-y-1">
                                 <li className="p-1">
                                   {t("analyzePage.totalLimit")}:{" "}
-                                  {creditData?.summary.creditUtilization
-                                    .totalLimit
-                                    ? `$${creditData.summary.creditUtilization.totalLimit.toLocaleString()}`
+                                  {creditData?.summary?.creditUtilization
+                                    ?.totalLimit
+                                    ? `$${creditData?.summary?.creditUtilization?.totalLimit?.toLocaleString()}`
                                     : t("analyzePage.none")}
                                 </li>
                                 <li className={`p-1`}>
@@ -1429,8 +1429,7 @@ if (savedData && Object.keys(savedData).length > 0 && loading === false) {
                                         : "bg-gray-200 italic text-gray-400"
                                     }`}
                                   >
-                                    {creditData?.summary.creditUtilization
-                                      .totalBalance
+                                    {creditData?.summary?.creditUtilization?.totalBalance
                                       ? paymentStatus === "paid" && !isReset
                                         ? `$${creditData.summary.creditUtilization.totalBalance.toLocaleString()}`
                                         : t("analyzePage.availableAfterPayment")
@@ -1439,8 +1438,7 @@ if (savedData && Object.keys(savedData).length > 0 && loading === false) {
                                 </li>
                                 <li className="p-1">
                                   {t("analyzePage.utilizationRate")}:{" "}
-                                  {creditData?.summary.creditUtilization
-                                    .utilizationRate
+                                  {creditData?.summary?.creditUtilization?.utilizationRate
                                     ? `${creditData.summary.creditUtilization.utilizationRate}% ✅ ${creditData.summary.creditUtilization.rating}`
                                     : t("analyzePage.none")}
                                 </li>
@@ -1451,7 +1449,7 @@ if (savedData && Object.keys(savedData).length > 0 && loading === false) {
                               <ul className="list-disc list-inside space-y-1">
                                 <li className="p-1">
                                   {t("analyzePage.oldestAccount")}:{" "}
-                                  {creditData?.summary.creditAge.oldest.account
+                                  {creditData?.summary?.creditAge?.oldest.account
                                     ? `${
                                         creditData.summary.creditAge.oldest
                                           .account
@@ -1472,7 +1470,7 @@ if (savedData && Object.keys(savedData).length > 0 && loading === false) {
                                         : "bg-gray-200 italic text-gray-400"
                                     }`}
                                   >
-                                    {creditData?.summary.creditAge.newest
+                                    {creditData?.summary?.creditAge?.newest
                                       .account
                                       ? paymentStatus === "paid" && !isReset
                                         ? `${
@@ -1490,7 +1488,7 @@ if (savedData && Object.keys(savedData).length > 0 && loading === false) {
                                 </li>
                                 <li className="p-1">
                                   {t("analyzePage.averageAge")}:{" "}
-                                  {creditData?.summary.creditAge.averageAgeYears
+                                  {creditData?.summary?.creditAge?.averageAgeYears
                                     ? `${
                                         creditData.summary.creditAge
                                           .averageAgeYears

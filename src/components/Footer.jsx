@@ -6,9 +6,13 @@ const Footer = () => {
   return (
     <footer className="bg-gray-800 text-white py-6 px-4">
       <div className="container mx-auto text-center">
-        <p className="mb-4 text-sm">
-          &copy; {new Date().getFullYear()} Scorewise {t("footer.copyright")}.
-        </p>
+        <div className="mb-4">
+          <img
+            src="badges.jpg"
+            alt="Payment and Security Badges"
+            className="mx-auto w-96 h-auto"
+          />
+        </div>
         <div className="flex justify-center space-x-4">
           {["Facebook", "Twitter", "Instagram", "LinkedIn"].map((label, i) => (
             <a
@@ -21,6 +25,9 @@ const Footer = () => {
             </a>
           ))}
         </div>
+        <p className="mb-4 text-sm">
+          © {new Date().getFullYear()} Scorewise {t("footer.copyright")}.
+        </p>
       </div>
     </footer>
   );
