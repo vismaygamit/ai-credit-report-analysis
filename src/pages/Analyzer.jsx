@@ -969,12 +969,12 @@ const Analyzer = () => {
     }
   }, [data]);
 
-  // useEffect(() => {
-  //   if (Object.keys(creditData).length > 0) {
-  //     handleTranslate(selectedLanguage);
-  //   }
-  //   // i18n.changeLanguage(selectedLanguage);
-  // }, [i18n?.language]);
+  useEffect(() => {
+    if (Object.keys(creditData).length > 0) {
+      handleTranslate(selectedLanguage);
+    }
+    // i18n.changeLanguage(selectedLanguage);
+  }, [i18n?.language]);
 
   return (
     <div

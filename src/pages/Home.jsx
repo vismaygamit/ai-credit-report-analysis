@@ -12,7 +12,7 @@ const Home = () => {
       icon: `/assets/${i === 1 ? "find" : i === 2 ? "upload" : "pay"}.svg`,
     });
   }
- 
+
   return (
     <div className="flex flex-col items-center justify-center py-10">
       <div className="w-full max-w-5xl bg-white rounded-2xl">
@@ -58,24 +58,45 @@ const Home = () => {
             {t("homePage.stepsTitle")}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {steps.map((step, index) => (
-              <div
-                key={index}
-                className="p-4 border border-gray-200 shadow-sm rounded-lg text-center"
-              >
-                <div className="mb-3 flex justify-center">
-                  <img
-                    src={step.icon}
-                    alt={step.title}
-                    height="80"
-                    width="80"
-                    className="object-contain"
-                  />
+            {steps.map((step, index) =>
+              index === 0 ? (
+                <a key={index} href="https://my.equifax.ca/consumer-registration/?lang=en" target="_blank">
+                  <div
+                    key={index}
+                    className="p-4 border border-gray-200 shadow-sm rounded-lg text-center"
+                  >
+                    <div className="mb-3 flex justify-center">
+                      <img
+                        src={step.icon}
+                        alt={step.title}
+                        height="80"
+                        width="80"
+                        className="object-contain"
+                      />
+                    </div>
+                    <h3 className="font-bold text-base mb-1">{step.title}</h3>
+                    <p className="text-sm">{step.desc}</p>
+                  </div>
+                </a>
+              ) : (
+                <div
+                  key={index}
+                  className="p-4 border border-gray-200 shadow-sm rounded-lg text-center"
+                >
+                  <div className="mb-3 flex justify-center">
+                    <img
+                      src={step.icon}
+                      alt={step.title}
+                      height="80"
+                      width="80"
+                      className="object-contain"
+                    />
+                  </div>
+                  <h3 className="font-bold text-base mb-1">{step.title}</h3>
+                  <p className="text-sm">{step.desc}</p>
                 </div>
-                <h3 className="font-bold text-base mb-1">{step.title}</h3>
-                <p className="text-sm">{step.desc}</p>
-              </div>
-            ))}
+              )
+            )}
           </div>
 
           <p className="text-center mt-6 text-base text-black-700">

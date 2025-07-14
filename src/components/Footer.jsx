@@ -6,13 +6,30 @@ const Footer = () => {
   return (
     <footer className="bg-gray-800 text-white py-6 px-4">
       <div className="container mx-auto text-center">
-        <div className="mb-4">
+        {/* Updated Image Section */}
+        <div className="mb-4 flex flex-wrap justify-center items-center gap-4">
           <img
-            src="badges.jpg"
-            alt="Payment and Security Badges"
-            className="mx-auto w-96 h-auto"
+            src="/satisfaction.png"
+            alt="Badge 1"
+            className="h-12 w-auto object-contain"
+          />
+          <img
+            src="/secure.png"
+            alt="Badge 2"
+            className="h-12 w-auto object-contain"
+          />
+          <img
+            src="/lock.png"
+            alt="Badge 3"
+            className="rounded-2xl h-12 w-auto object-contain"
+          />
+          <img
+            src="/payment method.jpg"
+            alt="Badge 4"
+            className="h-12 w-auto object-contain"
           />
         </div>
+
         <div className="flex justify-center space-x-4">
           {["Facebook", "Twitter", "Instagram", "LinkedIn"].map((label, i) => (
             <a
