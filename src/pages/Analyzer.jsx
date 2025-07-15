@@ -26,7 +26,6 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 const Analyzer = () => {
@@ -56,7 +55,7 @@ const Analyzer = () => {
   const { isSignedIn, user } = useUser();
   const [paymentStatus, setPaymentStatus] = useState("false");
 
-  const handleTranslate = async (lng) => {
+  const handleTranslate = async () => {
     try {
       let creditReportFortranslate = creditData;
       // if (i18n.language != "en") {
@@ -66,7 +65,7 @@ const Analyzer = () => {
       dispatch(
         translateObject({
           object: creditReportFortranslate,
-          targetLanguage: selectedLanguage,
+          targetLanguage: i18n.language,
         })
       );
       // localStorage.setItem("selectedLanguage", "");
@@ -87,18 +86,34 @@ const Analyzer = () => {
 
     const img = new Image();
     img.onload = () => {
+      const viewBox = svg.getAttribute("viewBox");
+      let width, height;
+
+      if (viewBox) {
+        const [, , vbWidth, vbHeight] = viewBox.split(" ").map(Number);
+        width = vbWidth;
+        height = vbHeight;
+      } else {
+        width = svg.clientWidth;
+        height = svg.clientHeight;
+      }
+
+      // Scale proportionally
       const canvas = document.createElement("canvas");
-      canvas.width = svg.clientWidth;
-      canvas.height = svg.clientHeight;
+      canvas.width = width;
+      canvas.height = height;
+
       const ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0);
+      // ctx.scale(scaleFactor, scaleFactor); // This keeps correct proportions
+
+      ctx.drawImage(img, 0, 0, width, height); // Keep image in bounds
 
       const base64Image = canvas.toDataURL("image/png");
-
       setChartImage(base64Image);
 
-      URL.revokeObjectURL(url); // Clean up
+      URL.revokeObjectURL(url);
     };
+
     img.src = url;
   };
 
@@ -108,7 +123,7 @@ const Analyzer = () => {
       if (isSignedIn) {
         setTimeout(() => {
           exportChartAsImage();
-        }, 3000);
+        }, 4000);
       }
     }
   }, [translated]);
@@ -293,7 +308,7 @@ const Analyzer = () => {
         if (row.length === 2) {
           colWidths = [120, 400];
         } else if (row.length === 3) {
-          colWidths = [250, 100, 250];
+          colWidths = [250, 80, 250];
         } else if (row.length === 4) {
           if (tableType === "inquiry") {
             colWidths = [80, 140, 270, 70];
@@ -386,21 +401,23 @@ const Analyzer = () => {
 
       // Start PDF Content
       // --- Embed Logo Image ---
-      const logoBytes = await fetch("/assets/logo.png").then((res) => res.arrayBuffer());
+      const logoBytes = await fetch("/assets/logo.png").then((res) =>
+        res.arrayBuffer()
+      );
       const logoImage = await doc.embedPng(logoBytes);
       const logoDims = logoImage.scale(0.25); // Resize (scale to 25%)
 
       // const pageWidth = page.getWidth();
       const logoX = (pageWidth - logoDims.width) / 2;
       const logoY = page.getHeight() - 70; // Top margin
-      console.log("logoDims.width", logoDims.width, logoDims.height, logoX, logoY);
+      
       page.drawImage(logoImage, {
         x: 235,
         y: logoY,
         width: 150,
         height: 50,
       });
-      y -= 40
+      y -= 40;
       drawSectionHeader(t("analyzePage.creditSummary"));
       const summary = creditData.summary;
       drawSubHeading(`${t("analyzePage.score")}:`);
@@ -684,6 +701,7 @@ const Analyzer = () => {
           const chartDims = chartPng.scale(0.5);
 
           if (y < margin + chartDims.height) newPage();
+
           page.drawImage(chartPng, {
             x: 30,
             y: y - chartDims.height,
@@ -861,7 +879,7 @@ const Analyzer = () => {
       dispatch(fetchReport(formData));
     } catch (error) {
       if (error.response && error.response.status === 400) {
-        setIsReport(false)
+        setIsReport(false);
         toast.error("Credit report is empty or invalid file.");
         return;
       }
@@ -888,10 +906,7 @@ const Analyzer = () => {
   const getReport = async () => {
     try {
       if (isSignedIn) {
-        // await handleReset();
         dispatch(getReportByReportId(user.id));
-        // setIsReport(true);
-        // localStorage.setItem("selectedLanguage", "");
       }
     } catch (error) {
       setIsReport(false);
@@ -900,19 +915,33 @@ const Analyzer = () => {
   };
 
   useEffect(() => {
-    referrer === "paymentSuccess" && getReport();
-  }, []);
+  if (!isSignedIn) return;
 
-  useEffect(() => {
-    if (isSignedIn) {
-      const savedData = JSON.parse(localStorage.getItem("creditReport"));
-      if (savedData && Object.keys(savedData).length > 0 && loading === false) {
-        setIsReport(true);
-        setcreditData(savedData);
-      }
-      referrer != "paymentSuccess" && !savedData && getReport();
-    }
-  }, [isSignedIn]);
+  console.log("referrer:", referrer);
+
+  const savedDataRaw = localStorage.getItem("creditReport");
+  let savedData = null;
+
+  try {
+    savedData = savedDataRaw ? JSON.parse(savedDataRaw) : null;
+  } catch (e) {
+    console.error("Failed to parse creditReport from localStorage", e);
+  }
+
+  const hasSavedData = savedData && Object.keys(savedData).length > 0;
+
+  if (referrer === "paymentSuccess") {
+    getReport();
+  } else if (!hasSavedData && loading === false) {
+    getReport();
+  }
+
+  if (hasSavedData && loading === false) {
+    setIsReport(true);
+    setcreditData(savedData);
+  }
+}, [isSignedIn]);
+
 
   useEffect(() => {
     if (!data) return;
@@ -928,7 +957,7 @@ const Analyzer = () => {
       setThumbnail(false);
       setcreditData({});
     }
-   
+
     if (savedData && Object.keys(savedData).length > 0 && loading === false) {
       setIsReport(true);
       setcreditData(savedData);
@@ -964,14 +993,14 @@ const Analyzer = () => {
         // }
         setTimeout(() => {
           exportChartAsImage();
-        }, 1500);
+        }, 4000);
       }
     }
   }, [data]);
 
   useEffect(() => {
     if (Object.keys(creditData).length > 0) {
-      handleTranslate(selectedLanguage);
+      handleTranslate();
     }
     // i18n.changeLanguage(selectedLanguage);
   }, [i18n?.language]);
@@ -1429,7 +1458,8 @@ const Analyzer = () => {
                                         : "bg-gray-200 italic text-gray-400"
                                     }`}
                                   >
-                                    {creditData?.summary?.creditUtilization?.totalBalance
+                                    {creditData?.summary?.creditUtilization
+                                      ?.totalBalance
                                       ? paymentStatus === "paid" && !isReset
                                         ? `$${creditData.summary.creditUtilization.totalBalance.toLocaleString()}`
                                         : t("analyzePage.availableAfterPayment")
@@ -1438,7 +1468,8 @@ const Analyzer = () => {
                                 </li>
                                 <li className="p-1">
                                   {t("analyzePage.utilizationRate")}:{" "}
-                                  {creditData?.summary?.creditUtilization?.utilizationRate
+                                  {creditData?.summary?.creditUtilization
+                                    ?.utilizationRate
                                     ? `${creditData.summary.creditUtilization.utilizationRate}% ✅ ${creditData.summary.creditUtilization.rating}`
                                     : t("analyzePage.none")}
                                 </li>
@@ -1449,7 +1480,8 @@ const Analyzer = () => {
                               <ul className="list-disc list-inside space-y-1">
                                 <li className="p-1">
                                   {t("analyzePage.oldestAccount")}:{" "}
-                                  {creditData?.summary?.creditAge?.oldest.account
+                                  {creditData?.summary?.creditAge?.oldest
+                                    .account
                                     ? `${
                                         creditData.summary.creditAge.oldest
                                           .account
@@ -1488,7 +1520,8 @@ const Analyzer = () => {
                                 </li>
                                 <li className="p-1">
                                   {t("analyzePage.averageAge")}:{" "}
-                                  {creditData?.summary?.creditAge?.averageAgeYears
+                                  {creditData?.summary?.creditAge
+                                    ?.averageAgeYears
                                     ? `${
                                         creditData.summary.creditAge
                                           .averageAgeYears
@@ -2219,11 +2252,47 @@ const Analyzer = () => {
                         </div>
 
                         {/* ref={chartRef} */}
-                        <div className="p-4" ref={chartRef}>
+                        <div className="p-4">
                           <h3 className="text-lg font-semibold mb-2">
                             {t("analyzePage.progressProjection")}
                           </h3>
                           <ResponsiveContainer width="100%" height={300}>
+                            <LineChart
+                              data={
+                                creditData?.scoreProgress?.forecastChart?.dataPoints?.map(
+                                  (point) => ({
+                                    name: point?.date,
+                                    [t("analyzePage.score")]: point?.score,
+                                  })
+                                ) || []
+                              }
+                            >
+                              <CartesianGrid strokeDasharray="3 3" />
+                              <XAxis dataKey="name" />
+                              <YAxis domain={[650, 720]} />
+                              <Tooltip />
+                              <Line
+                                type="monotone"
+                                dataKey={t("analyzePage.score")}
+                                stroke="#3b82f6"
+                                strokeWidth={2}
+                              />
+                            </LineChart>
+                          </ResponsiveContainer>
+                        </div>
+
+                        <div
+                          ref={chartRef}
+                          style={{
+                            width: 1120,
+                            height: 400,
+                            position: "absolute",
+                            top: -9999,
+                            left: -9999,
+                            visibility: "hidden",
+                          }}
+                        >
+                          <ResponsiveContainer width="100%" height={400}>
                             <LineChart
                               data={
                                 creditData?.scoreProgress?.forecastChart?.dataPoints?.map(
