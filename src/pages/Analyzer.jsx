@@ -735,7 +735,7 @@ const Analyzer = () => {
       const blob = new Blob([pdfBytes], { type: "application/pdf" });
       saveAs(blob, "Credit_Report.pdf");
     } catch (error) {
-      console.log("error", error);
+      // console.log("error", error);
     }
   };
 
@@ -916,9 +916,6 @@ const Analyzer = () => {
 
   useEffect(() => {
   if (!isSignedIn) return;
-
-  console.log("referrer:", referrer);
-
   const savedDataRaw = localStorage.getItem("creditReport");
   let savedData = null;
 
