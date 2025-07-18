@@ -1,18 +1,18 @@
-// src/store/reportSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
 // Analysis
 export const fetchReport = createAsyncThunk(
   "report/fetchReport",
-  async (formData, { rejectWithValue }) => {
+  async ({formData, token}, { rejectWithValue }) => {
     try {
-       const response = await axios.post(
+      const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/analyze`,
         formData,
         {
           headers: {
-            "Content-Type": "multipart/form-data"
+            "Content-Type": "multipart/form-data",
+            "Authorization": `Bearer ${token}`,
           },
         }
       );
@@ -36,7 +36,7 @@ export const getReportByReportId = createAsyncThunk(
       const response = await axios.get(
         `${import.meta.env.VITE_API_URL}/report/${userId}`
       );
-     
+
       return {
         data: response.data,
         statusCode: response.status,
@@ -53,12 +53,21 @@ export const getReportByReportId = createAsyncThunk(
 
 export const translateObject = createAsyncThunk(
   "report/translateObject",
-  async ({ object, targetLanguage }, { rejectWithValue }) => {
+  async ({ object, targetLanguage, token }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/translate`, {
-        object,
-        targetLanguage,
-      });
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/translate`,
+        {
+          object,
+          targetLanguage,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return {
         translated: response.data.translated || response.data.raw,
         statusCode: response.status,
@@ -102,7 +111,7 @@ const reportSlice = createSlice({
       .addCase(fetchReport.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-        state.statusCode = action.payload.statusCode;
+        state.statusCode = action.payload?.statusCode;
       });
     builder
       // Handle getReportByReportId
@@ -120,7 +129,7 @@ const reportSlice = createSlice({
         state.error = action.payload;
         state.statusCode = action.payload.statusCode;
       });
-        builder
+    builder
       .addCase(translateObject.pending, (state) => {
         state.loading = true;
         state.error = null;

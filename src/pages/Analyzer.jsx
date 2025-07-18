@@ -4,7 +4,7 @@ import * as pdfjsLib from "pdfjs-dist";
 import "pdfjs-dist/build/pdf.worker.entry";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
-import { useUser, useClerk } from "@clerk/clerk-react";
+import { useUser, useClerk, useAuth } from "@clerk/clerk-react";
 import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -54,6 +54,7 @@ const Analyzer = () => {
   const referrer = location.state?.from;
   const { isSignedIn, user } = useUser();
   const [paymentStatus, setPaymentStatus] = useState("false");
+  const { getToken } = useAuth();
 
   const handleTranslate = async () => {
     try {
@@ -61,11 +62,12 @@ const Analyzer = () => {
       // if (i18n.language != "en") {
       //   creditReportFortranslate = JSON.parse(localStorage.getItem("creditReportFortranslate"));
       // }
-
+      const token = await getToken();
       dispatch(
         translateObject({
           object: creditReportFortranslate,
           targetLanguage: i18n.language,
+          token,
         })
       );
       // localStorage.setItem("selectedLanguage", "");
@@ -130,6 +132,14 @@ const Analyzer = () => {
 
   const generateActionPlanPDF = async () => {
     try {
+      console.log("generateActionPlanPDF call", creditData);
+      if (
+        creditData &&
+        typeof creditData === "object" &&
+        Object.keys(creditData).length === 0
+      ) {
+        return;
+      }
       let fontUrl, boldFontUrl, font, doc, boldFont;
       const selectedLanguage = i18n.language;
 
@@ -410,7 +420,7 @@ const Analyzer = () => {
       // const pageWidth = page.getWidth();
       const logoX = (pageWidth - logoDims.width) / 2;
       const logoY = page.getHeight() - 70; // Top margin
-      
+
       page.drawImage(logoImage, {
         x: 235,
         y: logoY,
@@ -422,40 +432,40 @@ const Analyzer = () => {
       const summary = creditData.summary;
       drawSubHeading(`${t("analyzePage.score")}:`);
 
-      drawText(`${summary.score} (${summary.rating})`);
+      drawText(`${summary?.score} (${summary?.rating})`);
       drawSubHeading(`${t("analyzePage.tradelines")}:`);
       drawSubHeading(
         `${t("analyzePage.revolving")} ${t("analyzePage.accounts")}:`
       );
-      summary.tradelines.revolving.forEach((t) => drawText(`• ${t}`));
+      summary?.tradelines?.revolving.forEach((t) => drawText(`• ${t}`));
       drawSubHeading(
         `${t("analyzePage.installment")} ${t("analyzePage.accounts")}:`
       );
-      summary.tradelines.installment.forEach((t) => drawText(`• ${t}`));
+      summary?.tradelines?.installment.forEach((t) => drawText(`• ${t}`));
       drawSubHeading(`${t("analyzePage.open")} ${t("analyzePage.accounts")}:`);
-      summary.tradelines.open.forEach((t) => drawText(`• ${t}`));
+      summary?.tradelines.open.forEach((t) => drawText(`• ${t}`));
       drawSubHeading(`${t("analyzePage.mortgage")}:`);
-      summary.tradelines.mortgage.forEach((t) => drawText(`• ${t}`));
+      summary?.tradelines?.mortgage.forEach((t) => drawText(`• ${t}`));
       y -= 10;
       drawText(
         `${t("analyzePage.paymentHistory")}: ${
-          creditData.summary.paymentHistory.allCurrent
+          creditData?.summary?.paymentHistory?.allCurrent
             ? t("analyzePage.allCurrent")
             : t("analyzePage.issuesDetected")
-        } ${summary.paymentHistory.missedOrLatePast24Months} ${t(
+        } ${summary?.paymentHistory?.missedOrLatePast24Months} ${t(
           "analyzePage.missedLate24Months"
         )}`
       );
       drawText(
         `${t("analyzePage.onTimePayments")}: ${
-          creditData.scoreProgress.creditSummary.onTimePayments
+          creditData?.scoreProgress?.creditSummary?.onTimePayments
         }`
       );
       if (
-        creditData.securedLoan &&
+        creditData?.securedLoan &&
         typeof creditData.securedLoan === "object"
       ) {
-        const loan = creditData.securedLoan;
+        const loan = creditData?.securedLoan;
         drawWrappedText(
           `${t("analyzePage.securedLoan")}: ${loan.lender} | ${t(
             "analyzePage.registered"
@@ -468,21 +478,21 @@ const Analyzer = () => {
       }
       drawText(
         `${t("analyzePage.goodStanding")} ${
-          creditData.scoreProgress.creditSummary.activeAccounts
+          creditData?.scoreProgress?.creditSummary?.activeAccounts
         }`
       );
       drawText(
         `${t("analyzePage.derogatoryMarks")} ${
-          creditData.scoreProgress.creditSummary.derogatoryMarks
+          creditData?.scoreProgress?.creditSummary?.derogatoryMarks
         }`
       );
 
       drawSubHeading(`${t("analyzePage.inquiries")}`);
       drawText(
-        `${t("analyzePage.hardInquiries")}: ${summary.inquiries.hard?.length}`
+        `${t("analyzePage.hardInquiries")}: ${summary?.inquiries?.hard?.length}`
       );
       drawText(
-        `${t("analyzePage.softInquiries")}: ${summary.inquiries.soft?.length}`
+        `${t("analyzePage.softInquiries")}: ${summary?.inquiries?.soft?.length}`
       );
       drawSubHeading(`${t("analyzePage.creditUtilization")}`);
       drawText(
@@ -733,13 +743,45 @@ const Analyzer = () => {
       // Save and download
       const pdfBytes = await doc.save();
       const blob = new Blob([pdfBytes], { type: "application/pdf" });
+     
+      if (referrer === "paymentSuccess" && creditData?.isEmailSent === false && data?.data?.ispro) {
+        await sendMail(blob);
+        return;
+      }
       saveAs(blob, "Credit_Report.pdf");
     } catch (error) {
-      // console.log("error", error);
+      console.log("error", error);
+    }
+  };
+
+  const sendMail = async (blob) => {
+    const formData = new FormData();
+    formData.append("file", blob, "Credit_Report.pdf");
+    formData.append("reportId", creditData?._id ? creditData?._id : "");
+
+    try {
+      const token = await getToken();
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/sendreport`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      // console.log("Uploaded successfully", response.data);
+    } catch (err) {
+      // console.error("Upload failed", err);
     }
   };
 
   const handleDrag = (e) => {
+    if (!isSignedIn) {
+      openSignIn();
+      return;
+    }
     e.preventDefault();
     e.stopPropagation();
     if (e.type === "dragenter" || e.type === "dragover") {
@@ -750,6 +792,10 @@ const Analyzer = () => {
   };
 
   const handleDrop = (e) => {
+    if (!isSignedIn) {
+      openSignIn();
+      return;
+    }
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
@@ -766,6 +812,10 @@ const Analyzer = () => {
   };
 
   const handleChange = async (e) => {
+    if (!isSignedIn) {
+      openSignIn();
+      return;
+    }
     const file = e.target.files && e.target.files?.[0];
     if (!file) return;
     if (file) {
@@ -842,13 +892,19 @@ const Analyzer = () => {
     }
 
     try {
+      const token = await getToken();
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/checkout`,
         JSON.stringify({
-          userId: user?.id,
+          // userId: user?.id,
           reportId,
         }),
-        { headers: { "Content-Type": "application/json" } }
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
       if (response.status === 200 && response.data?.url) {
@@ -871,13 +927,16 @@ const Analyzer = () => {
       return;
     }
     try {
+      const token = await getToken();
       const formData = new FormData();
       formData.append("file", pdfFile);
-      formData.append("userId", user?.id ? user.id : "");
+      // formData.append("userId", user?.id ? user.id : "");
       formData.append("reportId", data?.result?._id ? data?.result._id : "");
       dispatch(resetReportErrorAndStatus());
-      dispatch(fetchReport(formData));
+      dispatch(fetchReport({ formData, token }));
     } catch (error) {
+      console.log("error", error);
+
       if (error.response && error.response.status === 400) {
         setIsReport(false);
         toast.error("Credit report is empty or invalid file.");
@@ -915,30 +974,29 @@ const Analyzer = () => {
   };
 
   useEffect(() => {
-  if (!isSignedIn) return;
-  const savedDataRaw = localStorage.getItem("creditReport");
-  let savedData = null;
+    if (!isSignedIn) return;
+    const savedDataRaw = localStorage.getItem("creditReport");
+    let savedData = null;
 
-  try {
-    savedData = savedDataRaw ? JSON.parse(savedDataRaw) : null;
-  } catch (e) {
-    console.error("Failed to parse creditReport from localStorage", e);
-  }
+    try {
+      savedData = savedDataRaw ? JSON.parse(savedDataRaw) : null;
+    } catch (e) {
+      console.error("Failed to parse creditReport from localStorage", e);
+    }
 
-  const hasSavedData = savedData && Object.keys(savedData).length > 0;
+    const hasSavedData = savedData && Object.keys(savedData).length > 0;
 
-  if (referrer === "paymentSuccess") {
-    getReport();
-  } else if (!hasSavedData && loading === false) {
-    getReport();
-  }
+    if (referrer === "paymentSuccess") {
+      getReport();
+    } else if (!hasSavedData && loading === false) {
+      getReport();
+    }
 
-  if (hasSavedData && loading === false) {
-    setIsReport(true);
-    setcreditData(savedData);
-  }
-}, [isSignedIn]);
-
+    if (hasSavedData && loading === false) {
+      setIsReport(true);
+      setcreditData(savedData);
+    }
+  }, [isSignedIn]);
 
   useEffect(() => {
     if (!data) return;
@@ -994,6 +1052,19 @@ const Analyzer = () => {
       }
     }
   }, [data]);
+
+  useEffect(() => {
+    if (
+      creditData &&
+      typeof creditData === "object" &&
+      Object.keys(creditData).length === 0
+    ) {
+      return;
+    }
+    if (referrer === "paymentSuccess" && creditData?.isEmailSent === false && data?.data?.ispro) {
+      generateActionPlanPDF();
+    }
+  }, [creditData]);
 
   useEffect(() => {
     if (Object.keys(creditData).length > 0) {
