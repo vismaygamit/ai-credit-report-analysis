@@ -20,6 +20,8 @@ i18n
             heading: "Understand & Improve Your Credit Report – Instantly",
             subheading:
               "Upload your credit report. Get step-by-step guidance to boost your score.",
+            platformDescription:
+              "SCOREWISE is a Canadian credit wellness platform. Our tools analyze credit reports submitted by users to provide insights and credit score improvement strategies.",
             cta: "Start Free Analysis",
             features: [
               "We do not store your credit report. All data is deleted after analysis.",
@@ -72,7 +74,7 @@ i18n
             analyzeButton: "Analyze",
             resetButton: "Reset",
             planTitle: "Detailed Credit Report Analysis",
-            unlockButton: "Unlock Personalized Insights for $100",
+            unlockButton: "Unlock Personalized Insights for $25",
             processingTime: "Processing Time: 2-3 minutes",
             downloadActionPlan: "Download Action Plan",
             creditScoreOverview: "Credit Score Overview",
@@ -175,7 +177,7 @@ i18n
             allCurrent: "All Current",
             issuesDetected: "Issues Detected",
             missedLate24Months: "Missed/late in 24 months",
-            years: "years"
+            years: "years",
           },
           privacyPage: {
             title: "Privacy Policy",
@@ -258,6 +260,8 @@ i18n
             heading: "Поймите и улучшите свой кредитный отчет — мгновенно",
             subheading:
               "Загрузите свой кредитный отчет. Получите пошаговое руководство для повышения рейтинга.",
+            platformDescription:
+              "SCOREWISE — это канадская платформа для улучшения кредитного здоровья. Наши инструменты анализируют предоставленные пользователями кредитные отчеты, чтобы дать рекомендации и стратегии улучшения кредитного рейтинга.",
             cta: "Начать бесплатный анализ",
             features: [
               "Мы не сохраняем ваш кредитный отчет. Все данные удаляются после анализа.",
@@ -310,7 +314,7 @@ i18n
             analyzeButton: "Анализировать",
             resetButton: "Сбросить",
             planTitle: "Подробный анализ кредитного отчета",
-            unlockButton: "Разблокировать персональные рекомендации за $100",
+            unlockButton: "Разблокировать персональные рекомендации за $25",
             processingTime: "Время обработки: 2–3 минуты",
             downloadActionPlan: "Скачать план действий",
             creditScoreOverview: "Обзор кредитного рейтинга",
@@ -413,7 +417,7 @@ i18n
             allCurrent: "Все актуально",
             issuesDetected: "Обнаружены проблемы",
             missedLate24Months: "Пропущено/задержано за 24 месяца",
-            years: "лет"
+            years: "лет",
           },
           privacyPage: {
             title: "Политика конфиденциальности",
@@ -496,6 +500,8 @@ i18n
             heading: "Зрозумійте та покращте свій кредитний звіт — миттєво",
             subheading:
               "Завантажте кредитний звіт. Отримайте покрокову інструкцію для підвищення балу.",
+            platformDescription:
+              "SCOREWISE — це канадська платформа кредитного добробуту. Наші інструменти аналізують кредитні звіти, надані користувачами, щоб надати поради та стратегії покращення кредитного рейтингу.",
             cta: "Почати безкоштовний аналіз",
             features: [
               "Ми не зберігаємо ваш кредитний звіт. Всі дані видаляються після аналізу.",
@@ -548,7 +554,7 @@ i18n
             analyzeButton: "Аналізувати",
             resetButton: "Скинути",
             planTitle: "Детальний аналіз кредитного звіту",
-            unlockButton: "Відкрити персоналізовані поради за $100",
+            unlockButton: "Відкрити персоналізовані поради за $25",
             processingTime: "Час обробки: 2–3 хвилини",
             downloadActionPlan: "Завантажити план дій",
             creditScoreOverview: "Огляд кредитного рейтингу",
@@ -651,7 +657,7 @@ i18n
             allCurrent: "Усі актуальні",
             issuesDetected: "Виявлено проблеми",
             missedLate24Months: "Пропущено/прострочено за 24 місяці",
-            years: "роки"
+            years: "роки",
           },
           privacyPage: {
             title: "Політика конфіденційності",
@@ -734,6 +740,8 @@ i18n
             heading: "Comprende y mejora tu informe de crédito — al instante",
             subheading:
               "Sube tu informe de crédito. Obtén orientación paso a paso para mejorar tu puntuación.",
+            platformDescription:
+              "SCOREWISE es una plataforma canadiense de bienestar crediticio. Nuestras herramientas analizan los informes de crédito enviados por los usuarios para brindar información y estrategias de mejora del puntaje crediticio.",
             cta: "Comenzar análisis gratuito",
             features: [
               "No almacenamos tu informe. Todos los datos se eliminan tras el análisis.",
@@ -786,7 +794,7 @@ i18n
             analyzeButton: "Analizar",
             resetButton: "Restablecer",
             planTitle: "Análisis detallado del informe crediticio",
-            unlockButton: "Desbloquear recomendaciones personalizadas por $100",
+            unlockButton: "Desbloquear recomendaciones personalizadas por $25",
             processingTime: "Tiempo de procesamiento: 2–3 minutos",
             downloadActionPlan: "Descargar plan de acción",
             creditScoreOverview: "Resumen del puntaje crediticio",
@@ -890,7 +898,7 @@ i18n
             allCurrent: "Todo al día",
             issuesDetected: "Problemas detectados",
             missedLate24Months: "Pagos perdidos/tarde en 24 meses",
-            years: "años"
+            years: "años",
           },
           privacyPage: {
             title: "Política de Privacidad",
@@ -974,6 +982,8 @@ i18n
               "Comprenez et améliorez votre rapport de crédit – instantanément",
             subheading:
               "Téléchargez votre rapport de crédit. Recevez un guide étape par étape pour améliorer votre score.",
+            platformDescription:
+              "SCOREWISE est une plateforme canadienne de bien-être financier. Nos outils analysent les rapports de crédit soumis par les utilisateurs afin de fournir des informations et des stratégies d'amélioration du score de crédit.",
             cta: "Commencer l'analyse gratuite",
             features: [
               "Nous ne stockons pas votre rapport. Toutes les données sont supprimées après analyse.",
@@ -1129,7 +1139,7 @@ i18n
             allCurrent: "Tous à jour",
             issuesDetected: "Problèmes détectés",
             missedLate24Months: "Retards/impayés sur 24 mois",
-            years: "ans"
+            years: "ans",
           },
           privacyPage: {
             title: "Politique de confidentialité",
@@ -1206,249 +1216,251 @@ i18n
           emptyData: "Aucune donnée trouvée",
         },
       },
-      ar: {
-        translation: {
-          homePage: {
-            heading: "افهم وحسّن تقريرك الائتماني – فورًا",
-            subheading:
-              "قم برفع تقريرك الائتماني. احصل على إرشادات خطوة بخطوة لزيادة الدرجة.",
-            cta: "ابدأ التحليل المجاني",
-            features: [
-              "لا نقوم بحفظ تقريرك. يتم حذف جميع البيانات بعد التحليل.",
-              "تحليل تلقائي دون تدخل بشري",
-              "يستخدمه الآلاف لتحسين درجاتهم بسرعة",
-            ],
-            stepsTitle: "ابدأ في 3 خطوات بسيطة",
-            step1: {
-              title: "الخطوة 1: تحميل التقرير",
-              desc: "قم بزيارة Equifax.ca وحمّل تقريرك الائتماني المجاني بصيغة PDF.",
-            },
-            step2: {
-              title: "الخطوة 2: رفع وتحليل",
-              desc: "قم برفع تقريرك وسنقوم بتحليله بأمان وتقديم نظرة سريعة.",
-            },
-            step3: {
-              title: "الخطوة 3: الدفع واستلام التقرير",
-              desc: "اشترِ للحصول على خطة التحسين الكاملة، رسائل مخصصة، ودعم الذكاء الاصطناعي.",
-            },
-            secureNote: "يتم حذف جميع التقارير بعد التحليل. خصوصية وأمان 100٪.",
-            secondCTA: "ابدأ الآن",
-            testimonialsTitle: "آراء المستخدمين",
-            testimonial1:
-              "قمت برفع تقريري من Equifax وحصلت على خطوات واضحة للإصلاح. سهل الاستخدام.",
-            testimonial2:
-              "الرسالة ساعدتني في إزالة دين قديم. ارتفع التقييم 48 نقطة!",
-            user1: "- أمانديب س، برامبتون، أونتاريو",
-            user2: "- ميليسا ت، فانكوفر",
-          },
-          header: {
-            nav: {
-              home: "الصفحة الرئيسية",
-              analyze: "تحليل",
-              signIn: "تسجيل الدخول",
-              signOut: "تسجيل الخروج",
-            },
-          },
-          footer: {
-            copyright: "جميع الحقوق محفوظة.",
-          },
-          analyzePage: {
-            dragDrop: "اسحب الملف وأفلته هنا",
-            or: "أو",
-            chooseFile: "اختر ملفًا",
-            acceptedFile: "نوع الملف المقبول: PDF",
-            privacyNote:
-              "لا يتم تخزين البيانات | يتم حذف تقرير الائتمان بعد التحليل",
-            preview: "معاينة",
-            analyzeButton: "تحليل",
-            resetButton: "إعادة تعيين",
-            planTitle: "تحليل مفصل لتقرير الائتمان",
-            unlockButton: "افتح التوصيات المخصصة مقابل 100 دولار",
-            processingTime: "مدة المعالجة: 2-3 دقائق",
-            downloadActionPlan: "تحميل خطة العمل",
-            creditScoreOverview: "نظرة عامة على درجة الائتمان",
-            score: "الدرجة",
-            exactScoreAfterPayment: "الدرجة الدقيقة متاحة بعد الدفع",
-            availableAfterPayment: "متاح بعد الدفع",
-            factorAnalysis: "تحليل العوامل",
-            factor: "عامل",
-            status: "الحالة",
-            details: "التفاصيل",
-            threeMonthActionPlan: "خطة عمل لمدة 3 أشهر",
-            delinquencyExpiry: "التأخير والانتهاء",
-            monthTwoThreePlansAfterPayment: "خطط الشهر 2 و3 متاحة بعد الدفع",
-            fair: "متوسط",
-            good: "جيد",
-            veryGood: "جيد جداً",
-            excellent: "ممتاز",
-            yourScoreIsInThe: "نتيجتك موجودة في",
-            range: "يتراوح.",
-            actionPlan: "خطة العمل",
-            creditSummary: "ملخص الائتمان",
-            tradelines: "خطوط الائتمان",
-            revolving: "دائري",
-            accounts: "الحسابات",
-            open: "مفتوح",
-            close: "مغلق",
-            installment: "تقسيط",
-            mortgage: "الرهن العقاري",
-            paymentHistory: "سجل الدفع",
-            onTimePayments: "مدفوعات في الوقت المحدد",
-            securedLoan: "قرض مضمون",
-            goodStanding: "حسابات بحالة جيدة",
-            derogatoryMarks: "علامات سلبية",
-            collections: "تحصيلات",
-            judgments: "أحكام",
-            inquiries: "استفسارات",
-            hardInquiries: "استفسارات قوية",
-            softInquiries: "استفسارات ناعمة",
-            creditUtilization: "نسبة استخدام الائتمان",
-            totalLimit: "الحد الائتماني الإجمالي",
-            totalBalance: "الرصيد الإجمالي",
-            utilizationRate: "معدل الاستخدام",
-            creditAge: "عمر الائتمان",
-            oldestAccount: "أقدم حساب",
-            newestAccount: "أحدث حساب",
-            averageAge: "متوسط العمر",
-            registered: "مسجل",
-            amount: "المبلغ",
-            maturity: "الاستحقاق",
-            none: "لا شيء",
-            structuredData: "استخراج البيانات المنظمة",
-            accountsAndBalances: "الحسابات والأرصدة",
-            type: "النوع",
-            lender: "المُقرض",
-            openDate: "تاريخ الفتح",
-            limit: "الحد",
-            balance: "الرصيد",
-            closed: "مغلق",
-            pastDue: "متأخر",
-            yes: "نعم",
-            no: "لا",
-            inquiryRecords: "سجلات الاستفسار",
-            date: "التاريخ",
-            affectsScore: "يؤثر على التقييم",
-            soft: "ناعم",
-            hard: "صارم",
-            na: "غير متوفر",
-            creditEvaluation: "تقييم الائتمان",
-            metric: "المقياس",
-            analysis: "التحليل",
-            utilization: "نسبة الاستخدام",
-            creditMix: "مزيج الائتمان",
-            delinquency: "التخلف عن السداد",
-            inquiryFrequency: "عدد الاستفسارات",
-            fileDepth: "عمق الملف",
-            scoreForecast: "محرك توقع الدرجات",
-            impact: "التأثير نقاط",
-            timeline: "الجدول الزمني",
-            priority: "الأولوية",
-            confidence: "الدرجة",
-            aiActionPlan: "مولد خطة عمل بالذكاء الاصطناعي",
-            recommendation: "توصية",
-            description: "الوصف",
-            action: "فعل",
-            dispute: "النزاع",
-            removal: "الإزالة",
-            toolkit: "مجموعة الأدوات",
-            letter: "الرسالة",
-            goodwill: "حسن النية",
-            scoreProgressTracker: "متعقب تقدم الدرجة",
-            scoreSimulator: "محاكي الدرجة",
-            scenario: "السيناريو",
-            scoreChange: "تغيير الدرجة",
-            actionChecklist: "قائمة مراجعة الإجراءات",
-            progressProjection: "توقع التقدم",
-            aiReminderEngine: "محرك التذكير وإعادة التقييم بالذكاء الاصطناعي",
-            event: "الحدث",
-            reminderDate: "تاريخ التذكير",
-            allCurrent: "جميعها محدثة",
-            issuesDetected: "تم اكتشاف مشكلات",
-            missedLate24Months: "تم التخلف/التأخير في آخر 24 شهرًا",
-            years: "سنوات"
-          },
-          privacyPage: {
-            title: "سياسة الخصوصية",
-            effectiveDate: "تاريخ السريان: 13 يونيو 2025",
-            intro:
-              "تلتزم SCOREWISE (https://www.scorewise.ca) بحماية خصوصيتك. توضح هذه السياسة كيف نجمع بياناتك ونستخدمها ونحميها عند استخدامك لخدمات تحليل تقارير الائتمان الخاصة بنا.",
-            sections: {
-              whoWeAre: {
-                title: "1. من نحن",
-                content:
-                  "SCOREWISE هي منصة كندية للعافية الائتمانية. تقوم أدواتنا بتحليل تقارير الائتمان المقدمة من المستخدمين لتقديم استراتيجيات ونصائح للتحسين.",
-              },
-              whatWeCollect: {
-                title: "2. ما نقوم بجمعه",
-                items: [
-                  "تقارير الائتمان المحملة (بصيغة PDF من Equifax أو TransUnion)",
-                  "بيانات الجهاز والمتصفح واللغة",
-                  "تفاعلات المستخدم لتحليلها في الجلسة فقط",
-                ],
-                note: "نحن لا نجمع اسمك أو رقم التأمين الاجتماعي أو التفاصيل المصرفية أو عنوانك ما لم تقدمها أنت صراحة في المستند المرفوع.",
-              },
-              howWeUse: {
-                title: "3. كيف نستخدم بياناتك",
-                intro:
-                  "يتم تحليل تقرير الائتمان الخاص بك باستخدام الذكاء الاصطناعي من أجل:",
-                items: [
-                  "عرض معاينة للعناصر الإشكالية",
-                  "توليد رسائل واستراتيجيات تحسين (بعد الشراء)",
-                  "تقديم رؤى مخصصة — بشكل آلي تمامًا دون تدخل بشري",
-                ],
-              },
-              retention: {
-                title: "4. الاحتفاظ والحذف",
-                content:
-                  "يتم حذف الملفات المحملة تلقائيًا خلال دقائق بعد التحليل. لا نقوم بتخزين بياناتك على المدى الطويل.",
-              },
-              security: {
-                title: "5. تدابير الأمان",
-                items: [
-                  "تشفير SSL لجميع نقل الملفات",
-                  "جميع المعالجات تتم على خوادم كندية آمنة",
-                  "لا توجد برامج تتبع أو بكسلات تسويقية",
-                ],
-              },
-              compliance: {
-                title: "6. الامتثال الكندي",
-                intro: "SCOREWISE تمتثل لما يلي:",
-                items: [
-                  "PIPEDA – قانون حماية المعلومات الشخصية والمستندات الإلكترونية",
-                  "CASL – قانون مكافحة الرسائل المزعجة في كندا",
-                ],
-                note: "هذه الخدمة متاحة حصريًا للمستخدمين في كندا.",
-              },
-              languages: {
-                title: "7. دعم اللغات",
-                content:
-                  "ندعم الإنجليزية والفرنسية والإسبانية والعربية والروسية والهندية والأوكرانية. هذه السياسة ملزمة قانونيًا باللغة الإنجليزية فقط.",
-              },
-              rights: {
-                title: "8. حقوقك",
-                intro: "يمكنك التواصل معنا في أي وقت لـ:",
-                items: [
-                  "طلب حذف تقريرك (إذا كان لا يزال على الخادم)",
-                  "الحصول على ملخص بيانات الجلسة التي تمت معالجتها",
-                ],
-                contact: "راسلنا عبر: privacy@scorewise.ca",
-              },
-              updates: {
-                title: "9. التحديثات",
-                content:
-                  "سننشر أي تغييرات مستقبلية في هذه الصفحة. استمرار استخدامك للخدمة يعني موافقتك على الشروط المحدثة.",
-              },
-            },
-          },
-          emptyData: "لم يتم العثور على بيانات",
-        },
-      },
+      // ar: {
+      //   translation: {
+      //     homePage: {
+      //       heading: "افهم وحسّن تقريرك الائتماني – فورًا",
+      //       subheading:
+      //         "قم برفع تقريرك الائتماني. احصل على إرشادات خطوة بخطوة لزيادة الدرجة.",
+      //       cta: "ابدأ التحليل المجاني",
+      //       features: [
+      //         "لا نقوم بحفظ تقريرك. يتم حذف جميع البيانات بعد التحليل.",
+      //         "تحليل تلقائي دون تدخل بشري",
+      //         "يستخدمه الآلاف لتحسين درجاتهم بسرعة",
+      //       ],
+      //       stepsTitle: "ابدأ في 3 خطوات بسيطة",
+      //       step1: {
+      //         title: "الخطوة 1: تحميل التقرير",
+      //         desc: "قم بزيارة Equifax.ca وحمّل تقريرك الائتماني المجاني بصيغة PDF.",
+      //       },
+      //       step2: {
+      //         title: "الخطوة 2: رفع وتحليل",
+      //         desc: "قم برفع تقريرك وسنقوم بتحليله بأمان وتقديم نظرة سريعة.",
+      //       },
+      //       step3: {
+      //         title: "الخطوة 3: الدفع واستلام التقرير",
+      //         desc: "اشترِ للحصول على خطة التحسين الكاملة، رسائل مخصصة، ودعم الذكاء الاصطناعي.",
+      //       },
+      //       secureNote: "يتم حذف جميع التقارير بعد التحليل. خصوصية وأمان 100٪.",
+      //       secondCTA: "ابدأ الآن",
+      //       testimonialsTitle: "آراء المستخدمين",
+      //       testimonial1:
+      //         "قمت برفع تقريري من Equifax وحصلت على خطوات واضحة للإصلاح. سهل الاستخدام.",
+      //       testimonial2:
+      //         "الرسالة ساعدتني في إزالة دين قديم. ارتفع التقييم 48 نقطة!",
+      //       user1: "- أمانديب س، برامبتون، أونتاريو",
+      //       user2: "- ميليسا ت، فانكوفر",
+      //     },
+      //     header: {
+      //       nav: {
+      //         home: "الصفحة الرئيسية",
+      //         analyze: "تحليل",
+      //         signIn: "تسجيل الدخول",
+      //         signOut: "تسجيل الخروج",
+      //       },
+      //     },
+      //     footer: {
+      //       copyright: "جميع الحقوق محفوظة.",
+      //     },
+      //     analyzePage: {
+      //       dragDrop: "اسحب الملف وأفلته هنا",
+      //       or: "أو",
+      //       chooseFile: "اختر ملفًا",
+      //       acceptedFile: "نوع الملف المقبول: PDF",
+      //       privacyNote:
+      //         "لا يتم تخزين البيانات | يتم حذف تقرير الائتمان بعد التحليل",
+      //       preview: "معاينة",
+      //       analyzeButton: "تحليل",
+      //       resetButton: "إعادة تعيين",
+      //       planTitle: "تحليل مفصل لتقرير الائتمان",
+      //       unlockButton: "افتح التوصيات المخصصة مقابل 100 دولار",
+      //       processingTime: "مدة المعالجة: 2-3 دقائق",
+      //       downloadActionPlan: "تحميل خطة العمل",
+      //       creditScoreOverview: "نظرة عامة على درجة الائتمان",
+      //       score: "الدرجة",
+      //       exactScoreAfterPayment: "الدرجة الدقيقة متاحة بعد الدفع",
+      //       availableAfterPayment: "متاح بعد الدفع",
+      //       factorAnalysis: "تحليل العوامل",
+      //       factor: "عامل",
+      //       status: "الحالة",
+      //       details: "التفاصيل",
+      //       threeMonthActionPlan: "خطة عمل لمدة 3 أشهر",
+      //       delinquencyExpiry: "التأخير والانتهاء",
+      //       monthTwoThreePlansAfterPayment: "خطط الشهر 2 و3 متاحة بعد الدفع",
+      //       fair: "متوسط",
+      //       good: "جيد",
+      //       veryGood: "جيد جداً",
+      //       excellent: "ممتاز",
+      //       yourScoreIsInThe: "نتيجتك موجودة في",
+      //       range: "يتراوح.",
+      //       actionPlan: "خطة العمل",
+      //       creditSummary: "ملخص الائتمان",
+      //       tradelines: "خطوط الائتمان",
+      //       revolving: "دائري",
+      //       accounts: "الحسابات",
+      //       open: "مفتوح",
+      //       close: "مغلق",
+      //       installment: "تقسيط",
+      //       mortgage: "الرهن العقاري",
+      //       paymentHistory: "سجل الدفع",
+      //       onTimePayments: "مدفوعات في الوقت المحدد",
+      //       securedLoan: "قرض مضمون",
+      //       goodStanding: "حسابات بحالة جيدة",
+      //       derogatoryMarks: "علامات سلبية",
+      //       collections: "تحصيلات",
+      //       judgments: "أحكام",
+      //       inquiries: "استفسارات",
+      //       hardInquiries: "استفسارات قوية",
+      //       softInquiries: "استفسارات ناعمة",
+      //       creditUtilization: "نسبة استخدام الائتمان",
+      //       totalLimit: "الحد الائتماني الإجمالي",
+      //       totalBalance: "الرصيد الإجمالي",
+      //       utilizationRate: "معدل الاستخدام",
+      //       creditAge: "عمر الائتمان",
+      //       oldestAccount: "أقدم حساب",
+      //       newestAccount: "أحدث حساب",
+      //       averageAge: "متوسط العمر",
+      //       registered: "مسجل",
+      //       amount: "المبلغ",
+      //       maturity: "الاستحقاق",
+      //       none: "لا شيء",
+      //       structuredData: "استخراج البيانات المنظمة",
+      //       accountsAndBalances: "الحسابات والأرصدة",
+      //       type: "النوع",
+      //       lender: "المُقرض",
+      //       openDate: "تاريخ الفتح",
+      //       limit: "الحد",
+      //       balance: "الرصيد",
+      //       closed: "مغلق",
+      //       pastDue: "متأخر",
+      //       yes: "نعم",
+      //       no: "لا",
+      //       inquiryRecords: "سجلات الاستفسار",
+      //       date: "التاريخ",
+      //       affectsScore: "يؤثر على التقييم",
+      //       soft: "ناعم",
+      //       hard: "صارم",
+      //       na: "غير متوفر",
+      //       creditEvaluation: "تقييم الائتمان",
+      //       metric: "المقياس",
+      //       analysis: "التحليل",
+      //       utilization: "نسبة الاستخدام",
+      //       creditMix: "مزيج الائتمان",
+      //       delinquency: "التخلف عن السداد",
+      //       inquiryFrequency: "عدد الاستفسارات",
+      //       fileDepth: "عمق الملف",
+      //       scoreForecast: "محرك توقع الدرجات",
+      //       impact: "التأثير نقاط",
+      //       timeline: "الجدول الزمني",
+      //       priority: "الأولوية",
+      //       confidence: "الدرجة",
+      //       aiActionPlan: "مولد خطة عمل بالذكاء الاصطناعي",
+      //       recommendation: "توصية",
+      //       description: "الوصف",
+      //       action: "فعل",
+      //       dispute: "النزاع",
+      //       removal: "الإزالة",
+      //       toolkit: "مجموعة الأدوات",
+      //       letter: "الرسالة",
+      //       goodwill: "حسن النية",
+      //       scoreProgressTracker: "متعقب تقدم الدرجة",
+      //       scoreSimulator: "محاكي الدرجة",
+      //       scenario: "السيناريو",
+      //       scoreChange: "تغيير الدرجة",
+      //       actionChecklist: "قائمة مراجعة الإجراءات",
+      //       progressProjection: "توقع التقدم",
+      //       aiReminderEngine: "محرك التذكير وإعادة التقييم بالذكاء الاصطناعي",
+      //       event: "الحدث",
+      //       reminderDate: "تاريخ التذكير",
+      //       allCurrent: "جميعها محدثة",
+      //       issuesDetected: "تم اكتشاف مشكلات",
+      //       missedLate24Months: "تم التخلف/التأخير في آخر 24 شهرًا",
+      //       years: "سنوات"
+      //     },
+      //     privacyPage: {
+      //       title: "سياسة الخصوصية",
+      //       effectiveDate: "تاريخ السريان: 13 يونيو 2025",
+      //       intro:
+      //         "تلتزم SCOREWISE (https://www.scorewise.ca) بحماية خصوصيتك. توضح هذه السياسة كيف نجمع بياناتك ونستخدمها ونحميها عند استخدامك لخدمات تحليل تقارير الائتمان الخاصة بنا.",
+      //       sections: {
+      //         whoWeAre: {
+      //           title: "1. من نحن",
+      //           content:
+      //             "SCOREWISE هي منصة كندية للعافية الائتمانية. تقوم أدواتنا بتحليل تقارير الائتمان المقدمة من المستخدمين لتقديم استراتيجيات ونصائح للتحسين.",
+      //         },
+      //         whatWeCollect: {
+      //           title: "2. ما نقوم بجمعه",
+      //           items: [
+      //             "تقارير الائتمان المحملة (بصيغة PDF من Equifax أو TransUnion)",
+      //             "بيانات الجهاز والمتصفح واللغة",
+      //             "تفاعلات المستخدم لتحليلها في الجلسة فقط",
+      //           ],
+      //           note: "نحن لا نجمع اسمك أو رقم التأمين الاجتماعي أو التفاصيل المصرفية أو عنوانك ما لم تقدمها أنت صراحة في المستند المرفوع.",
+      //         },
+      //         howWeUse: {
+      //           title: "3. كيف نستخدم بياناتك",
+      //           intro:
+      //             "يتم تحليل تقرير الائتمان الخاص بك باستخدام الذكاء الاصطناعي من أجل:",
+      //           items: [
+      //             "عرض معاينة للعناصر الإشكالية",
+      //             "توليد رسائل واستراتيجيات تحسين (بعد الشراء)",
+      //             "تقديم رؤى مخصصة — بشكل آلي تمامًا دون تدخل بشري",
+      //           ],
+      //         },
+      //         retention: {
+      //           title: "4. الاحتفاظ والحذف",
+      //           content:
+      //             "يتم حذف الملفات المحملة تلقائيًا خلال دقائق بعد التحليل. لا نقوم بتخزين بياناتك على المدى الطويل.",
+      //         },
+      //         security: {
+      //           title: "5. تدابير الأمان",
+      //           items: [
+      //             "تشفير SSL لجميع نقل الملفات",
+      //             "جميع المعالجات تتم على خوادم كندية آمنة",
+      //             "لا توجد برامج تتبع أو بكسلات تسويقية",
+      //           ],
+      //         },
+      //         compliance: {
+      //           title: "6. الامتثال الكندي",
+      //           intro: "SCOREWISE تمتثل لما يلي:",
+      //           items: [
+      //             "PIPEDA – قانون حماية المعلومات الشخصية والمستندات الإلكترونية",
+      //             "CASL – قانون مكافحة الرسائل المزعجة في كندا",
+      //           ],
+      //           note: "هذه الخدمة متاحة حصريًا للمستخدمين في كندا.",
+      //         },
+      //         languages: {
+      //           title: "7. دعم اللغات",
+      //           content:
+      //             "ندعم الإنجليزية والفرنسية والإسبانية والعربية والروسية والهندية والأوكرانية. هذه السياسة ملزمة قانونيًا باللغة الإنجليزية فقط.",
+      //         },
+      //         rights: {
+      //           title: "8. حقوقك",
+      //           intro: "يمكنك التواصل معنا في أي وقت لـ:",
+      //           items: [
+      //             "طلب حذف تقريرك (إذا كان لا يزال على الخادم)",
+      //             "الحصول على ملخص بيانات الجلسة التي تمت معالجتها",
+      //           ],
+      //           contact: "راسلنا عبر: privacy@scorewise.ca",
+      //         },
+      //         updates: {
+      //           title: "9. التحديثات",
+      //           content:
+      //             "سننشر أي تغييرات مستقبلية في هذه الصفحة. استمرار استخدامك للخدمة يعني موافقتك على الشروط المحدثة.",
+      //         },
+      //       },
+      //     },
+      //     emptyData: "لم يتم العثور على بيانات",
+      //   },
+      // },
       hi: {
         translation: {
           homePage: {
             heading: "अपने क्रेडिट रिपोर्ट को समझें और सुधारें – तुरंत",
             subheading:
               "अपनी क्रेडिट रिपोर्ट अपलोड करें। स्कोर बढ़ाने के लिए चरण-दर-चरण मार्गदर्शन प्राप्त करें।",
+            platformDescription:
+              "SCOREWISE एक कनाडाई क्रेडिट वेलनेस प्लेटफ़ॉर्म है। हमारे टूल्स उपयोगकर्ताओं द्वारा सबमिट की गई क्रेडिट रिपोर्ट का विश्लेषण करते हैं ताकि जानकारी और क्रेडिट स्कोर सुधारने की रणनीतियाँ प्रदान की जा सकें।",
             cta: "निःशुल्क विश्लेषण शुरू करें",
             features: [
               "हम आपकी रिपोर्ट को संग्रहीत नहीं करते। विश्लेषण के बाद सभी डेटा हटा दिए जाते हैं।",
@@ -1501,7 +1513,7 @@ i18n
             analyzeButton: "विश्लेषण करें",
             resetButton: "रीसेट करें",
             planTitle: "बुनियादी जानकारियाँ",
-            unlockButton: "$100 में व्यक्तिगत सलाह अनलॉक करें",
+            unlockButton: "$25 में व्यक्तिगत सलाह अनलॉक करें",
             processingTime: "प्रोसेसिंग समय: 2–3 मिनट",
             downloadActionPlan: "कार्य योजना डाउनलोड करें",
             creditScoreOverview: "क्रेडिट स्कोर का अवलोकन",
@@ -1604,7 +1616,7 @@ i18n
             allCurrent: "सभी वर्तमान",
             issuesDetected: "समस्याएँ पाई गईं",
             missedLate24Months: "24 महीनों में छूटे/देर से भुगतान",
-            years: "वर्ष"
+            years: "वर्ष",
           },
           privacyPage: {
             title: "गोपनीयता नीति",

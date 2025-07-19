@@ -24,6 +24,9 @@ const Home = () => {
           <p className="mb-6 text-lg sm:text-xl text-black-700">
             {t("homePage.subheading")}
           </p>
+          <p className="mb-6 text-lg sm:text-xl text-black-700">
+            {t("homePage.platformDescription")}
+          </p>
           <Link to="/analyzer">
             <button className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
               {t("homePage.cta")}
@@ -60,7 +63,11 @@ const Home = () => {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {steps.map((step, index) =>
               index === 0 ? (
-                <a key={index} href="https://my.equifax.ca/consumer-registration/?lang=en" target="_blank">
+                <a
+                  key={index}
+                  href="https://my.equifax.ca/consumer-registration/?lang=en"
+                  target="_blank"
+                >
                   <div
                     key={index}
                     className="p-4 border border-gray-200 shadow-sm rounded-lg text-center"

@@ -743,8 +743,12 @@ const Analyzer = () => {
       // Save and download
       const pdfBytes = await doc.save();
       const blob = new Blob([pdfBytes], { type: "application/pdf" });
-     
-      if (referrer === "paymentSuccess" && creditData?.isEmailSent === false && data?.data?.ispro) {
+
+      if (
+        referrer === "paymentSuccess" &&
+        creditData?.isEmailSent === false &&
+        data?.data?.ispro
+      ) {
         await sendMail(blob);
         return;
       }
@@ -956,7 +960,7 @@ const Analyzer = () => {
         statusCode === 200 &&
         Object.keys(creditData).length === 0
       ) {
-        toast.warn("No data found!");
+        // toast.warn("No data found!");
       }
     }
     dispatch(resetReportErrorAndStatus());
@@ -1061,7 +1065,11 @@ const Analyzer = () => {
     ) {
       return;
     }
-    if (referrer === "paymentSuccess" && creditData?.isEmailSent === false && data?.data?.ispro) {
+    if (
+      referrer === "paymentSuccess" &&
+      creditData?.isEmailSent === false &&
+      data?.data?.ispro
+    ) {
       generateActionPlanPDF();
     }
   }, [creditData]);
@@ -1093,8 +1101,11 @@ const Analyzer = () => {
                 <input
                   type="file"
                   accept="application/pdf"
-                  onChange={handleChange}
+                  onChange={() => {
+                    !isSignedIn ? openSignIn() : handleChange;
+                  }}
                   className="hidden"
+                  disabled={!isSignedIn}
                   id="fileUploadInput"
                   ref={fileInputRef}
                 />
@@ -1115,7 +1126,11 @@ const Analyzer = () => {
                     {t("analyzePage.dragDrop")} <br /> {t("analyzePage.or")}{" "}
                     <br />
                     <button
-                      onClick={() => fileInputRef.current?.click()}
+                      onClick={() => {
+                        !isSignedIn
+                          ? openSignIn()
+                          : fileInputRef.current?.click();
+                      }}
                       className="cursor-pointer bg-blue-600 fileUploadInput text-white px-6 py-3 mt-2 rounded-lg font-semibold hover:bg-blue-700 transition"
                     >
                       {t("analyzePage.chooseFile")}

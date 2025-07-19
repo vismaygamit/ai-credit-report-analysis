@@ -6,9 +6,11 @@ import {
   SignedOut,
   SignInButton,
   UserButton,
+  useUser,
 } from "@clerk/clerk-react";
 
 const Header = () => {
+  const { isSignedIn } = useUser();
   const [isOpen, setIsOpen] = useState(false);
   const toggleMenu = () => setIsOpen(!isOpen);
   const { i18n, t } = useTranslation();
@@ -76,6 +78,7 @@ const Header = () => {
               {t("header.nav.home")}
             </Link>
           </li>
+          {/* {isSignedIn && ( */}
           <li
             className="py-2 md:py-0"
             onClick={isOpen ? toggleMenu : undefined}
@@ -87,6 +90,7 @@ const Header = () => {
               {t("header.nav.analyze")}
             </Link>
           </li>
+          {/* )} */}
           <li
             className="py-2 md:py-0"
             onClick={isOpen ? toggleMenu : undefined}
@@ -115,7 +119,6 @@ const Header = () => {
             </SignedIn>
           </li>
           <li className="py-2 md:py-0" id="translate">
-          
             <select
               className="border-0 focus:outline-none block px-3 py-1 rounded hover:bg-white hover:text-black transition"
               onChange={(e) => changeLanguage(e.target.value)}
