@@ -1101,11 +1101,9 @@ const Analyzer = () => {
                 <input
                   type="file"
                   accept="application/pdf"
-                  onChange={() => {
-                    !isSignedIn ? openSignIn() : handleChange;
-                  }}
+                  onChange={handleChange}
                   className="hidden"
-                  disabled={!isSignedIn}
+                  disabled={isSignedIn ? false : true}
                   id="fileUploadInput"
                   ref={fileInputRef}
                 />
