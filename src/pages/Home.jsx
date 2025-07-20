@@ -22,10 +22,10 @@ const Home = () => {
             {t("homePage.heading")}
           </h1>
           <p className="mb-6 text-lg sm:text-xl text-black-700">
-            {t("homePage.subheading")}
+            <span className="font-semibold">SCOREWISE</span>{t("homePage.platformDescription")}
           </p>
           <p className="mb-6 text-lg sm:text-xl text-black-700">
-            {t("homePage.platformDescription")}
+            {t("homePage.subheading")}
           </p>
           <Link to="/analyzer">
             <button className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition">

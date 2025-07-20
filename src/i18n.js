@@ -21,7 +21,7 @@ i18n
             subheading:
               "Upload your credit report. Get step-by-step guidance to boost your score.",
             platformDescription:
-              "SCOREWISE is a Canadian credit wellness platform. Our tools analyze credit reports submitted by users to provide insights and credit score improvement strategies.",
+              " is a Canadian credit wellness platform. Our tools analyze credit reports submitted by users to provide insights and credit score improvement strategies.",
             cta: "Start Free Analysis",
             features: [
               "We do not store your credit report. All data is deleted after analysis.",
@@ -261,7 +261,7 @@ i18n
             subheading:
               "Загрузите свой кредитный отчет. Получите пошаговое руководство для повышения рейтинга.",
             platformDescription:
-              "SCOREWISE — это канадская платформа для улучшения кредитного здоровья. Наши инструменты анализируют предоставленные пользователями кредитные отчеты, чтобы дать рекомендации и стратегии улучшения кредитного рейтинга.",
+              " — это канадская платформа для улучшения кредитного здоровья. Наши инструменты анализируют предоставленные пользователями кредитные отчеты, чтобы дать рекомендации и стратегии улучшения кредитного рейтинга.",
             cta: "Начать бесплатный анализ",
             features: [
               "Мы не сохраняем ваш кредитный отчет. Все данные удаляются после анализа.",
@@ -501,7 +501,7 @@ i18n
             subheading:
               "Завантажте кредитний звіт. Отримайте покрокову інструкцію для підвищення балу.",
             platformDescription:
-              "SCOREWISE — це канадська платформа кредитного добробуту. Наші інструменти аналізують кредитні звіти, надані користувачами, щоб надати поради та стратегії покращення кредитного рейтингу.",
+              " — це канадська платформа кредитного добробуту. Наші інструменти аналізують кредитні звіти, надані користувачами, щоб надати поради та стратегії покращення кредитного рейтингу.",
             cta: "Почати безкоштовний аналіз",
             features: [
               "Ми не зберігаємо ваш кредитний звіт. Всі дані видаляються після аналізу.",
@@ -741,7 +741,7 @@ i18n
             subheading:
               "Sube tu informe de crédito. Obtén orientación paso a paso para mejorar tu puntuación.",
             platformDescription:
-              "SCOREWISE es una plataforma canadiense de bienestar crediticio. Nuestras herramientas analizan los informes de crédito enviados por los usuarios para brindar información y estrategias de mejora del puntaje crediticio.",
+              " es una plataforma canadiense de bienestar crediticio. Nuestras herramientas analizan los informes de crédito enviados por los usuarios para brindar información y estrategias de mejora del puntaje crediticio.",
             cta: "Comenzar análisis gratuito",
             features: [
               "No almacenamos tu informe. Todos los datos se eliminan tras el análisis.",
@@ -983,7 +983,7 @@ i18n
             subheading:
               "Téléchargez votre rapport de crédit. Recevez un guide étape par étape pour améliorer votre score.",
             platformDescription:
-              "SCOREWISE est une plateforme canadienne de bien-être financier. Nos outils analysent les rapports de crédit soumis par les utilisateurs afin de fournir des informations et des stratégies d'amélioration du score de crédit.",
+              " est une plateforme canadienne de bien-être financier. Nos outils analysent les rapports de crédit soumis par les utilisateurs afin de fournir des informations et des stratégies d'amélioration du score de crédit.",
             cta: "Commencer l'analyse gratuite",
             features: [
               "Nous ne stockons pas votre rapport. Toutes les données sont supprimées après analyse.",
@@ -1460,7 +1460,7 @@ i18n
             subheading:
               "अपनी क्रेडिट रिपोर्ट अपलोड करें। स्कोर बढ़ाने के लिए चरण-दर-चरण मार्गदर्शन प्राप्त करें।",
             platformDescription:
-              "SCOREWISE एक कनाडाई क्रेडिट वेलनेस प्लेटफ़ॉर्म है। हमारे टूल्स उपयोगकर्ताओं द्वारा सबमिट की गई क्रेडिट रिपोर्ट का विश्लेषण करते हैं ताकि जानकारी और क्रेडिट स्कोर सुधारने की रणनीतियाँ प्रदान की जा सकें।",
+              " एक कनाडाई क्रेडिट वेलनेस प्लेटफ़ॉर्म है। हमारे टूल्स उपयोगकर्ताओं द्वारा सबमिट की गई क्रेडिट रिपोर्ट का विश्लेषण करते हैं ताकि जानकारी और क्रेडिट स्कोर सुधारने की रणनीतियाँ प्रदान की जा सकें।",
             cta: "निःशुल्क विश्लेषण शुरू करें",
             features: [
               "हम आपकी रिपोर्ट को संग्रहीत नहीं करते। विश्लेषण के बाद सभी डेटा हटा दिए जाते हैं।",
