@@ -194,7 +194,7 @@ const Paymentsuccess = () => {
             </div>
           </div>
 
-          <Link to="/" className="mt-6 inline-block text-sm hover:underline">
+          <Link to="/analyzer" className="mt-6 inline-block text-sm hover:underline">
             Back to Home
           </Link>
         </div>
