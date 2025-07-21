@@ -17,7 +17,7 @@ i18n
       en: {
         translation: {
           homePage: {
-            heading: "Understand & Improve Your Credit Report – Instantly",
+            heading: "Understand & Improve Your Credit Score – Instantly",
             subheading:
               "Upload your credit report. Get step-by-step guidance to boost your score.",
             platformDescription:
@@ -257,7 +257,7 @@ i18n
       ru: {
         translation: {
           homePage: {
-            heading: "Поймите и улучшите свой кредитный отчет — мгновенно",
+            heading: "Поймите и улучшите свой кредитный рейтинг – мгновенно",
             subheading:
               "Загрузите свой кредитный отчет. Получите пошаговое руководство для повышения рейтинга.",
             platformDescription:
@@ -497,7 +497,7 @@ i18n
       uk: {
         translation: {
           homePage: {
-            heading: "Зрозумійте та покращте свій кредитний звіт — миттєво",
+            heading: "Зрозумійте та покращте свій кредитний рейтинг – миттєво",
             subheading:
               "Завантажте кредитний звіт. Отримайте покрокову інструкцію для підвищення балу.",
             platformDescription:
@@ -737,7 +737,7 @@ i18n
       es: {
         translation: {
           homePage: {
-            heading: "Comprende y mejora tu informe de crédito — al instante",
+            heading: "Comprende y mejora tu puntuación crediticia al instante",
             subheading:
               "Sube tu informe de crédito. Obtén orientación paso a paso para mejorar tu puntuación.",
             platformDescription:
@@ -979,7 +979,7 @@ i18n
         translation: {
           homePage: {
             heading:
-              "Comprenez et améliorez votre rapport de crédit – instantanément",
+              "Comprenez et améliorez votre score de crédit – instantanément",
             subheading:
               "Téléchargez votre rapport de crédit. Recevez un guide étape par étape pour améliorer votre score.",
             platformDescription:
@@ -1456,7 +1456,7 @@ i18n
       hi: {
         translation: {
           homePage: {
-            heading: "अपने क्रेडिट रिपोर्ट को समझें और सुधारें – तुरंत",
+            heading: "अपने क्रेडिट स्कोर को समझें और तुरंत सुधारें",
             subheading:
               "अपनी क्रेडिट रिपोर्ट अपलोड करें। स्कोर बढ़ाने के लिए चरण-दर-चरण मार्गदर्शन प्राप्त करें।",
             platformDescription:
