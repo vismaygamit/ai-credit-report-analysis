@@ -17,34 +17,39 @@ i18n
       en: {
         translation: {
           homePage: {
-            heading: "Understand & Improve Your Credit Score – Instantly",
+            heading: "Know Your Credit.",
+            heading2: "Improve Your Future",
+            creditScore: "Credit Score",
+            disputeInaccuracies: "Dispute inaccuracies",
+            increaseLimits: "Increase your limits",
+            payDownDebt: "Pay down debt",
             subheading:
-              "Upload your credit report. Get step-by-step guidance to boost your score.",
-            platformDescription:
-              " is a Canadian credit wellness platform. Our tools analyze credit reports submitted by users to provide insights and credit score improvement strategies.",
+              "Instant, secure, and personalized credit report analysis to help you take control of your financial health.",
+            // platformDescription:
+            //   " is a Canadian credit wellness platform. Our tools analyze credit reports submitted by users to provide insights and credit score improvement strategies.",
             cta: "Start Free Analysis",
             features: [
-              "We do not store your credit report. All data is deleted after analysis.",
-              "Automatic analysis, no human viewing",
-              "Used by thousands to improve their credit fast",
+              "PIPEDA & GDPR-Compliant",
+              "SSL 256-bit Encryption",
+              "Trusted by 10000+ Canadians",
             ],
-            stepsTitle: "Get Started in 3 Easy Steps",
+            stepsTitle: "How It Works",
             step1: {
-              title: "Step 1: Download Report",
-              desc: "Visit Equifax.ca and download your free credit report with a score as PDF.",
+              title: "Download Your Report",
+              desc: "Get your free credit report from Equifax or TransUnion.",
             },
             step2: {
-              title: "Step 2: Upload & Analyze",
-              desc: "Upload your report. We'll securely scan it and provide a preview of your credit score analysis.",
+              title: "Upload for Instant Analysis",
+              desc: "We scan and analyze your report without storing it.",
             },
             step3: {
-              title: "Step 3: Pay & Receive Report",
-              desc: "Purchase to receive your full improvement plan, personalized letters, and AI assistant support.",
+              title: "Get Your Personalized Plan",
+              desc: "Actionable steps, custom alerts, and AI support.",
             },
             secureNote:
               "All reports are automatically deleted after analysis. 100% private and secure.",
-            secondCTA: "Start Now",
-            testimonialsTitle: "What People Are Saying",
+            secondCTA: "Start Now - It's Free",
+            testimonialsTitle: "What Our Clients Say",
             testimonial1:
               "I uploaded my Equifax report and got a breakdown of exactly what to fix. Super easy to use.",
             testimonial2:
@@ -56,6 +61,7 @@ i18n
             nav: {
               home: "Home",
               analyze: "Analyze",
+              testimonial: "Testimonial",
               signIn: "Sign in",
               signOut: "Sign out",
             },
@@ -64,10 +70,17 @@ i18n
             copyright: "All rights reserved.",
           },
           analyzePage: {
-            dragDrop: "Drag & drop file here",
+            analysisInProgress:
+              "Analysis in progress — this may take a few minutes.",
+            dragDrop: "Drag & Drop your credit report here",
             or: "or",
             chooseFile: "CHOOSE FILE",
-            acceptedFile: "Accepted file type: PDF",
+            acceptedFile:
+              "We acccept Equifax and TransUnion PDF reports. Data is never stored - your report is deleted immediately after analysis.",
+            shieldcontent1: "Bank-Grade",
+            shieldcontent1Additional: "Encrytion",
+            shieldcontent2: "PIPEDA & GDPR",
+            shieldcontent2Additional: "Compliant",
             privacyNote:
               "No data is stored | Credit report deleted after analysis",
             preview: "Preview",
@@ -178,6 +191,12 @@ i18n
             issuesDetected: "Issues Detected",
             missedLate24Months: "Missed/late in 24 months",
             years: "years",
+            needHelp: "Need help uploading?",
+            uploadingHelp: [
+              "Put your free credit report PDFs",
+              "We only support the PDF file type",
+              "For troubleshooting assistance with uploads",
+            ],
           },
           privacyPage: {
             title: "Privacy Policy",
@@ -257,34 +276,35 @@ i18n
       ru: {
         translation: {
           homePage: {
-            heading: "Поймите и улучшите свой кредитный рейтинг – мгновенно",
+            heading: "Знай свой кредит.",
+            heading2: "Улучшите свое будущее",
+            creditScore: "Кредитный рейтинг",
+            disputeInaccuracies: "Оспорить неточности",
+            increaseLimits: "Увеличить лимиты",
+            payDownDebt: "Погасить долг",
             subheading:
-              "Загрузите свой кредитный отчет. Получите пошаговое руководство для повышения рейтинга.",
-            platformDescription:
-              " — это канадская платформа для улучшения кредитного здоровья. Наши инструменты анализируют предоставленные пользователями кредитные отчеты, чтобы дать рекомендации и стратегии улучшения кредитного рейтинга.",
-            cta: "Начать бесплатный анализ",
+              "Мгновенный, безопасный и персонализированный анализ кредитного отчета, чтобы помочь вам взять под контроль свое финансовое здоровье.",
             features: [
-              "Мы не сохраняем ваш кредитный отчет. Все данные удаляются после анализа.",
-              "Автоматический анализ, без участия человека",
-              "Используется тысячами для быстрого улучшения кредитной истории",
+              "Соответствует PIPEDA и GDPR",
+              "256-битное SSL шифрование",
+              "Нам доверяют более 10000 канадцев",
             ],
-            stepsTitle: "Начните с 3 простых шагов",
+            cta: "Начать бесплатный анализ",
+            stepsTitle: "Как это работает",
             step1: {
-              title: "Шаг 1: Загрузите отчет",
-              desc: "Посетите Equifax.ca и скачайте бесплатный кредитный отчет в формате PDF.",
+              title: "Загрузите свой отчет",
+              desc: "Получите бесплатный кредитный отчет от Equifax или TransUnion.",
             },
             step2: {
-              title: "Шаг 2: Загрузите и проанализируйте",
-              desc: "Загрузите свой отчет. Мы безопасно его проанализируем и покажем предварительный результат.",
+              title: "Загрузите для мгновенного анализа",
+              desc: "Мы сканируем и анализируем ваш отчет без его сохранения.",
             },
             step3: {
-              title: "Шаг 3: Оплатите и получите отчет",
-              desc: "Купите полный план улучшения, персонализированные письма и поддержку AI-ассистента.",
+              title: "Получите персональный план",
+              desc: "Практические шаги, персональные уведомления и поддержка ИИ.",
             },
-            secureNote:
-              "Все отчеты удаляются после анализа. Полная конфиденциальность и безопасность.",
-            secondCTA: "Начать сейчас",
-            testimonialsTitle: "Что говорят люди",
+            secondCTA: "Начать сейчас — это бесплатно",
+            testimonialsTitle: "Что говорят наши клиенты",
             testimonial1:
               "Я загрузил свой отчет Equifax и получил точную информацию о том, что нужно исправить.",
             testimonial2:
@@ -296,6 +316,7 @@ i18n
             nav: {
               home: "Главная",
               analyze: "Анализ",
+              testimonial: "Отзывы",
               signIn: "Войти",
               signOut: "Выйти",
             },
@@ -304,10 +325,16 @@ i18n
             copyright: "Все права защищены.",
           },
           analyzePage: {
-            dragDrop: "Перетащите файл сюда",
+            analysisInProgress: "Анализ выполняется — это может занять несколько минут.",
+            dragDrop: "Перетащите свой кредитный отчет сюда",
             or: "или",
             chooseFile: "ВЫБРАТЬ ФАЙЛ",
-            acceptedFile: "Допустимый тип файла: PDF",
+            acceptedFile:
+              "Мы принимаем PDF-отчеты Equifax и TransUnion. Данные никогда не сохраняются — ваш отчет удаляется сразу после анализа.",
+            shieldcontent1: "Банковский уровень",
+            shieldcontent1Additional: "Шифрование",
+            shieldcontent2: "PIPEDA и GDPR",
+            shieldcontent2Additional: "Соответствие",
             privacyNote:
               "Данные не сохраняются | Кредитный отчет удаляется после анализа",
             preview: "Предпросмотр",
@@ -418,6 +445,12 @@ i18n
             issuesDetected: "Обнаружены проблемы",
             missedLate24Months: "Пропущено/задержано за 24 месяца",
             years: "лет",
+            needHelp: "Нужна помощь с загрузкой?",
+            uploadingHelp: [
+              "Загрузите свои бесплатные кредитные отчёты в формате PDF",
+              "Мы поддерживаем только файлы в формате PDF",
+              "Для помощи с загрузкой обратитесь в службу поддержки",
+            ],
           },
           privacyPage: {
             title: "Политика конфиденциальности",
@@ -497,34 +530,38 @@ i18n
       uk: {
         translation: {
           homePage: {
-            heading: "Зрозумійте та покращте свій кредитний рейтинг – миттєво",
+            heading: "Знай свій кредит.",
+            heading2: "Покращ своє майбутнє",
+            creditScore: "Кредитний рейтинг",
+            disputeInaccuracies: "Оскаржити неточності",
+            increaseLimits: "Збільшити ліміти",
+            payDownDebt: "Погасити борг",
             subheading:
-              "Завантажте кредитний звіт. Отримайте покрокову інструкцію для підвищення балу.",
-            platformDescription:
-              " — це канадська платформа кредитного добробуту. Наші інструменти аналізують кредитні звіти, надані користувачами, щоб надати поради та стратегії покращення кредитного рейтингу.",
-            cta: "Почати безкоштовний аналіз",
+              "Миттєвий, безпечний і персоналізований аналіз кредитного звіту, щоб допомогти вам контролювати своє фінансове здоров’я.",
             features: [
-              "Ми не зберігаємо ваш кредитний звіт. Всі дані видаляються після аналізу.",
-              "Автоматичний аналіз, без участі людини",
-              "Тисячі користувачів вже покращили свій кредитний рейтинг",
+              "Відповідає PIPEDA та GDPR",
+              "256-бітне SSL шифрування",
+              "Нам довіряють понад 10000 канадців",
             ],
-            stepsTitle: "Почніть з 3 простих кроків",
+            cta: "Почати безкоштовний аналіз",
+            stepsTitle: "Як це працює",
             step1: {
-              title: "Крок 1: Завантажте звіт",
-              desc: "Перейдіть на Equifax.ca та завантажте безкоштовний кредитний звіт у форматі PDF.",
+              title: "Завантажте свій звіт",
+              desc: "Отримайте безкоштовний кредитний звіт від Equifax або TransUnion.",
             },
             step2: {
-              title: "Крок 2: Завантажте та проаналізуйте",
-              desc: "Завантажте звіт. Ми безпечно проаналізуємо його та покажемо попередні результати.",
+              title: "Завантажте для миттєвого аналізу",
+              desc: "Ми скануємо і аналізуємо ваш звіт без його збереження.",
             },
             step3: {
-              title: "Крок 3: Оплатіть і отримайте звіт",
-              desc: "Придбайте план покращення, персональні листи та підтримку AI-асистента.",
+              title: "Отримайте персональний план",
+              desc: "Практичні кроки, персональні сповіщення та підтримка ШІ.",
             },
+
             secureNote:
               "Всі звіти видаляються після аналізу. Конфіденційність гарантовано.",
-            secondCTA: "Почати зараз",
-            testimonialsTitle: "Відгуки користувачів",
+            secondCTA: "Почати зараз — це безкоштовно",
+            testimonialsTitle: "Що кажуть наші клієнти",
             testimonial1:
               "Я завантажив звіт і отримав чіткий план дій. Дуже зручно.",
             testimonial2:
@@ -536,6 +573,7 @@ i18n
             nav: {
               home: "Головна",
               analyze: "Аналіз",
+              testimonial: "Відгуки",
               signIn: "Увійти",
               signOut: "Вийти",
             },
@@ -544,10 +582,16 @@ i18n
             copyright: "Усі права захищені.",
           },
           analyzePage: {
-            dragDrop: "Перетягніть файл сюди",
+            analysisInProgress: "Аналіз триває — це може зайняти кілька хвилин.",
+            dragDrop: "Перетягніть свій кредитний звіт сюди",
             or: "або",
             chooseFile: "ОБРАТИ ФАЙЛ",
-            acceptedFile: "Прийнятний тип файлу: PDF",
+            acceptedFile:
+              "Ми приймаємо PDF-звіти Equifax і TransUnion. Дані ніколи не зберігаються — ваш звіт видаляється одразу після аналізу.",
+            shieldcontent1: "Банківський рівень",
+            shieldcontent1Additional: "Шифрування",
+            shieldcontent2: "PIPEDA та GDPR",
+            shieldcontent2Additional: "Відповідність",
             privacyNote:
               "Дані не зберігаються | Кредитний звіт видаляється після аналізу",
             preview: "Попередній перегляд",
@@ -658,6 +702,12 @@ i18n
             issuesDetected: "Виявлено проблеми",
             missedLate24Months: "Пропущено/прострочено за 24 місяці",
             years: "роки",
+            needHelp: "Потрібна допомога із завантаженням?",
+            uploadingHelp: [
+              "Завантажте свої безкоштовні кредитні звіти у форматі PDF",
+              "Ми підтримуємо лише файли формату PDF",
+              "Для допомоги із завантаженням зверніться в службу підтримки",
+            ],
           },
           privacyPage: {
             title: "Політика конфіденційності",
@@ -737,34 +787,37 @@ i18n
       es: {
         translation: {
           homePage: {
-            heading: "Comprende y mejora tu puntuación crediticia al instante",
+            heading: "Conoce tu crédito.",
+            heading2: "Mejora tu futuro",
+            creditScore: "Puntaje de crédito",
+            disputeInaccuracies: "Disputar inexactitudes",
+            increaseLimits: "Aumentar tus límites",
+            payDownDebt: "Reducir deudas",
             subheading:
-              "Sube tu informe de crédito. Obtén orientación paso a paso para mejorar tu puntuación.",
-            platformDescription:
-              " es una plataforma canadiense de bienestar crediticio. Nuestras herramientas analizan los informes de crédito enviados por los usuarios para brindar información y estrategias de mejora del puntaje crediticio.",
-            cta: "Comenzar análisis gratuito",
+              "Análisis de informe crediticio instantáneo, seguro y personalizado para ayudarte a tomar control de tu salud financiera.",
             features: [
-              "No almacenamos tu informe. Todos los datos se eliminan tras el análisis.",
-              "Análisis automático, sin revisión humana",
-              "Miles de personas lo utilizan para mejorar su crédito rápidamente",
+              "Cumple con PIPEDA y GDPR",
+              "Cifrado SSL de 256 bits",
+              "Con la confianza de más de 10,000 canadienses",
             ],
-            stepsTitle: "Comienza en 3 pasos simples",
+            cta: "Comenzar análisis gratuito",
+            stepsTitle: "Cómo funciona",
             step1: {
-              title: "Paso 1: Descargar informe",
-              desc: "Visita Equifax.ca y descarga tu informe de crédito gratuito en PDF.",
+              title: "Descarga tu informe",
+              desc: "Obtén tu informe de crédito gratis de Equifax o TransUnion.",
             },
             step2: {
-              title: "Paso 2: Subir y analizar",
-              desc: "Sube tu informe. Lo escanearemos de forma segura y te daremos un análisis previo.",
+              title: "Súbelo para análisis instantáneo",
+              desc: "Escaneamos y analizamos tu informe sin almacenarlo.",
             },
             step3: {
-              title: "Paso 3: Pagar y recibir informe",
-              desc: "Compra para recibir tu plan de mejora, cartas personalizadas y soporte con AI.",
+              title: "Obtén tu plan personalizado",
+              desc: "Pasos prácticos, alertas personalizadas y soporte con IA.",
             },
+            secondCTA: "Comienza ahora - es gratis",
+            testimonialsTitle: "Lo que dicen nuestros clientes",
             secureNote:
               "Todos los informes se eliminan tras el análisis. 100% privado y seguro.",
-            secondCTA: "Comenzar ahora",
-            testimonialsTitle: "Lo que dicen nuestros usuarios",
             testimonial1:
               "Subí mi informe Equifax y me dijeron exactamente qué corregir. Muy fácil.",
             testimonial2:
@@ -776,6 +829,7 @@ i18n
             nav: {
               home: "Inicio",
               analyze: "Analizar",
+              testimonial: "Testimonios",
               signIn: "Iniciar sesión",
               signOut: "Cerrar sesión",
             },
@@ -784,10 +838,16 @@ i18n
             copyright: "Todos los derechos reservados.",
           },
           analyzePage: {
-            dragDrop: "Arrastra y suelta el archivo aquí",
+            analysisInProgress: "Análisis en curso — esto puede tardar unos minutos.",
+            dragDrop: "Arrastra y suelta tu informe de crédito aquí",
             or: "o",
             chooseFile: "ELEGIR ARCHIVO",
-            acceptedFile: "Tipo de archivo aceptado: PDF",
+            acceptedFile:
+              "Aceptamos informes PDF de Equifax y TransUnion. Los datos nunca se almacenan: tu informe se elimina inmediatamente después del análisis.",
+            shieldcontent1: "Nivel bancario",
+            shieldcontent1Additional: "Cifrado",
+            shieldcontent2: "PIPEDA y GDPR",
+            shieldcontent2Additional: "Cumplimiento",
             privacyNote:
               "No se almacenan datos | El informe de crédito se elimina después del análisis",
             preview: "Vista previa",
@@ -899,6 +959,12 @@ i18n
             issuesDetected: "Problemas detectados",
             missedLate24Months: "Pagos perdidos/tarde en 24 meses",
             years: "años",
+            needHelp: "¿Necesitas ayuda para subir archivos?",
+            uploadingHelp: [
+              "Sube tus informes de crédito gratuitos en PDF",
+              "Solo admitimos archivos en formato PDF",
+              "Para asistencia con problemas de carga, contacta soporte",
+            ],
           },
           privacyPage: {
             title: "Política de Privacidad",
@@ -978,35 +1044,37 @@ i18n
       fr: {
         translation: {
           homePage: {
-            heading:
-              "Comprenez et améliorez votre score de crédit – instantanément",
+            heading: "Connaissez votre crédit.",
+            heading2: "Améliorez votre avenir",
+            creditScore: "Cote de crédit",
+            disputeInaccuracies: "Contester les inexactitudes",
+            increaseLimits: "Augmenter vos limites",
+            payDownDebt: "Rembourser la dette",
             subheading:
-              "Téléchargez votre rapport de crédit. Recevez un guide étape par étape pour améliorer votre score.",
-            platformDescription:
-              " est une plateforme canadienne de bien-être financier. Nos outils analysent les rapports de crédit soumis par les utilisateurs afin de fournir des informations et des stratégies d'amélioration du score de crédit.",
-            cta: "Commencer l'analyse gratuite",
+              "Analyse instantanée, sécurisée et personnalisée de votre rapport de crédit pour vous aider à prendre le contrôle de votre santé financière.",
             features: [
-              "Nous ne stockons pas votre rapport. Toutes les données sont supprimées après analyse.",
-              "Analyse automatique, aucune intervention humaine",
-              "Utilisé par des milliers pour améliorer leur crédit rapidement",
+              "Conforme au PIPEDA et au RGPD",
+              "Chiffrement SSL 256 bits",
+              "Fiable par plus de 10 000 Canadiens",
             ],
-            stepsTitle: "Commencez en 3 étapes simples",
+            cta: "Commencer l'analyse gratuite",
+            stepsTitle: "Comment ça marche",
             step1: {
-              title: "Étape 1 : Télécharger le rapport",
-              desc: "Visitez Equifax.ca et téléchargez votre rapport de crédit gratuit en PDF.",
+              title: "Téléchargez votre rapport",
+              desc: "Obtenez gratuitement votre rapport de crédit auprès d’Equifax ou TransUnion.",
             },
             step2: {
-              title: "Étape 2 : Télécharger et analyser",
-              desc: "Téléchargez votre rapport. Nous l'analyserons en toute sécurité et fournirons un aperçu.",
+              title: "Importez pour une analyse instantanée",
+              desc: "Nous analysons votre rapport sans jamais le stocker.",
             },
             step3: {
-              title: "Étape 3 : Payer et recevoir",
-              desc: "Achetez pour recevoir votre plan d'amélioration, des lettres personnalisées, et un assistant IA.",
+              title: "Obtenez votre plan personnalisé",
+              desc: "Étapes concrètes, alertes personnalisées et assistance IA.",
             },
+            secondCTA: "Commencez maintenant - c’est gratuit",
+            testimonialsTitle: "Ce que disent nos clients",
             secureNote:
               "Tous les rapports sont supprimés après analyse. 100 % privé et sécurisé.",
-            secondCTA: "Commencer maintenant",
-            testimonialsTitle: "Ce que les gens disent",
             testimonial1:
               "J’ai téléchargé mon rapport Equifax et su quoi corriger. Très simple.",
             testimonial2:
@@ -1018,6 +1086,7 @@ i18n
             nav: {
               home: "Accueil",
               analyze: "Analyser",
+              testimonial: "Témoignages",
               signIn: "Se connecter",
               signOut: "Se déconnecter",
             },
@@ -1026,10 +1095,16 @@ i18n
             copyright: "Tous droits réservés.",
           },
           analyzePage: {
-            dragDrop: "Glissez-déposez le fichier ici",
+            analysisInProgress: "Analyse en cours — cela peut prendre quelques minutes.",
+            dragDrop: "Glissez-déposez votre rapport de crédit ici",
+            acceptedFile:
+              "Nous acceptons les rapports PDF d’Equifax et de TransUnion. Les données ne sont jamais stockées – votre rapport est supprimé immédiatement après l’analyse.",
+            shieldcontent1: "Niveau bancaire",
+            shieldcontent1Additional: "Chiffrement",
+            shieldcontent2: "PIPEDA et RGPD",
+            shieldcontent2Additional: "Conformité",
             or: "ou",
             chooseFile: "CHOISIR UN FICHIER",
-            acceptedFile: "Type de fichier accepté : PDF",
             privacyNote:
               "Aucune donnée n'est stockée | Le rapport de crédit est supprimé après l'analyse",
             preview: "Aperçu",
@@ -1140,6 +1215,12 @@ i18n
             issuesDetected: "Problèmes détectés",
             missedLate24Months: "Retards/impayés sur 24 mois",
             years: "ans",
+            needHelp: "Besoin d’aide pour télécharger ?",
+            uploadingHelp: [
+              "Déposez vos rapports de crédit gratuits en PDF",
+              "Nous ne prenons en charge que le format PDF",
+              "Pour toute aide avec le téléchargement, contactez l’assistance",
+            ],
           },
           privacyPage: {
             title: "Politique de confidentialité",
@@ -1456,34 +1537,37 @@ i18n
       hi: {
         translation: {
           homePage: {
-            heading: "अपने क्रेडिट स्कोर को समझें और तुरंत सुधारें",
+            heading: "अपना क्रेडिट जानें।",
+            heading2: "अपने भविष्य को बेहतर बनाएं",
+            creditScore: "क्रेडिट स्कोर",
+            disputeInaccuracies: "त्रुटियों को चुनौती दें",
+            increaseLimits: "अपनी सीमा बढ़ाएँ",
+            payDownDebt: "ऋण चुकाएँ",
             subheading:
-              "अपनी क्रेडिट रिपोर्ट अपलोड करें। स्कोर बढ़ाने के लिए चरण-दर-चरण मार्गदर्शन प्राप्त करें।",
-            platformDescription:
-              " एक कनाडाई क्रेडिट वेलनेस प्लेटफ़ॉर्म है। हमारे टूल्स उपयोगकर्ताओं द्वारा सबमिट की गई क्रेडिट रिपोर्ट का विश्लेषण करते हैं ताकि जानकारी और क्रेडिट स्कोर सुधारने की रणनीतियाँ प्रदान की जा सकें।",
-            cta: "निःशुल्क विश्लेषण शुरू करें",
+              "तुरंत, सुरक्षित और व्यक्तिगत क्रेडिट रिपोर्ट विश्लेषण जो आपको अपने वित्तीय स्वास्थ्य पर नियंत्रण रखने में मदद करता है।",
             features: [
-              "हम आपकी रिपोर्ट को संग्रहीत नहीं करते। विश्लेषण के बाद सभी डेटा हटा दिए जाते हैं।",
-              "स्वचालित विश्लेषण, कोई मानवीय हस्तक्षेप नहीं",
-              "हज़ारों लोग तेज़ी से अपना स्कोर सुधारने के लिए उपयोग करते हैं",
+              "PIPEDA और GDPR-अनुपालन",
+              "SSL 256-बिट एन्क्रिप्शन",
+              "10,000+ कनाडाईयों द्वारा भरोसा किया गया",
             ],
-            stepsTitle: "3 आसान चरणों में शुरू करें",
+            cta: "निःशुल्क विश्लेषण शुरू करें",
+            stepsTitle: "यह कैसे काम करता है",
             step1: {
-              title: "चरण 1: रिपोर्ट डाउनलोड करें",
-              desc: "Equifax.ca पर जाएं और अपना मुफ्त क्रेडिट रिपोर्ट PDF में डाउनलोड करें।",
+              title: "अपनी रिपोर्ट डाउनलोड करें",
+              desc: "Equifax या TransUnion से अपनी निःशुल्क क्रेडिट रिपोर्ट प्राप्त करें।",
             },
             step2: {
-              title: "चरण 2: अपलोड और विश्लेषण करें",
-              desc: "अपनी रिपोर्ट अपलोड करें। हम इसे सुरक्षित रूप से स्कैन करके पूर्वावलोकन प्रदान करेंगे।",
+              title: "तुरंत विश्लेषण के लिए अपलोड करें",
+              desc: "हम आपकी रिपोर्ट को स्कैन और विश्लेषित करते हैं बिना उसे संग्रहीत किए।",
             },
             step3: {
-              title: "चरण 3: भुगतान करें और रिपोर्ट प्राप्त करें",
-              desc: "संपूर्ण सुधार योजना, व्यक्तिगत पत्र, और एआई सहायता प्राप्त करने के लिए भुगतान करें।",
+              title: "अपनी व्यक्तिगत योजना प्राप्त करें",
+              desc: "व्यावहारिक कदम, कस्टम अलर्ट और एआई सहायता।",
             },
+            secondCTA: "अभी शुरू करें - यह निःशुल्क है",
+            testimonialsTitle: "हमारे ग्राहक क्या कहते हैं",
             secureNote:
               "सभी रिपोर्ट विश्लेषण के बाद हटा दी जाती हैं। 100% सुरक्षित और निजी।",
-            secondCTA: "अब शुरू करें",
-            testimonialsTitle: "लोग क्या कह रहे हैं",
             testimonial1:
               "मैंने अपनी रिपोर्ट अपलोड की और सुधार के स्पष्ट निर्देश मिले। बहुत आसान!",
             testimonial2:
@@ -1495,6 +1579,7 @@ i18n
             nav: {
               home: "होम",
               analyze: "विश्लेषण करें",
+              testimonial: "प्रशंसापत्र",
               signIn: "साइन इन करें",
               signOut: "साइन आउट करें",
             },
@@ -1503,10 +1588,16 @@ i18n
             copyright: "सर्वाधिकार सुरक्षित।",
           },
           analyzePage: {
-            dragDrop: "फ़ाइल को यहां खींचें और छोड़ें",
+            analysisInProgress: "विश्लेषण जारी है — इसमें कुछ मिनट लग सकते हैं।",
+            dragDrop: "अपनी क्रेडिट रिपोर्ट यहाँ खींचें और छोड़ें",
             or: "या",
             chooseFile: "फ़ाइल चुनें",
-            acceptedFile: "स्वीकृत फ़ाइल प्रकार: PDF",
+            acceptedFile:
+              "हम Equifax और TransUnion की PDF रिपोर्ट स्वीकार करते हैं। डेटा कभी संग्रहीत नहीं किया जाता - आपका रिपोर्ट विश्लेषण के तुरंत बाद हटा दिया जाता है।",
+            shieldcontent1: "बैंक-ग्रेड",
+            shieldcontent1Additional: "एन्क्रिप्शन",
+            shieldcontent2: "PIPEDA और GDPR",
+            shieldcontent2Additional: "अनुपालन",
             privacyNote:
               "कोई डेटा संग्रहीत नहीं किया जाता | विश्लेषण के बाद क्रेडिट रिपोर्ट हटा दी जाती है",
             preview: "पूर्वावलोकन",
@@ -1617,6 +1708,12 @@ i18n
             issuesDetected: "समस्याएँ पाई गईं",
             missedLate24Months: "24 महीनों में छूटे/देर से भुगतान",
             years: "वर्ष",
+            needHelp: "अपलोड करने में मदद चाहिए?",
+            uploadingHelp: [
+              "अपनी निःशुल्क क्रेडिट रिपोर्ट PDFs डालें",
+              "हम केवल PDF फ़ाइल प्रकार का समर्थन करते हैं",
+              "अपलोड समस्या निवारण सहायता के लिए सपोर्ट से संपर्क करें",
+            ],
           },
           privacyPage: {
             title: "गोपनीयता नीति",

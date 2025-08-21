@@ -8,8 +8,13 @@ import {
   UserButton,
   useUser,
 } from "@clerk/clerk-react";
+import { useLocation } from "react-router-dom";
+import Hero from "./Hero";
 
 const Header = () => {
+  const location = useLocation();
+  const baseUrl = window.location.origin;
+  
   const { isSignedIn } = useUser();
   const [isOpen, setIsOpen] = useState(false);
   const toggleMenu = () => setIsOpen(!isOpen);
@@ -32,8 +37,8 @@ const Header = () => {
   ];
 
   return (
-    <header className="bg-[#0A1F44] text-white w-full">
-      <nav className="flex items-center justify-between px-4 py-4 max-w-6xl mx-auto">
+    <header className="w-full bg-[#eaf0fe]">
+      <nav className="navbar flex container items-center justify-between py-4 max-w-8xl mx-auto sm:px-6">
         <div className="text-xl font-bold">
           <Link to="/">Scorewise</Link>
         </div>
@@ -64,7 +69,7 @@ const Header = () => {
 
         <ul
           className={`md:flex md:space-x-6 absolute md:static top-16 left-0 w-full md:w-auto px-4 md:px-0 transition-all duration-300 ${
-            isOpen ? "block bg-[#0A1F44]" : "hidden"
+            isOpen ? "block bg-[#eaf0fe]" : "hidden"
           }`}
         >
           <li
@@ -91,6 +96,28 @@ const Header = () => {
             </Link>
           </li>
           {/* )} */}
+          <li
+            className="py-2 md:py-0"
+            onClick={isOpen ? toggleMenu : undefined}
+          >
+            <a
+              href={`${baseUrl}#how`}
+              className="block px-3 py-1 rounded hover:bg-white hover:text-black transition"
+            >
+              {t("homePage.stepsTitle")}
+            </a>
+          </li>
+          <li
+            className="py-2 md:py-0"
+            onClick={isOpen ? toggleMenu : undefined}
+          >
+            <a
+              href={`${baseUrl}#review`}
+              className="block px-3 py-1 rounded hover:bg-white hover:text-black transition"
+            >
+              {t("header.nav.testimonial")}
+            </a>
+          </li>
           <li
             className="py-2 md:py-0"
             onClick={isOpen ? toggleMenu : undefined}
@@ -138,6 +165,7 @@ const Header = () => {
           </li>
         </ul>
       </nav>
+      {location.pathname === "/" && <Hero />}
     </header>
   );
 };

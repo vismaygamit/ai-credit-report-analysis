@@ -1,0 +1,102 @@
+/* Mobile L */
+@media (max-width: 768px) {
+  .fetaure-parent {
+    /* margin-left: 10px !important; */
+    text-align: start;
+  }
+
+  /* .navbar{
+    padding: 5%;
+  } */
+
+  /* .ctabutton {
+    text-align: center !important;
+  } */
+}
+
+/* Mobile L */
+@media (max-width: 425px) {
+  .fetaure-parent {
+    margin-left: 80px !important;
+  }
+
+  .navbar{
+    padding: 5%; /* Adjust padding for smaller screens */
+  }
+
+  .ctabutton {
+    text-align: center !important; /* Center text for smaller screens */
+  }
+}
+
+/* Mobile M: 375px to 414px */
+@media (min-width: 375px) and (max-width: 414px) {
+  .laptop-card {
+    width: 68% !important;
+    height: 58% !important;
+  }
+  .semicircle-container {
+    height: 50px !important; /* Full height for smaller screens */
+  }
+  /* .laptop-card > div {
+        height: 100% !important; /* Maintain aspect ratio */
+  /* } */
+  */ .creditsvg {
+    height: 100px !important; /* Full height for smaller screens */
+  }
+  .laptop-card .svg-container {
+    height: 4rem !important;
+    width: 65% !important;
+  }
+
+  .fetaure-parent {
+    margin-left: 60px !important;
+    margin-bottom: 5px;
+  }
+
+  .navbar{
+    padding: 5%; /* Adjust padding for smaller screens */
+  }
+  .ctabutton {
+    text-align: center !important; /* Center text for smaller screens */
+  }
+}
+
+/* Mobile S: max-width 374px */
+@media (max-width: 374px) {
+  .laptop-image {
+    width: 100% !important;
+  }
+  .laptop-card {
+    width: 68% !important;
+    height: 55% !important;
+  }
+  .semicircle-container {
+    height: 40px !important; /* Full height for smaller screens */
+  }
+  .laptop-card > svg {
+    width: 50% !important; /* Full width for smaller screens */
+    height: auto !important; /* Maintain aspect ratio */
+  }
+  .laptop-card .svg-container {
+    height: 2.5rem !important;
+    width: 60% !important;
+  }
+
+  .features {
+    height: 10px !important;
+  }
+
+  .fetaure-parent {
+    margin-left: 50px !important;
+    margin-bottom: 10px;
+  }
+
+  .navbar{
+    padding: 5%; /* Adjust padding for smaller screens */
+  }
+
+  .ctabutton {
+    text-align: center !important; /* Center text for smaller screens */
+  }
+}

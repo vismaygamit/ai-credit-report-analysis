@@ -26,6 +26,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { ShieldCheck } from "lucide-react";
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 const Analyzer = () => {
@@ -55,7 +56,7 @@ const Analyzer = () => {
   const { isSignedIn, user } = useUser();
   const [paymentStatus, setPaymentStatus] = useState("false");
   const { getToken } = useAuth();
-
+  const helps = t("analyzePage.uploadingHelp", { returnObjects: true });
   const handleTranslate = async () => {
     try {
       let creditReportFortranslate = creditData;
@@ -1129,7 +1130,7 @@ const Analyzer = () => {
                           ? openSignIn()
                           : fileInputRef.current?.click();
                       }}
-                      className="cursor-pointer bg-blue-600 fileUploadInput text-white px-6 py-3 mt-2 rounded-lg font-semibold hover:bg-blue-700 transition"
+                      className="cursor-pointer bg-green-600 fileUploadInput text-white px-6 py-3 mt-2 rounded-lg font-semibold hover:bg-green-700 transition"
                     >
                       {t("analyzePage.chooseFile")}
                     </button>
@@ -1138,8 +1139,84 @@ const Analyzer = () => {
               </div>
               <p className="w-full max-w-3xl mx-auto text-left transition text-xs sm:text-sm mt-3">
                 {t("analyzePage.acceptedFile")}
-                <br />
-                {t("analyzePage.privacyNote")}
+                <br/>
+                <br/>
+                {/* {t("analyzePage.privacyNote")} */}
+                <div className="w-full max-w-md space-y-4">
+                  <div className="flex flex-wrap gap-3 items-center">
+                    <div className="flex items-center gap-2">
+                      <div className="text-green-600">
+                        <img
+                          src="/shield-lock.svg"
+                          className="w-13 h-13 fill-green-500 mx-auto text-white"
+                          alt="Security Shield"
+                        />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-800">
+                          {t("analyzePage.shieldcontent1")}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {t("analyzePage.shieldcontent1Additional")}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <div className="text-green-600">
+                        <ShieldCheck className="w-10 h-10 fill-green-500 mx-auto text-white" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-800">
+                          {" "}
+                          {t("analyzePage.shieldcontent2")}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {t("analyzePage.shieldcontent2Additional")}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="items-center">
+                      <a
+                        href="#"
+                        className="text-blue-600 underline ml-auto text-sm"
+                      >
+                        {t("privacyPage.title")}
+                      </a>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h2 className="text-lg font-bold text-gray-800 mb-2">
+                      {t("analyzePage.needHelp")}
+                    </h2>
+                    <ul className="space-y-1 text-gray-700">
+                      {helps.map((help, index) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <span className="text-green-600">
+                            <div className="text-green-600">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="w-6 h-6"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M5 13l4 4L19 7"
+                                />
+                              </svg>
+                            </div>
+                          </span>
+                          <span>{help}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
               </p>
             </>
           )}
@@ -2591,7 +2668,7 @@ const Analyzer = () => {
               />
             </svg>
             <span className="mt-4 text-center text-sm sm:text-base md:text-lg px-4">
-              Analysis in progress — this may take a few minutes.
+              {t("analyzePage.analysisInProgress")}
             </span>
           </div>
         </div>
