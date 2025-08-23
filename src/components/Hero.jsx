@@ -30,9 +30,9 @@ const Hero = () => {
       {/* Hero Section */}
       <div className="text-left grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center">
         <div className="flex flex-col justify-center space-y-6 sm:space-y-8 animate-in fade-in duration-1000 lg:text-left sm:text-center">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900">
             {t("homePage.heading")}
-            <br className="hidden sm:block" />
+            <br/>
             {t("homePage.heading2")}
           </h1>
           <p className="text-base sm:text-lg lg:text-xl text-gray-700">

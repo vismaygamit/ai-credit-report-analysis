@@ -4,7 +4,11 @@
     /* margin-left: 10px !important; */
     text-align: start;
   }
-
+  /* .navbarul {
+    width: 100% !important;
+    height: 62% !important;
+    z-index: 1000;
+  } */
   /* .navbar{
     padding: 5%;
   } */
@@ -20,7 +24,13 @@
     margin-left: 80px !important;
   }
 
-  .navbar{
+  .navbarul {
+    width: 100% !important;
+    height: 40%  !important;
+    z-index: 1000;
+  }
+
+  .navbar {
     padding: 5%; /* Adjust padding for smaller screens */
   }
 
@@ -29,6 +39,26 @@
   }
 }
 
+/* Tablet */
+@media (max-width: 639px) and (min-width: 426px) {
+  .fetaure-parent {
+    margin-left: 80px !important;
+  }
+
+  .navbar {
+    padding: 5%;
+  }
+
+  .ctabutton {
+    text-align: center !important;
+  }
+
+  .navbarul {
+    width: 100% !important;
+    height: 40%  !important;
+    z-index: 1000;
+  }
+}
 /* Mobile M: 375px to 414px */
 @media (min-width: 375px) and (max-width: 414px) {
   .laptop-card {
@@ -54,11 +84,21 @@
     margin-bottom: 5px;
   }
 
-  .navbar{
+  .navbar {
     padding: 5%; /* Adjust padding for smaller screens */
   }
   .ctabutton {
     text-align: center !important; /* Center text for smaller screens */
+  }
+
+  .features {
+    height: 10px !important;
+  }
+
+  .navbarul {
+    width: 100% !important;
+    height: 40% !important;
+    z-index: 1000;
   }
 }
 
@@ -92,11 +132,29 @@
     margin-bottom: 10px;
   }
 
-  .navbar{
+  .navbar {
     padding: 5%; /* Adjust padding for smaller screens */
   }
 
   .ctabutton {
     text-align: center !important; /* Center text for smaller screens */
+  }
+
+  .navbarul {
+    width: 100% !important;
+    height: 40%  !important;
+    z-index: 1000;
+  }
+}
+
+@media (max-width: 320px) {
+  .features {
+    height: 7px !important;
+  }
+
+  .navbarul {
+    width: 100% !important;
+    height: 40%  !important;
+    z-index: 1000;
   }
 }

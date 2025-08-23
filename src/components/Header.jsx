@@ -38,9 +38,15 @@ const Header = () => {
 
   return (
     <header className="w-full bg-[#eaf0fe]">
-      <nav className="navbar flex container items-center justify-between py-4 max-w-8xl mx-auto sm:px-6">
+      <nav className="navbar flex container items-center justify-between max-w-8xl mx-auto sm:px-6">
         <div className="text-xl font-bold">
-          <Link to="/">Scorewise</Link>
+          <Link to="/">
+           <img
+            src="/logo.png"
+            alt="logo"
+            className="lg:h-25 md:h-17 sm:h-17 h-17 w-auto object-contain"
+          />
+          </Link>
         </div>
         <button onClick={toggleMenu} className="md:hidden focus:outline-none">
           <svg
@@ -68,7 +74,7 @@ const Header = () => {
         </button>
 
         <ul
-          className={`md:flex md:space-x-6 absolute md:static top-16 left-0 w-full md:w-auto px-4 md:px-0 transition-all duration-300 ${
+          className={`navbarul md:flex md:space-x-6 absolute md:static top-16 left-0 w-full md:w-auto px-4 md:px-0 transition-all duration-300 ${
             isOpen ? "block bg-[#eaf0fe]" : "hidden"
           }`}
         >
@@ -96,7 +102,7 @@ const Header = () => {
             </Link>
           </li>
           {/* )} */}
-          <li
+          {/* <li
             className="py-2 md:py-0"
             onClick={isOpen ? toggleMenu : undefined}
           >
@@ -106,8 +112,8 @@ const Header = () => {
             >
               {t("homePage.stepsTitle")}
             </a>
-          </li>
-          <li
+          </li> */}
+          {/* <li
             className="py-2 md:py-0"
             onClick={isOpen ? toggleMenu : undefined}
           >
@@ -117,7 +123,7 @@ const Header = () => {
             >
               {t("header.nav.testimonial")}
             </a>
-          </li>
+          </li> */}
           <li
             className="py-2 md:py-0"
             onClick={isOpen ? toggleMenu : undefined}
@@ -145,7 +151,7 @@ const Header = () => {
               </button>
             </SignedIn>
           </li>
-          <li className="py-2 md:py-0" id="translate">
+          <li className="py-2 md:py-0">
             <select
               className="border-0 focus:outline-none block px-3 py-1 rounded hover:bg-white hover:text-black transition"
               onChange={(e) => changeLanguage(e.target.value)}
