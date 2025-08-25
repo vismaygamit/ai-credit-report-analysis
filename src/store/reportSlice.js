@@ -1,10 +1,11 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import i18n from "../i18n";
 
 // Analysis
 export const fetchReport = createAsyncThunk(
   "report/fetchReport",
-  async ({formData, token}, { rejectWithValue }) => {
+  async ({ formData, token, language }, { rejectWithValue }) => {
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/analyze`,
@@ -12,7 +13,8 @@ export const fetchReport = createAsyncThunk(
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
+            "Accept-Language": language,
           },
         }
       );
@@ -81,6 +83,33 @@ export const translateObject = createAsyncThunk(
   }
 );
 
+// getPreferLanguage API
+export const getPreferLanguage = createAsyncThunk(
+  "report/getPreferLanguage",
+  async ({ userId }, { rejectWithValue }) => {
+    try {
+      console.log("Getting preferred language with:", userId);
+
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/getuserlanguage/${userId}`,
+        {}
+      );
+      return {
+        preferLanguage: response.data.preferLanguage, // adjust key if API response differs
+        statusCode: response.status,
+      };
+    } catch (error) {
+      console.log("Error fetching preferred language:", error);
+
+      return rejectWithValue({
+        message:
+          error.response?.data?.message || "Failed to fetch preferred language",
+        statusCode: error.response?.status || 500,
+      });
+    }
+  }
+);
+
 const reportSlice = createSlice({
   name: "report",
   initialState: {
@@ -95,6 +124,10 @@ const reportSlice = createSlice({
       state.error = null;
       state.statusCode = null;
       // state.loading = false;
+    },
+    setPreferLanguage: (state, action) => {
+      state.preferLanguage = action.payload;
+      i18n.changeLanguage(action.payload); // ✅ also update i18n
     },
   },
   extraReducers: (builder) => {
@@ -144,8 +177,26 @@ const reportSlice = createSlice({
         state.error = action.payload;
         state.statusCode = action.payload.statusCode;
       });
+    builder
+      // getPreferLanguage
+      .addCase(getPreferLanguage.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getPreferLanguage.fulfilled, (state, action) => {
+        state.loading = false;
+        state.preferLanguage = action.payload.preferLanguage;
+        // i18n.changeLanguage(action.payload.preferLanguage); // ✅ sync Redux + i18n
+        state.statusCode = action.payload.statusCode;
+      })
+      .addCase(getPreferLanguage.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        state.statusCode = action.payload?.statusCode;
+      });
   },
 });
 
-export const { resetReportErrorAndStatus } = reportSlice.actions;
+export const { resetReportErrorAndStatus, setPreferLanguage } =
+  reportSlice.actions;
 export default reportSlice.reducer;

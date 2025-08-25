@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -7,24 +7,97 @@ import {
   SignInButton,
   UserButton,
   useUser,
+  useAuth,
 } from "@clerk/clerk-react";
+import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import Hero from "./Hero";
+import { getPreferLanguage } from "../store/reportSlice";
+import axios from "axios";
 
 const Header = () => {
+  const dispatch = useDispatch();
   const location = useLocation();
   const baseUrl = window.location.origin;
-  
-  const { isSignedIn } = useUser();
+  const { getToken } = useAuth();
+  const { isSignedIn, user } = useUser();
   const [isOpen, setIsOpen] = useState(false);
   const toggleMenu = () => setIsOpen(!isOpen);
   const { i18n, t } = useTranslation();
-  const selectedLanguage = localStorage.getItem("selectedLanguage") || "en";
-  const changeLanguage = (lng) => {
-    // localStorage.setItem("selectedLanguage", lng);
+  const { preferLanguage, loading, error } = useSelector(
+    (state) => state.report
+  );
+  const [userPreferLanguage, setuserPreferLanguage] = useState("en");
+  // const selectedLanguage = localStorage.getItem("selectedLanguage") || "en";
+  let selectedLanguage = "en";
+  const changeLanguage = async (lng) => {
+    console.log("Changing language to:", lng);
+    await updateLanguagePreference(lng);
+    selectedLanguage = lng; // only update for homepage
     i18n.changeLanguage(lng); // this updates globally
     toggleMenu(); // close the menu after changing language
   };
+
+  const updateLanguagePreference = async (lng) => {
+    console.log("Updating language preference to:", lng);
+    if (isSignedIn && user?.id) {
+      try {
+        const token = await getToken();
+        const response = await axios.patch(
+          `${import.meta.env.VITE_API_URL}/updateuserlanguage/${lng}`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        console.log("Language updated successfully", response.data);
+      } catch (err) {
+        console.error("Language update failed", err);
+      }
+    }
+  };
+
+  useEffect(() => {
+    const fetchAndDispatch = async () => {
+      try {
+        console.log("Fetched token:", user?.id);
+
+        dispatch(
+          getPreferLanguage({
+            // language: i18n.language || "en",
+            userId: user?.id,
+          })
+        );
+      } catch (err) {
+        console.error("Failed to fetch token:", err);
+      }
+    };
+    if (isSignedIn && user?.id && location.pathname != "/analyzer") {
+      // if (isSignedIn && user?.id) {
+      fetchAndDispatch();
+    }
+  }, [isSignedIn]);
+
+  useEffect(() => {
+    if (loading) return; // wait for loading to finish{
+    if (error) {
+      console.error("Error fetching preferred language:", error);
+      return;
+    }
+    if (preferLanguage && preferLanguage !== i18n.language) {
+      i18n.changeLanguage(preferLanguage);
+      setuserPreferLanguage(preferLanguage);
+      // selectedLanguage = preferLanguage;
+      console.log("Prefer language from store:", preferLanguage);
+    }
+  }, [loading]);
+
+  useEffect(() => {
+    console.log("i18n.language changed to:", i18n.language);
+    setuserPreferLanguage(i18n.language);
+  }, [i18n.language]);
 
   const languages = [
     { code: "en", label: "English" },
@@ -41,11 +114,11 @@ const Header = () => {
       <nav className="navbar flex container items-center justify-between max-w-8xl mx-auto sm:px-6">
         <div className="text-xl font-bold">
           <Link to="/">
-           <img
-            src="/logo.png"
-            alt="logo"
-            className="lg:h-25 md:h-17 sm:h-17 h-17 w-auto object-contain"
-          />
+            <img
+              src="/logo.png"
+              alt="logo"
+              className="lg:h-25 md:h-17 sm:h-17 h-17 w-auto object-contain"
+            />
           </Link>
         </div>
         <button onClick={toggleMenu} className="md:hidden focus:outline-none">
@@ -155,7 +228,7 @@ const Header = () => {
             <select
               className="border-0 focus:outline-none block px-3 py-1 rounded hover:bg-white hover:text-black transition"
               onChange={(e) => changeLanguage(e.target.value)}
-              // value={selectedLanguage}
+              value={userPreferLanguage}
             >
               {languages.map((lang) => (
                 <option

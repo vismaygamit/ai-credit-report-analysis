@@ -38,9 +38,8 @@ const Analyzer = () => {
   const [pdfFile, setPdfFile] = useState(null);
   const [isReport, setIsReport] = useState(false);
   const dispatch = useDispatch();
-  const { data, loading, translated, error, statusCode } = useSelector(
-    (state) => state.report
-  );
+  const { data, loading, translated, error, statusCode } =
+    useSelector((state) => state.report);
   let inquiriesCombined = [];
   const chartRef = useRef();
   const disputeRef = useRef();
@@ -57,6 +56,7 @@ const Analyzer = () => {
   const [paymentStatus, setPaymentStatus] = useState("false");
   const { getToken } = useAuth();
   const helps = t("analyzePage.uploadingHelp", { returnObjects: true });
+
   const handleTranslate = async () => {
     try {
       let creditReportFortranslate = creditData;
@@ -938,7 +938,7 @@ const Analyzer = () => {
       // formData.append("userId", user?.id ? user.id : "");
       formData.append("reportId", data?.result?._id ? data?.result._id : "");
       dispatch(resetReportErrorAndStatus());
-      dispatch(fetchReport({ formData, token }));
+      dispatch(fetchReport({ formData, token, language: i18n.language }));
     } catch (error) {
       console.log("error", error);
 
@@ -1037,6 +1037,7 @@ const Analyzer = () => {
         ...result,
         inquiries: inquiriesCombined,
       });
+      i18n.changeLanguage(result?.preferLanguage);
       if (!isSignedIn) {
         localStorage.setItem(
           "creditReport",
@@ -1076,7 +1077,7 @@ const Analyzer = () => {
   }, [creditData]);
 
   useEffect(() => {
-    if (Object.keys(creditData).length > 0) {
+    if (Object.keys(creditData).length > 0 && i18n?.language !== creditData?.preferLanguage) {
       handleTranslate();
     }
     // i18n.changeLanguage(selectedLanguage);
@@ -1139,8 +1140,8 @@ const Analyzer = () => {
               </div>
               <p className="w-full max-w-3xl mx-auto text-left transition text-xs sm:text-sm mt-3">
                 {t("analyzePage.acceptedFile")}
-                <br/>
-                <br/>
+                <br />
+                <br />
                 {/* {t("analyzePage.privacyNote")} */}
                 <div className="w-full max-w-md space-y-4">
                   <div className="flex flex-wrap gap-3 items-center">

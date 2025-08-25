@@ -46,8 +46,8 @@ const Footer = () => {
               y2="40.615"
               gradientUnits="userSpaceOnUse"
             >
-              <stop offset="0" stop-color="#2aa4f4"></stop>
-              <stop offset="1" stop-color="#007ad9"></stop>
+              <stop offset="0" stopColor="#2aa4f4"></stop>
+              <stop offset="1" stopColor="#007ad9"></stop>
             </linearGradient>
             <path
               fill="url(#Ld6sqrtcxMyckEl6xeDdMa_uLWV5A9vXIPu_gr1)"
@@ -144,10 +144,10 @@ const Footer = () => {
               <path
                 fill="none"
                 stroke="#fff"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-miterlimit="10"
-                stroke-width="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeMiterlimit="10"
+                strokeWidth="2"
                 d="M30,11H18c-3.9,0-7,3.1-7,7v12c0,3.9,3.1,7,7,7h12c3.9,0,7-3.1,7-7V18C37,14.1,33.9,11,30,11z"
               ></path>
               <circle cx="31" cy="16" r="1" fill="#fff"></circle>
@@ -159,10 +159,10 @@ const Footer = () => {
                 r="6"
                 fill="none"
                 stroke="#fff"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-miterlimit="10"
-                stroke-width="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeMiterlimit="10"
+                strokeWidth="2"
               ></circle>
             </g>
           </svg>
