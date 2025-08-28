@@ -714,12 +714,17 @@ window.setName = function (name) {
       this.button.classList.add("active");
       this.messageInput.focus();
       this.hideNotification();
+      if (window.innerWidth < 769) {
+        console.log("Mobile view - maximizing chat");
+        this.button.hidden = true;
+      }
     }
 
     closeChat() {
       this.isOpen = false;
       this.container.classList.remove("active");
       this.button.classList.remove("active");
+      this.button.hidden = false;
     }
 
     sendMessage() {
