@@ -667,7 +667,7 @@ window.setName = function (name) {
       script.src = "https://cdn.socket.io/4.8.1/socket.io.min.js";
       const token = localStorage.getItem("token");
       script.onload = () => {
-        this.socket = io("https://ai-credit-report-analysis.vercel.app", { auth: { token } }); // ⬅️ your backend URL
+        this.socket = io("https://ai-credit-report-analysis-backend.onrender.com", { auth: { token } }); // ⬅️ your backend URL
         // Listen for messages from server
         this.socket.on("message", (msg) => {
           const messageDiv = document.createElement("div");
