@@ -63,7 +63,7 @@ const Analyzer = () => {
       // if (i18n.language != "en") {
       //   creditReportFortranslate = JSON.parse(localStorage.getItem("creditReportFortranslate"));
       // }
-      const token = await getToken();
+      const token = await getToken({ template: "hasura" });
       dispatch(
         translateObject({
           object: creditReportFortranslate,
@@ -765,7 +765,7 @@ const Analyzer = () => {
     formData.append("reportId", creditData?._id ? creditData?._id : "");
 
     try {
-      const token = await getToken();
+      const token = await getToken({ template: "hasura" });
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/sendreport`,
         formData,
@@ -897,7 +897,7 @@ const Analyzer = () => {
     }
 
     try {
-      const token = await getToken();
+      const token = await getToken({ template: "hasura" });
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/checkout`,
         JSON.stringify({
@@ -932,7 +932,7 @@ const Analyzer = () => {
       return;
     }
     try {
-      const token = await getToken();
+      const token = await getToken({ template: "hasura" });
       const formData = new FormData();
       formData.append("file", pdfFile);
       // formData.append("userId", user?.id ? user.id : "");

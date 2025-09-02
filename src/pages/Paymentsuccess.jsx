@@ -81,7 +81,7 @@ const Paymentsuccess = () => {
     formData.append("file", blob, "Payment_Receipt.pdf");
 
     try {
-      const token = await getToken();
+      const token = await getToken({ template: "hasura" });
       await axios.post(
         `${import.meta.env.VITE_API_URL}/sendreceipt`,
         formData,

@@ -1,19 +1,11 @@
-let userName = "Guest";
-
 window.setName = function (name) {
-  console.log("Chat widget received name:", name);
-
-  // Example: put the name in a div
   const el = document.getElementById("chat-user-name");
   if (el) {
     el.textContent = name;
-    // userName = name;
   }
 };
 
 (function () {
-  console.log("Initializing chat widget script...", userName);
-
   // Inject CSS
   const style = document.createElement("style");
   style.textContent = `
@@ -562,7 +554,7 @@ window.setName = function (name) {
     <div class="chat-widget">
         <!-- Chat Button -->
         <button class="chat-widget-button" id="chatWidgetButton">
-            <div class="chat-widget-badge" id="chatWidgetBadge">1</div>
+          <!-- <div class="chat-widget-badge" id="chatWidgetBadge">1</div> -->
             <svg viewBox="0 0 24 24">
                 <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
             </svg>
@@ -589,8 +581,8 @@ window.setName = function (name) {
                         </svg>
                     </div>
                     <div class="chat-widget-info">
-                        <h3>Customer Support</h3>
-                        <p>We typically reply instantly</p>
+                        <h3>Ai Assistant</h3>
+                        <!-- <p>We typically reply instantly</p> -->
                     </div>
                 </div>
                 <div class="chat-widget-status">
@@ -656,20 +648,56 @@ window.setName = function (name) {
       this.isOpen = false;
       this.isMaximized = false;
 
-      this.botResponses = [
-        "Thanks for reaching out! Our team will assist you shortly. 😊",
-        "I understand your concern. Let me connect you with the right specialist.",
-        "Great question! Here's what I can tell you about that...",
-        "I'm here to help! Could you provide a bit more detail about your issue?",
-        "That's a common request. Let me get that information for you.",
-        "I appreciate your patience. Our team is reviewing your inquiry.",
-        "Absolutely! I'd be happy to help you resolve this.",
-        "Thank you for contacting us. Is there anything else I can assist with?",
-      ];
+      //   this.botResponses = [
+      //     "Thanks for reaching out! Our team will assist you shortly. 😊",
+      //     "I understand your concern. Let me connect you with the right specialist.",
+      //     "Great question! Here's what I can tell you about that...",
+      //     "I'm here to help! Could you provide a bit more detail about your issue?",
+      //     "That's a common request. Let me get that information for you.",
+      //     "I appreciate your patience. Our team is reviewing your inquiry.",
+      //     "Absolutely! I'd be happy to help you resolve this.",
+      //     "Thank you for contacting us. Is there anything else I can assist with?",
+      //   ];
       this.init();
     }
 
     init() {
+      // Load socket.io client from CDN
+      const script = document.createElement("script");
+      script.src = "https://cdn.socket.io/4.8.1/socket.io.min.js";
+      const token = localStorage.getItem("token");
+      script.onload = () => {
+        this.socket = io("http://localhost:3000", { auth: { token } }); // ⬅️ your backend URL
+
+        // Listen for messages from server
+        this.socket.on("message", (msg) => {
+          const messageDiv = document.createElement("div");
+          messageDiv.className = `chat-widget-message bot`;
+          const currentTime = this.getCurrentTime();
+          messageDiv.innerHTML = `
+                        <div class="chat-widget-bot-avatar">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div class="chat-widget-message-content">
+                        ${msg}
+                        <div class="chat-widget-message-time">${currentTime}</div>
+                        </div>
+                        
+                    `;
+          this.hideTyping();
+          this.messages.appendChild(messageDiv);
+          this.scrollToBottom();
+        });
+        // Optional: listen for typing events
+        this.socket.on("typing", () => {
+          this.showTyping();
+          setTimeout(() => this.hideTyping(), 1500);
+        });
+      };
+      document.head.appendChild(script);
+
       this.button.addEventListener("click", () => this.toggleChat());
       this.closeButton.addEventListener("click", () => this.closeChat());
       this.sendButton.addEventListener("click", () => this.sendMessage());
@@ -715,7 +743,6 @@ window.setName = function (name) {
       this.messageInput.focus();
       this.hideNotification();
       if (window.innerWidth < 769) {
-        console.log("Mobile view - maximizing chat");
         this.button.hidden = true;
       }
     }
@@ -735,49 +762,60 @@ window.setName = function (name) {
       this.messageInput.value = "";
 
       // Show typing indicator and simulate bot response
-      setTimeout(() => this.showTyping(), 500);
-      setTimeout(() => this.addBotResponse(), Math.random() * 2000 + 1500);
+      //   setTimeout(() => this.showTyping(), 500);
+      //   setTimeout(() => this.addBotResponse(), Math.random() * 2000 + 1500);
     }
 
     addMessage(text, sender) {
       const messageDiv = document.createElement("div");
       messageDiv.className = `chat-widget-message ${sender}`;
       const currentTime = this.getCurrentTime();
-      if (sender === "bot") {
-        messageDiv.innerHTML = `
-                        <div class="chat-widget-bot-avatar">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                        </div>
-                        <div class="chat-widget-message-content">
-                        ${text}
-                        <div class="chat-widget-message-time">${currentTime}</div>
-                        </div>
-                        
-                    `;
-      } else {
-        messageDiv.innerHTML = `<div class="chat-widget-message-content">${text}<div class="chat-widget-message-time">${currentTime}</div></div>`;
-      }
+      //   if (sender === "bot") {
+      //     messageDiv.innerHTML = `
+      //                     <div class="chat-widget-bot-avatar">
+      //                         <svg viewBox="0 0 24 24">
+      //                             <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      //                         </svg>
+      //                     </div>
+      //                     <div class="chat-widget-message-content">
+      //                     ${text}
+      //                     <div class="chat-widget-message-time">${currentTime}</div>
+      //                     </div>
 
+      //                 `;
+      //   } else {
+      messageDiv.innerHTML = `<div class="chat-widget-message-content">${text}<div class="chat-widget-message-time">${currentTime}</div></div>`;
+      this.socket.emit("message", text);
+      console.log(
+        "this socket id",
+        this.socket,
+        this.socket.id,
+        this.socket.userId
+      );
+      // }
       this.messages.appendChild(messageDiv);
+      this.showTyping();
       this.scrollToBottom();
     }
 
     showTyping() {
+      this.messageInput.disabled = true;
+      this.sendButton.disabled = true;
       this.typing.style.display = "flex";
       this.scrollToBottom();
     }
 
     hideTyping() {
+      this.messageInput.disabled = false;
+      this.sendButton.disabled = false;
       this.typing.style.display = "none";
     }
 
     addBotResponse() {
       this.hideTyping();
-      const randomResponse =
-        this.botResponses[Math.floor(Math.random() * this.botResponses.length)];
-      this.addMessage(randomResponse, "bot");
+      //   const randomResponse =
+      //     this.botResponses[Math.floor(Math.random() * this.botResponses.length)];
+      //   this.addMessage(randomResponse, "bot");
     }
 
     showNotification() {

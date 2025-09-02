@@ -88,8 +88,6 @@ export const getPreferLanguage = createAsyncThunk(
   "report/getPreferLanguage",
   async ({ userId }, { rejectWithValue }) => {
     try {
-      console.log("Getting preferred language with:", userId);
-
       const response = await axios.get(
         `${import.meta.env.VITE_API_URL}/getuserlanguage/${userId}`,
         {}

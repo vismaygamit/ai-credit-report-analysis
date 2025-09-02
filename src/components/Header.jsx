@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -18,7 +18,6 @@ import axios from "axios";
 const Header = () => {
   const dispatch = useDispatch();
   const location = useLocation();
-  const baseUrl = window.location.origin;
   const { getToken } = useAuth();
   const { isSignedIn, user } = useUser();
   const [isOpen, setIsOpen] = useState(false);
@@ -28,21 +27,16 @@ const Header = () => {
     (state) => state.report
   );
   const [userPreferLanguage, setuserPreferLanguage] = useState("en");
-  // const selectedLanguage = localStorage.getItem("selectedLanguage") || "en";
-  let selectedLanguage = "en";
-  const changeLanguage = async (lng) => {
-    console.log("Changing language to:", lng);
+   const changeLanguage = async (lng) => {
     await updateLanguagePreference(lng);
-    selectedLanguage = lng; // only update for homepage
     i18n.changeLanguage(lng); // this updates globally
     toggleMenu(); // close the menu after changing language
   };
 
   const updateLanguagePreference = async (lng) => {
-    console.log("Updating language preference to:", lng);
     if (isSignedIn && user?.id) {
       try {
-        const token = await getToken();
+        const token = await getToken({ template: "hasura" });
         const response = await axios.patch(
           `${import.meta.env.VITE_API_URL}/updateuserlanguage/${lng}`,
           {},
@@ -62,8 +56,6 @@ const Header = () => {
   useEffect(() => {
     const fetchAndDispatch = async () => {
       try {
-        console.log("Fetched token:", user?.id);
-
         dispatch(
           getPreferLanguage({
             // language: i18n.language || "en",
@@ -89,13 +81,10 @@ const Header = () => {
     if (preferLanguage && preferLanguage !== i18n.language) {
       i18n.changeLanguage(preferLanguage);
       setuserPreferLanguage(preferLanguage);
-      // selectedLanguage = preferLanguage;
-      console.log("Prefer language from store:", preferLanguage);
     }
   }, [loading]);
 
   useEffect(() => {
-    console.log("i18n.language changed to:", i18n.language);
     setuserPreferLanguage(i18n.language);
   }, [i18n.language]);
 

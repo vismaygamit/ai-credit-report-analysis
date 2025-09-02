@@ -1,11 +1,10 @@
 import React, { useEffect } from "react";
-import "./App.css"; // Ensure you have Tailwind CSS imported
+import "./App.css";
 import Home from "./pages/Home";
 import {
   BrowserRouter as Router,
   Routes,
-  Route,
-  useLocation,
+  Route
 } from "react-router-dom";
 import Layout from "./components/Layout";
 import Analyzer from "./pages/Analyzer";
@@ -13,34 +12,37 @@ import "./i18n";
 import Privacypolicy from "./pages/Privacypolicy";
 import Paymentsuccess from "./pages/Paymentsuccess";
 import Paymentfail from "./pages/Paymentfail";
-import { useUser } from "@clerk/clerk-react";
+import { useUser, useAuth } from "@clerk/clerk-react";
 
 const App = () => {
   const { isSignedIn, user } = useUser();
+  const { getToken } = useAuth();
 
   useEffect(() => {
     if (isSignedIn) {
-      const script = document.createElement("script");
-      script.type = "module";
-      script.src = "/assets/js/chat-widget.js";
-      script.async = true;
-      document.body.appendChild(script);
+      const widgetScript = document.createElement("script");
+      widgetScript.type = "module";
+      widgetScript.src = "/assets/js/chat-widget.js";
 
-     script.onload = () => {
-        console.log("Chat widget script loaded ✅");
+      widgetScript.onload = async () => {
+        const token = await getToken({ template: "hasura" });
+        localStorage.setItem("token", token);
         if (window.setName) {
-          console.log("Setting name in chat widget:");
           window.setName(user?.fullName || "Guest User");
         }
       };
+
+      document.body.appendChild(widgetScript);
       return () => {
-        // cleanup when component unmounts
-        document.body.removeChild(script);
+        const widgetScript = document.querySelector(
+          'script[src="/assets/js/chat-widget.js"]'
+        );
+        if (widgetScript) {
+          document.body.removeChild(widgetScript);
+        }
       };
     }
-    console.log("isSignedIn:::", isSignedIn);
-    
-  }, [isSignedIn]);
+  }, [isSignedIn, user?.fullName]);
 
   return (
     <Router>
