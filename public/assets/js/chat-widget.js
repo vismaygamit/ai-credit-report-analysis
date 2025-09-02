@@ -131,7 +131,7 @@ window.setName = function (name) {
         .chat-widget-avatar {
             width: 40px;
             height: 40px;
-            background: rgba(255, 255, 255, 0.2);
+            background: #e3e3ff;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -293,7 +293,7 @@ window.setName = function (name) {
         .chat-widget-bot-avatar {
             width: 32px;
             height: 32px;
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            background: #e3e3ff;
             border-radius: 50%;
             margin-right: 10px;
             display: flex;
@@ -576,9 +576,7 @@ window.setName = function (name) {
                 </button>
                 <div class="chat-widget-header-content">
                     <div class="chat-widget-avatar">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                        </svg>
+                        <img src="chatbotavatar.svg" height="30" width="30">
                     </div>
                     <div class="chat-widget-info">
                         <h3>Ai Assistant</h3>
@@ -594,9 +592,7 @@ window.setName = function (name) {
             <div class="chat-widget-messages" id="chatWidgetMessages">
                 <div class="chat-widget-message bot">
                     <div class="chat-widget-bot-avatar">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
+                        <img src="chatbotavatar.svg" height="30" width="30">
                     </div>
                     <div class="chat-widget-message-content">
                         👋 Hi <span id="chat-user-name"></span>, Welcome to our support chat. How can I help you today?
@@ -676,9 +672,7 @@ window.setName = function (name) {
           const currentTime = this.getCurrentTime();
           messageDiv.innerHTML = `
                         <div class="chat-widget-bot-avatar">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
+                            <img src="chatbotavatar.svg" height="30" width="30">
                         </div>
                         <div class="chat-widget-message-content">
                         ${msg}
@@ -722,7 +716,7 @@ window.setName = function (name) {
       });
 
       // Show initial notification badge
-    //   setTimeout(() => this.showNotification(), 3000);
+      //   setTimeout(() => this.showNotification(), 3000);
       if (window.innerWidth < 769) {
         this.maximizeButton.hidden = true;
       }
@@ -741,7 +735,7 @@ window.setName = function (name) {
       this.container.classList.add("active");
       this.button.classList.add("active");
       this.messageInput.focus();
-    //   this.hideNotification();
+      //   this.hideNotification();
       if (window.innerWidth < 769) {
         this.button.hidden = true;
       }
