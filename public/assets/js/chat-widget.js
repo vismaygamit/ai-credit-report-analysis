@@ -667,7 +667,7 @@ window.setName = function (name) {
       script.src = "https://cdn.socket.io/4.8.1/socket.io.min.js";
       const token = localStorage.getItem("token");
       script.onload = () => {
-        this.socket = io("https://ai-credit-report-analysis-backend.onrender.com", { auth: { token } }); // ⬅️ your backend URL
+        this.socket = io("http://localhost:3000", { auth: { token } }); // ⬅️ your backend URL
         // Listen for messages from server
         this.socket.on("message", (msg) => {
           const messageDiv = document.createElement("div");
@@ -721,7 +721,7 @@ window.setName = function (name) {
       });
 
       // Show initial notification badge
-      setTimeout(() => this.showNotification(), 3000);
+    //   setTimeout(() => this.showNotification(), 3000);
       if (window.innerWidth < 769) {
         this.maximizeButton.hidden = true;
       }
@@ -740,7 +740,7 @@ window.setName = function (name) {
       this.container.classList.add("active");
       this.button.classList.add("active");
       this.messageInput.focus();
-      this.hideNotification();
+    //   this.hideNotification();
       if (window.innerWidth < 769) {
         this.button.hidden = true;
       }
@@ -785,12 +785,6 @@ window.setName = function (name) {
       //   } else {
       messageDiv.innerHTML = `<div class="chat-widget-message-content">${text}<div class="chat-widget-message-time">${currentTime}</div></div>`;
       this.socket.emit("message", text);
-      console.log(
-        "this socket id",
-        this.socket,
-        this.socket.id,
-        this.socket.userId
-      );
       // }
       this.messages.appendChild(messageDiv);
       this.showTyping();
