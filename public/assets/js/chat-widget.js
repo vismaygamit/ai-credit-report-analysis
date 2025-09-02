@@ -666,8 +666,9 @@ window.setName = function (name) {
       const script = document.createElement("script");
       script.src = "https://cdn.socket.io/4.8.1/socket.io.min.js";
       const token = localStorage.getItem("token");
+      const socketUrl = localStorage.getItem("SOCKET_URL");
       script.onload = () => {
-        this.socket = io("https://ai-credit-report-analysis-backend.onrender.com", { auth: { token } }); // ⬅️ your backend URL
+        this.socket = io(socketUrl, { auth: { token } }); // ⬅️ your backend URL
         // Listen for messages from server
         this.socket.on("message", (msg) => {
           const messageDiv = document.createElement("div");
@@ -784,7 +785,8 @@ window.setName = function (name) {
       //                 `;
       //   } else {
       messageDiv.innerHTML = `<div class="chat-widget-message-content">${text}<div class="chat-widget-message-time">${currentTime}</div></div>`;
-      this.socket.emit("message", text);
+      const preferLanguage = localStorage.getItem("preferLanguage") || "en";
+      this.socket.emit("message", text, preferLanguage);
       // }
       this.messages.appendChild(messageDiv);
       this.showTyping();

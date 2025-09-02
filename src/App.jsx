@@ -27,6 +27,7 @@ const App = () => {
       widgetScript.onload = async () => {
         const token = await getToken({ template: "hasura" });
         localStorage.setItem("token", token);
+        localStorage.setItem("SOCKET_URL", import.meta.env.VITE_SOCKET_URL);
         if (window.setName) {
           window.setName(user?.fullName || "Guest User");
         }

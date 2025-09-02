@@ -27,7 +27,8 @@ const Header = () => {
     (state) => state.report
   );
   const [userPreferLanguage, setuserPreferLanguage] = useState("en");
-   const changeLanguage = async (lng) => {
+  const changeLanguage = async (lng) => {
+    localStorage.setItem("preferLanguage", lng);
     await updateLanguagePreference(lng);
     i18n.changeLanguage(lng); // this updates globally
     toggleMenu(); // close the menu after changing language
