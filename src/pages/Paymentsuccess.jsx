@@ -5,6 +5,7 @@ import jsPDF from "jspdf";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "@clerk/clerk-react";
+import { toast } from "react-toastify";
 
 const Paymentsuccess = () => {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ const Paymentsuccess = () => {
 
   const handleDownload = async () => {
     const doc = new jsPDF();
-   
+
     // Colors
     const primaryColor = [34, 197, 94]; // Tailwind's green-500
     const grayText = [100, 100, 100];
@@ -82,7 +83,7 @@ const Paymentsuccess = () => {
 
     try {
       const token = await getToken({ template: "hasura" });
-      await axios.post(
+      const { status } = await axios.post(
         `${import.meta.env.VITE_API_URL}/sendreceipt`,
         formData,
         {
@@ -92,6 +93,9 @@ const Paymentsuccess = () => {
           },
         }
       );
+      if (status === 200) {
+        toast.success("Receipt sent successfully to your email.");
+      }
       // console.log("Uploaded successfully", response.data);
     } catch (err) {
       // console.error("Upload failed", err);

@@ -38,13 +38,14 @@ const Analyzer = () => {
   const [pdfFile, setPdfFile] = useState(null);
   const [isReport, setIsReport] = useState(false);
   const dispatch = useDispatch();
-  const { data, loading, translated, error, statusCode } =
-    useSelector((state) => state.report);
+  const { data, loading, translated, error, statusCode } = useSelector(
+    (state) => state.report
+  );
+  const [isReportSent, setIsReportSent] = useState(data?.data?.ispro || false);
   let inquiriesCombined = [];
   const chartRef = useRef();
   const disputeRef = useRef();
   const goodWillRef = useRef();
-  const [chartImage, setChartImage] = useState(null);
   // const [result, setResult] = useState(data?.data);
   const [creditData, setcreditData] = useState({});
   const [isReset, setIsReset] = useState(false);
@@ -77,16 +78,16 @@ const Analyzer = () => {
     }
   };
 
-  const exportChartAsImage = async () => {
-    const svg = chartRef.current?.querySelector("svg");
-    if (!svg) return;
+const exportChartAsImage = async () => {
+  const svg = chartRef.current?.querySelector("svg");
+  if (!svg) return null;
 
-    const svgData = new XMLSerializer().serializeToString(svg);
-    const svgBlob = new Blob([svgData], {
-      type: "image/svg+xml;charset=utf-8",
-    });
-    const url = URL.createObjectURL(svgBlob);
+  const svgData = new XMLSerializer().serializeToString(svg);
+  const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+  const url = URL.createObjectURL(svgBlob);
 
+  // Return a Promise that resolves when image is loaded and canvas is drawn
+  const base64Image = await new Promise((resolve) => {
     const img = new Image();
     img.onload = () => {
       const viewBox = svg.getAttribute("viewBox");
@@ -101,39 +102,31 @@ const Analyzer = () => {
         height = svg.clientHeight;
       }
 
-      // Scale proportionally
       const canvas = document.createElement("canvas");
       canvas.width = width;
       canvas.height = height;
-
       const ctx = canvas.getContext("2d");
-      // ctx.scale(scaleFactor, scaleFactor); // This keeps correct proportions
 
-      ctx.drawImage(img, 0, 0, width, height); // Keep image in bounds
-
-      const base64Image = canvas.toDataURL("image/png");
-      setChartImage(base64Image);
+      ctx.drawImage(img, 0, 0, width, height);
 
       URL.revokeObjectURL(url);
+      resolve(canvas.toDataURL("image/png")); // Return the Base64 string
     };
 
     img.src = url;
-  };
+  });
+
+  return base64Image;
+};
 
   useEffect(() => {
     if (translated) {
       setcreditData(translated);
-      if (isSignedIn) {
-        setTimeout(() => {
-          exportChartAsImage();
-        }, 4000);
-      }
     }
   }, [translated]);
 
   const generateActionPlanPDF = async () => {
     try {
-      console.log("generateActionPlanPDF call", creditData);
       if (
         creditData &&
         typeof creditData === "object" &&
@@ -701,7 +694,8 @@ const Analyzer = () => {
 
         drawSubHeading(`${t("analyzePage.actionChecklist")}: `);
         drawChecklist(creditData.scoreProgress.checklist);
-
+        const chartImage = await exportChartAsImage();
+        
         if (chartImage) {
           drawSubHeading(`${t("analyzePage.progressProjection")}: `);
           const base64 = chartImage.split(",")[1]; // remove prefix
@@ -744,11 +738,10 @@ const Analyzer = () => {
       // Save and download
       const pdfBytes = await doc.save();
       const blob = new Blob([pdfBytes], { type: "application/pdf" });
-
       if (
         referrer === "paymentSuccess" &&
         creditData?.isEmailSent === false &&
-        data?.data?.ispro
+        data?.data?.ispro && isReportSent === false
       ) {
         await sendMail(blob);
         return;
@@ -766,7 +759,7 @@ const Analyzer = () => {
 
     try {
       const token = await getToken({ template: "hasura" });
-      const response = await axios.post(
+      const { status } = await axios.post(
         `${import.meta.env.VITE_API_URL}/sendreport`,
         formData,
         {
@@ -776,6 +769,10 @@ const Analyzer = () => {
           },
         }
       );
+      if (status === 200) {
+        toast.success("Report sent successfully to your email.");
+        setIsReportSent(true)
+      }
       // console.log("Uploaded successfully", response.data);
     } catch (err) {
       // console.error("Upload failed", err);
@@ -1052,9 +1049,6 @@ const Analyzer = () => {
         // if (i18n.language === "en") {
         // localStorage.setItem("creditReportFortranslate", JSON.stringify(result))
         // }
-        setTimeout(() => {
-          exportChartAsImage();
-        }, 4000);
       }
     }
   }, [data]);
@@ -1072,12 +1066,18 @@ const Analyzer = () => {
       creditData?.isEmailSent === false &&
       data?.data?.ispro
     ) {
-      generateActionPlanPDF();
+      setTimeout(() => {
+          generateActionPlanPDF();
+        }, 5000);
     }
+
   }, [creditData]);
 
   useEffect(() => {
-    if (Object.keys(creditData).length > 0 && i18n?.language !== creditData?.preferLanguage) {
+    if (
+      Object.keys(creditData).length > 0 &&
+      i18n?.language !== creditData?.preferLanguage
+    ) {
       handleTranslate();
     }
     // i18n.changeLanguage(selectedLanguage);
