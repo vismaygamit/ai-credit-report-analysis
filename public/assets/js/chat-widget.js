@@ -487,7 +487,7 @@ window.setName = function (name) {
     right: 15px;
   }
   .chat-widget-messages {
-    height: calc(100% - 160px);
+    height: 390px;
   }
 }
 
@@ -658,40 +658,6 @@ window.setName = function (name) {
     }
 
     init() {
-      // Load socket.io client from CDN
-      const script = document.createElement("script");
-      script.src = "https://cdn.socket.io/4.8.1/socket.io.min.js";
-      const token = localStorage.getItem("token");
-      const socketUrl = localStorage.getItem("SOCKET_URL");
-      script.onload = () => {
-        this.socket = io(socketUrl, { auth: { token } }); // ⬅️ your backend URL
-        // Listen for messages from server
-        this.socket.on("message", (msg) => {
-          const messageDiv = document.createElement("div");
-          messageDiv.className = `chat-widget-message bot`;
-          const currentTime = this.getCurrentTime();
-          messageDiv.innerHTML = `
-                        <div class="chat-widget-bot-avatar">
-                            <img src="chatbotavatar.svg" height="30" width="30">
-                        </div>
-                        <div class="chat-widget-message-content">
-                        ${msg}
-                        <div class="chat-widget-message-time">${currentTime}</div>
-                        </div>
-                        
-                    `;
-          this.hideTyping();
-          this.messages.appendChild(messageDiv);
-          this.scrollToBottom();
-        });
-        // Optional: listen for typing events
-        this.socket.on("typing", () => {
-          this.showTyping();
-          setTimeout(() => this.hideTyping(), 1500);
-        });
-      };
-      document.head.appendChild(script);
-
       this.button.addEventListener("click", () => this.toggleChat());
       this.closeButton.addEventListener("click", () => this.closeChat());
       this.sendButton.addEventListener("click", () => this.sendMessage());
@@ -720,6 +686,45 @@ window.setName = function (name) {
       if (window.innerWidth < 769) {
         this.maximizeButton.hidden = true;
       }
+    }
+
+    connectSocket() {
+      const script = document.createElement("script");
+      script.src = "https://cdn.socket.io/4.8.1/socket.io.min.js";
+      script.onload = () => {
+        const uid = localStorage.getItem("uid");
+        const socketUrl = localStorage.getItem("SOCKET_URL");
+
+        if (this.socket) {
+          this.socket.disconnect();
+        }
+      
+        this.socket = io(socketUrl, { auth: { uid } });
+
+        this.socket.on("message", (msg) => {
+          const messageDiv = document.createElement("div");
+          messageDiv.className = `chat-widget-message bot`;
+          const currentTime = this.getCurrentTime();
+          messageDiv.innerHTML = `
+      <div class="chat-widget-bot-avatar">
+        <img src="chatbotavatar.svg" height="30" width="30">
+      </div>
+      <div class="chat-widget-message-content">
+        ${msg}
+        <div class="chat-widget-message-time">${currentTime}</div>
+      </div>
+    `;
+          this.hideTyping();
+          this.messages.appendChild(messageDiv);
+          this.scrollToBottom();
+        });
+
+        this.socket.on("typing", () => {
+          this.showTyping();
+          setTimeout(() => this.hideTyping(), 1500);
+        });
+      };
+      document.head.appendChild(script);
     }
 
     toggleChat() {
@@ -751,7 +756,6 @@ window.setName = function (name) {
     sendMessage() {
       const message = this.messageInput.value.trim();
       if (!message) return;
-
       this.addMessage(message, "user");
       this.messageInput.value = "";
 
@@ -846,5 +850,11 @@ window.setName = function (name) {
     }
   }
 
-  new ChatWidget();
+  // Create an instance and attach it to window
+  window.chatWidget = new ChatWidget();
+
+  // Define the global function
+  window.updateTokenAndReconnect = function () {
+    window.chatWidget.connectSocket(); // Call instance method
+  };
 })();

@@ -12,12 +12,11 @@ import "./i18n";
 import Privacypolicy from "./pages/Privacypolicy";
 import Paymentsuccess from "./pages/Paymentsuccess";
 import Paymentfail from "./pages/Paymentfail";
-import { useUser, useAuth } from "@clerk/clerk-react";
+import { useUser } from "@clerk/clerk-react";
 
 const App = () => {
   const { isSignedIn, user } = useUser();
-  const { getToken } = useAuth();
-
+  
   useEffect(() => {
     if (isSignedIn) {
       const widgetScript = document.createElement("script");
@@ -25,9 +24,9 @@ const App = () => {
       widgetScript.src = "/assets/js/chat-widget.js";
 
       widgetScript.onload = async () => {
-        const token = await getToken({ template: "hasura" });
-        localStorage.setItem("token", token);
+        localStorage.setItem("uid", user.id);
         localStorage.setItem("SOCKET_URL", import.meta.env.VITE_SOCKET_URL);
+        window.updateTokenAndReconnect();
         if (window.setName) {
           window.setName(user?.fullName || "Guest User");
         }

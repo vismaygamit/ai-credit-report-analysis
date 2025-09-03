@@ -114,7 +114,7 @@ const Paymentsuccess = () => {
             import.meta.env.VITE_API_URL
           }/paymentdetails?session_id=${sessionId}`
         );
-        setIsLoading(false);
+        // setIsLoading(false);
         setSessionDetails(data);
       } catch (error) {
         console.error("Error fetching session details:", error);
@@ -136,7 +136,7 @@ const Paymentsuccess = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       navigate("/analyzer", { state: { from: "paymentSuccess" } });
-    }, 5000);
+    }, 3000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -166,7 +166,7 @@ const Paymentsuccess = () => {
           <span className="sr-only">Loading...</span>
         </div>
       )}
-      {!isLoading && (
+      {/* {!isLoading && (
         <div className="p-8 rounded-2xl shadow-lg bg-green-50 text-center max-w-md w-full">
           <CheckCircle className="text-green-500 w-16 h-16 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-green-700 mb-2">
@@ -198,7 +198,7 @@ const Paymentsuccess = () => {
             Back to Home
           </Link>
         </div>
-      )}
+      )} */}
     </div>
   );
 };
