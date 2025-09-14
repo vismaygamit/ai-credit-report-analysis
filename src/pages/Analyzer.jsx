@@ -569,9 +569,9 @@ const Analyzer = () => {
             : acc.status?.toLowerCase() === "closed"
             ? t("analyzePage.closed")
             : acc.status || t("analyzePage.na"),
-          acc.closed?.toLowerCase() === true
+          acc.closed === true
             ? t("analyzePage.yes")
-            : acc.closed?.toLowerCase() === false
+            : acc.closed === false
             ? t("analyzePage.no")
             : t("analyzePage.na"),
           acc.pastDue ? `$${acc.pastDue}` : t("analyzePage.na"),
@@ -1177,14 +1177,15 @@ const Analyzer = () => {
   }, [creditData]);
 
   useEffect(() => {
+    if(Object.keys(creditData).length < 1) return;
     if (
-      Object.keys(creditData).length > 0 &&
-      i18n?.language !== creditData?.preferLanguage
+      i18n?.language != creditData?.preferLanguage
     ) {
       handleTranslate();
     }
+    localStorage.setItem("preferLanguage", i18n.language)
     // i18n.changeLanguage(selectedLanguage);
-  }, [i18n?.language]);
+  }, [i18n.language]);
 
   return (
     <div

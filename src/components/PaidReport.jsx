@@ -639,7 +639,13 @@ const PaidReport = ({
                         <span className="font-semibold">
                           {t("analyzePage.confidence")}:
                         </span>{" "}
-                        {rec.confidence}
+                        {rec.confidence?.toLowerCase() === "high"
+                          ? t("analyzePage.high")
+                          : rec.confidence?.toLowerCase() === "medium"
+                          ? t("analyzePage.medium")
+                          : rec.confidence?.toLowerCase() === "medium-high"
+                          ? t("analyzePage.mediumHigh")
+                          : t("analyzePage.critical")}
                       </div>
                     </div>
                   </div>

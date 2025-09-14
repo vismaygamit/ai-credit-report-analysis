@@ -797,7 +797,7 @@ window.setName = function (name) {
       //                 `;
       //   } else {
       messageDiv.innerHTML = `<div class="chat-widget-message-content">${text}<div class="chat-widget-message-time">${currentTime}</div></div>`;
-      const preferLanguage = localStorage.getItem("preferLanguage") || "en";
+      const preferLanguage = localStorage.getItem("i18nextLng") || "en";
       const sessionId = localStorage.getItem("sessionId") || "";
       this.socket.emit("message", text, preferLanguage, sessionId);
       // }

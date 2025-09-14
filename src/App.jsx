@@ -9,10 +9,12 @@ import Privacypolicy from "./pages/Privacypolicy";
 import Paymentsuccess from "./pages/Paymentsuccess";
 import Paymentfail from "./pages/Paymentfail";
 import { useAuth, useUser } from "@clerk/clerk-react";
+import { useFileStorage } from "./util/tmpFileStorage";
 
 const App = () => {
   const { isSignedIn, user } = useUser();
   const { userId } = useAuth();
+    const { deleteFile } = useFileStorage("report");
   
   useEffect(() => {
     if (isSignedIn) {
@@ -43,6 +45,7 @@ const App = () => {
 
   useEffect(() => {
     if (userId === null) {
+      deleteFile()
       localStorage.clear();
     }
   }, [userId]);
