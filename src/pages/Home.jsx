@@ -51,20 +51,39 @@ const Home = () => {
             {t("homePage.stepsTitle")}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-            {steps.map((step, index) => (
-              <div
-                key={index}
-                className="p-4 sm:p-6 border border-gray-200 shadow-sm rounded-lg text-center transition-transform hover:scale-105"
-              >
-                <div className="mb-3 flex justify-center">{step.icon}</div>
-                <h3 className="font-bold text-sm sm:text-base lg:text-lg mb-1 text-gray-900">
-                  {step.title}
-                </h3>
-                <p className="text-xs sm:text-sm lg:text-base text-gray-700">
-                  {step.desc}
-                </p>
-              </div>
-            ))}
+            {steps.map((step, index) =>
+              index === 0 ? (
+                <a
+                  key={index}
+                  href="https://my.equifax.ca/consumer-registration/?lang=en"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <div className="p-4 sm:p-6 border border-gray-200 shadow-sm rounded-lg text-center transition-transform hover:scale-105">
+                    <div className="mb-3 flex justify-center">{step.icon}</div>
+                    <h3 className="font-bold text-sm sm:text-base lg:text-lg mb-1 text-gray-900">
+                      {step.title}
+                    </h3>
+                    <p className="text-xs sm:text-sm lg:text-base text-gray-700">
+                      {step.desc}
+                    </p>
+                  </div>
+                </a>
+              ) : (
+                <div
+                  key={index}
+                  className="p-4 sm:p-6 border border-gray-200 shadow-sm rounded-lg text-center transition-transform hover:scale-105"
+                >
+                  <div className="mb-3 flex justify-center">{step.icon}</div>
+                  <h3 className="font-bold text-sm sm:text-base lg:text-lg mb-1 text-gray-900">
+                    {step.title}
+                  </h3>
+                  <p className="text-xs sm:text-sm lg:text-base text-gray-700">
+                    {step.desc}
+                  </p>
+                </div>
+              )
+            )}
           </div>
           <div className="text-center mt-6 sm:mt-8">
             <Link to="/analyzer">
