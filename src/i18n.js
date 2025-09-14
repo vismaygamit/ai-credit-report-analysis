@@ -17,6 +17,10 @@ i18n
       en: {
         translation: {
           homePage: {
+            chatWithAssistant: "Chat with our virtual assistant",
+            fullPrompt:
+              "Ask a question for immediate answers to your questions, available 24/7",
+            ask: "Ask a question",
             heading: "Know Your Credit.",
             heading2: "Improve Your Future",
             creditScore: "Credit Score",
@@ -70,6 +74,25 @@ i18n
             copyright: "All rights reserved.",
           },
           analyzePage: {
+            improvementPotential: "Improvement Potential",
+            estimatedIncrease: "Estimated increase possible",
+            points: "points",
+            analysisPreview: "Analysis Preview",
+            completeAnalysis: "Get Your Complete Analysis",
+            unlockStrategies: "Unlock personalized improvement strategies",
+            timeline: "timeline",
+            actionItems: "action items",
+            testMode: "Test Mode - Skip Payment",
+            high: "High",
+            medium: "Medium",
+            mediumHigh: "Medium-High",
+            critical: "Critical",
+            true: "True",
+            false: "False",
+            strengths: "Strengths",
+            areasForImprovements: "Areas for Improvements",
+            totalAccounts: "Total Accounts",
+            accountTypes: "Account Types",
             analysisInProgress:
               "Analysis in progress — this may take a few minutes.",
             dragDrop: "Drag & Drop your credit report here",
@@ -276,6 +299,10 @@ i18n
       ru: {
         translation: {
           homePage: {
+            chatWithAssistant: "Пообщайтесь с нашим виртуальным помощником",
+            fullPrompt:
+              "Задайте вопрос для мгновенных ответов на ваши вопросы, доступно 24/7",
+            ask: "Задайте вопрос",
             heading: "Знай свой кредит.",
             heading2: "Улучшите свое будущее",
             creditScore: "Кредитный рейтинг",
@@ -325,7 +352,28 @@ i18n
             copyright: "Все права защищены.",
           },
           analyzePage: {
-            analysisInProgress: "Анализ выполняется — это может занять несколько минут.",
+            improvementPotential: "Потенциал для улучшения",
+            estimatedIncrease: "Возможное повышение",
+            points: "баллы",
+            analysisPreview: "Предварительный анализ",
+            completeAnalysis: "Получите полный анализ",
+            unlockStrategies:
+              "Откройте персонализированные стратегии улучшения",
+            timeline: "график",
+            actionItems: "задачи",
+            testMode: "Тестовый режим - Без оплаты",
+            high: "Высокий",
+            medium: "Средний",
+            mediumHigh: "Средне-высокий",
+            critical: "Критический",
+            true: "Истина",
+            false: "Ложь",
+            strengths: "Сильные стороны",
+            areasForImprovements: "Области для улучшения",
+            totalAccounts: "Всего аккаунтов",
+            accountTypes: "Типы аккаунтов",
+            analysisInProgress:
+              "Анализ выполняется — это может занять несколько минут.",
             dragDrop: "Перетащите свой кредитный отчет сюда",
             or: "или",
             chooseFile: "ВЫБРАТЬ ФАЙЛ",
@@ -530,6 +578,10 @@ i18n
       uk: {
         translation: {
           homePage: {
+            chatWithAssistant: "Спілкуйтеся з нашим віртуальним асистентом",
+            fullPrompt:
+              "Задайте питання для миттєвих відповідей на ваші запитання, доступно 24/7",
+            ask: "Задайте питання",
             heading: "Знай свій кредит.",
             heading2: "Покращ своє майбутнє",
             creditScore: "Кредитний рейтинг",
@@ -582,7 +634,27 @@ i18n
             copyright: "Усі права захищені.",
           },
           analyzePage: {
-            analysisInProgress: "Аналіз триває — це може зайняти кілька хвилин.",
+            improvementPotential: "Потенціал для покращення",
+            estimatedIncrease: "Можливе підвищення",
+            points: "бали",
+            analysisPreview: "Попередній аналіз",
+            completeAnalysis: "Отримайте повний аналіз",
+            unlockStrategies: "Відкрийте персоналізовані стратегії покращення",
+            timeline: "графік",
+            actionItems: "завдання",
+            testMode: "Тестовий режим - Без оплати",
+            high: "Високий",
+            medium: "Середній",
+            mediumHigh: "Середньо-високий",
+            critical: "Критичний",
+            true: "Правда",
+            false: "Неправда",
+            strengths: "Сильні сторони",
+            areasForImprovements: "Області для покращення",
+            totalAccounts: "Усього акаунтів",
+            accountTypes: "Типи акаунтів",
+            analysisInProgress:
+              "Аналіз триває — це може зайняти кілька хвилин.",
             dragDrop: "Перетягніть свій кредитний звіт сюди",
             or: "або",
             chooseFile: "ОБРАТИ ФАЙЛ",
@@ -622,9 +694,9 @@ i18n
             actionPlan: "План дій",
             creditSummary: "Кредитна зведена інформація",
             tradelines: "Кредитні лінії",
-            revolving: "Оборотні",
+            revolving: "Револьверний",
             accounts: "Рахунки",
-            open: "Відкрито",
+            open: "Відкритий",
             close: "Закрито",
             installment: "Розстрочка",
             mortgage: "Іпотека",
@@ -787,6 +859,10 @@ i18n
       es: {
         translation: {
           homePage: {
+            chatWithAssistant: "Chatea con nuestro asistente virtual",
+            fullPrompt:
+              "Haz una pregunta para respuestas inmediatas a tus preguntas, disponible 24/7",
+            ask: "Haz una pregunta",
             heading: "Conoce tu crédito.",
             heading2: "Mejora tu futuro",
             creditScore: "Puntaje de crédito",
@@ -838,7 +914,27 @@ i18n
             copyright: "Todos los derechos reservados.",
           },
           analyzePage: {
-            analysisInProgress: "Análisis en curso — esto puede tardar unos minutos.",
+            improvementPotential: "Potencial de mejora",
+            estimatedIncrease: "Aumento estimado posible",
+            points: "puntos",
+            analysisPreview: "Vista previa del análisis",
+            completeAnalysis: "Obtén tu análisis completo",
+            unlockStrategies: "Desbloquea estrategias de mejora personalizadas",
+            timeline: "cronograma",
+            actionItems: "tareas",
+            testMode: "Modo de prueba - Omitir pago",
+            high: "Alto",
+            medium: "Medio",
+            mediumHigh: "Medio-Alto",
+            critical: "Crítico",
+            true: "Verdadero",
+            false: "Falso",
+            strengths: "Fortalezas",
+            areasForImprovements: "Áreas de mejora",
+            totalAccounts: "Cuentas totales",
+            accountTypes: "Tipos de cuentas",
+            analysisInProgress:
+              "Análisis en curso — esto puede tardar unos minutos.",
             dragDrop: "Arrastra y suelta tu informe de crédito aquí",
             or: "o",
             chooseFile: "ELEGIR ARCHIVO",
@@ -1044,6 +1140,10 @@ i18n
       fr: {
         translation: {
           homePage: {
+            chatWithAssistant: "Discutez avec notre assistant virtuel",
+            fullPrompt:
+              "Posez une question pour des réponses immédiates à vos questions, disponible 24h/24 et 7j/7",
+            ask: "Posez une question",
             heading: "Connaissez votre crédit.",
             heading2: "Améliorez votre avenir",
             creditScore: "Cote de crédit",
@@ -1095,7 +1195,28 @@ i18n
             copyright: "Tous droits réservés.",
           },
           analyzePage: {
-            analysisInProgress: "Analyse en cours — cela peut prendre quelques minutes.",
+            improvementPotential: "Potentiel d'amélioration",
+            estimatedIncrease: "Augmentation estimée possible",
+            points: "points",
+            analysisPreview: "Aperçu de l'analyse",
+            completeAnalysis: "Obtenez votre analyse complète",
+            unlockStrategies:
+              "Débloquez des stratégies d'amélioration personnalisées",
+            timeline: "chronologie",
+            actionItems: "actions",
+            testMode: "Mode test - Ignorer le paiement",
+            high: "Élevé",
+            medium: "Moyen",
+            mediumHigh: "Moyen-Élevé",
+            critical: "Critique",
+            true: "Vrai",
+            false: "Faux",
+            strengths: "Forces",
+            areasForImprovements: "Axes d'amélioration",
+            totalAccounts: "Comptes totaux",
+            accountTypes: "Types de comptes",
+            analysisInProgress:
+              "Analyse en cours — cela peut prendre quelques minutes.",
             dragDrop: "Glissez-déposez votre rapport de crédit ici",
             acceptedFile:
               "Nous acceptons les rapports PDF d’Equifax et de TransUnion. Les données ne sont jamais stockées – votre rapport est supprimé immédiatement après l’analyse.",
@@ -1537,6 +1658,10 @@ i18n
       hi: {
         translation: {
           homePage: {
+            chatWithAssistant: "हमारे वर्चुअल सहायक से चैट करें",
+            fullPrompt:
+              "अपने प्रश्नों के तुरंत उत्तर पाने के लिए प्रश्न पूछें, 24/7 उपलब्ध",
+            ask: "प्रश्न पूछें",
             heading: "अपना क्रेडिट जानें।",
             heading2: "अपने भविष्य को बेहतर बनाएं",
             creditScore: "क्रेडिट स्कोर",
@@ -1588,7 +1713,27 @@ i18n
             copyright: "सर्वाधिकार सुरक्षित।",
           },
           analyzePage: {
-            analysisInProgress: "विश्लेषण जारी है — इसमें कुछ मिनट लग सकते हैं।",
+            improvementPotential: "सुधार की संभावनाएँ",
+            estimatedIncrease: "संभावित वृद्धि का अनुमान",
+            points: "अंक",
+            analysisPreview: "विश्लेषण पूर्वावलोकन",
+            completeAnalysis: "अपना पूर्ण विश्लेषण प्राप्त करें",
+            unlockStrategies: "व्यक्तिगत सुधार रणनीतियाँ अनलॉक करें",
+            timeline: "समयरेखा",
+            actionItems: "कार्रवाई के आइटम",
+            testMode: "परीक्षण मोड - भुगतान छोड़ें",
+            high: "उच्च",
+            medium: "मध्यम",
+            mediumHigh: "मध्यम-उच्च",
+            critical: "गंभीर",
+            true: "सही",
+            false: "ग़लत",
+            strengths: "मजबूतियाँ",
+            areasForImprovements: "सुधार के क्षेत्र",
+            totalAccounts: "कुल खाते",
+            accountTypes: "खाता प्रकार",
+            analysisInProgress:
+              "विश्लेषण जारी है — इसमें कुछ मिनट लग सकते हैं।",
             dragDrop: "अपनी क्रेडिट रिपोर्ट यहाँ खींचें और छोड़ें",
             or: "या",
             chooseFile: "फ़ाइल चुनें",

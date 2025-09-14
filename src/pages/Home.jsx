@@ -26,6 +26,10 @@ const Home = () => {
     });
   }
 
+  const handleChat = () => {
+    window.handleChat();
+  };
+
   return (
     <div className="flex flex-col items-center justify-center py-6 sm:py-8 lg:py-12">
       <div className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 rounded-2xl">
@@ -112,6 +116,48 @@ const Home = () => {
             </div>
           </div>
         </section>
+
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full bg-white rounded-xl shadow p-4 space-y-4 sm:space-y-0">
+          <div className="flex items-start sm:items-center space-x-3">
+            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-600 flex-shrink-0">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-6 h-6 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8-1.61 0-3.115-.38-4.418-1.053L3 20l1.053-4.418C3.38 14.115 3 12.61 3 11c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                />
+              </svg>
+            </div>
+
+            <div>
+              <h2 className="text-lg font-semibold">
+                {t("homePage.chatWithAssistant")}
+              </h2>
+              <p className="text-sm text-gray-600">
+                {t("homePage.fullPrompt")}
+              </p>
+            </div>
+          </div>
+
+          <div className="sm:self-center">
+            <button
+              style={{
+                background: "linear-gradient(135deg, #1e3c72, #2a5298)",
+              }}
+              className="w-full sm:w-auto px-6 py-2 text-white bg-red-500 rounded-full shadow hover:bg-red-600"
+              onClick={handleChat}
+            >
+              {t("homePage.ask")}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

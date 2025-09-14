@@ -5,8 +5,53 @@ import i18n from "../i18n";
 // Analysis
 export const fetchReport = createAsyncThunk(
   "report/fetchReport",
-  async ({ formData, token, language }, { rejectWithValue }) => {
+  async ({ formData, token, language, onProgress }, { rejectWithValue }) => {
     try {
+      let fake = 0;
+      const timer = setInterval(() => {
+        fake = Math.min(fake + 5, 95); // smoothly increase until 95%
+        onProgress(fake);
+      }, 200);
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/basicanalyze`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+            "Accept-Language": language,
+          },
+          onUploadProgress: (e) => {
+            if (onProgress) {
+              const percent = Math.round((e.loaded * 100) / e.total);
+              onProgress(percent);
+            }
+          },
+        }
+      );
+      clearInterval(timer);
+      return {
+        data: response.data,
+        statusCode: response.status,
+      };
+    } catch (err) {
+      return rejectWithValue({
+        message: err.response?.data?.message || "Failed to fetch report",
+        statusCode: err.response?.status || 500,
+      });
+    }
+  }
+);
+
+export const fetchPaidReport = createAsyncThunk(
+  "report/fetchPaidReport",
+  async ({ formData, token, language, onProgress }, { rejectWithValue }) => {
+    try {
+      let fake = 0;
+      const timer = setInterval(() => {
+        fake = Math.min(fake + 5, 95); // smoothly increase until 95%
+        onProgress(fake);
+      }, 200);
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/analyze`,
         formData,
@@ -16,8 +61,15 @@ export const fetchReport = createAsyncThunk(
             Authorization: `Bearer ${token}`,
             "Accept-Language": language,
           },
+          onUploadProgress: (e) => {
+            if (onProgress) {
+              const percent = Math.round((e.loaded * 100) / e.total);
+              onProgress(percent);
+            }
+          },
         }
       );
+      clearInterval(timer);
       return {
         data: response.data,
         statusCode: response.status,
@@ -33,12 +85,26 @@ export const fetchReport = createAsyncThunk(
 
 export const getReportByReportId = createAsyncThunk(
   "report/getReportByReportId",
-  async (userId, { rejectWithValue }) => {
+  async ({ userId, onProgress }, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/report/${userId}`
-      );
+      let fake = 0;
+      const timer = setInterval(() => {
+        fake = Math.min(fake + 5, 95); // smoothly increase until 95%
+        onProgress(fake);
+      }, 200);
 
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/report/${userId}`,
+        {
+          onDownloadProgress: (e) => {
+            if (e.total) {
+              const percent = Math.round((e.loaded * 100) / e.total);
+              if (onProgress) onProgress(percent);
+            }
+          },
+        }
+      );
+      clearInterval(timer);
       return {
         data: response.data,
         statusCode: response.status,
@@ -55,8 +121,16 @@ export const getReportByReportId = createAsyncThunk(
 
 export const translateObject = createAsyncThunk(
   "report/translateObject",
-  async ({ object, targetLanguage, token }, { rejectWithValue }) => {
+  async (
+    { object, targetLanguage, token, onProgress },
+    { rejectWithValue }
+  ) => {
     try {
+      let fake = 0;
+      const timer = setInterval(() => {
+        fake = Math.min(fake + 5, 95); // smoothly increase until 95%
+        onProgress(fake);
+      }, 200);
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/translate`,
         {
@@ -68,8 +142,15 @@ export const translateObject = createAsyncThunk(
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
+          onUploadProgress: (e) => {
+            if (onProgress) {
+              const percent = Math.round((e.loaded * 100) / e.total);
+              onProgress(percent);
+            }
+          },
         }
       );
+      clearInterval(timer);
       return {
         translated: response.data.translated || response.data.raw,
         statusCode: response.status,
@@ -98,7 +179,6 @@ export const getPreferLanguage = createAsyncThunk(
       };
     } catch (error) {
       console.log("Error fetching preferred language:", error);
-
       return rejectWithValue({
         message:
           error.response?.data?.message || "Failed to fetch preferred language",
@@ -116,6 +196,7 @@ const reportSlice = createSlice({
     loading: false,
     error: null,
     statusCode: null,
+    progress: 0,
   },
   reducers: {
     resetReportErrorAndStatus: (state) => {
@@ -125,8 +206,17 @@ const reportSlice = createSlice({
     },
     setPreferLanguage: (state, action) => {
       state.preferLanguage = action.payload;
-      i18n.changeLanguage(action.payload); // ✅ also update i18n
+      i18n.changeLanguage(action.payload);
     },
+    setProgress: (state, action) => {
+      state.progress = action.payload;
+    },
+    resetProgress: (state) => {
+      state.progress = 0;
+    },
+    resetData: (state) => {
+      state.data = null;
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -140,6 +230,21 @@ const reportSlice = createSlice({
         state.statusCode = action.payload.statusCode;
       })
       .addCase(fetchReport.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        state.statusCode = action.payload?.statusCode;
+      });
+      builder
+      .addCase(fetchPaidReport.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchPaidReport.fulfilled, (state, action) => {
+        state.loading = false;
+        state.data = action.payload;
+        state.statusCode = action.payload.statusCode;
+      })
+      .addCase(fetchPaidReport.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
         state.statusCode = action.payload?.statusCode;
@@ -184,7 +289,6 @@ const reportSlice = createSlice({
       .addCase(getPreferLanguage.fulfilled, (state, action) => {
         state.loading = false;
         state.preferLanguage = action.payload.preferLanguage;
-        // i18n.changeLanguage(action.payload.preferLanguage); // ✅ sync Redux + i18n
         state.statusCode = action.payload.statusCode;
       })
       .addCase(getPreferLanguage.rejected, (state, action) => {
@@ -195,6 +299,11 @@ const reportSlice = createSlice({
   },
 });
 
-export const { resetReportErrorAndStatus, setPreferLanguage } =
-  reportSlice.actions;
+export const {
+  resetReportErrorAndStatus,
+  setPreferLanguage,
+  setProgress,
+  resetProgress,
+  resetData
+} = reportSlice.actions;
 export default reportSlice.reducer;

@@ -8,28 +8,28 @@ import { useUser, useClerk, useAuth } from "@clerk/clerk-react";
 import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  fetchPaidReport,
   fetchReport,
   getReportByReportId,
+  resetData,
+  resetProgress,
   resetReportErrorAndStatus,
+  setProgress,
   translateObject,
 } from "../store/reportSlice";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
-import fs from "fs/promises";
 import * as fontkit from "fontkit";
 import { saveAs } from "file-saver";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+import ProgressBar from "@ramonak/react-progress-bar";
 import { ShieldCheck } from "lucide-react";
+import TestReport from "../components/TestReport";
+import PaidReport from "../components/PaidReport";
+import { useFileStorage } from "../util/tmpFileStorage";
+import { clearPaymentId } from "../store/paymentSlice";
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 const Analyzer = () => {
+  const { tmpFile, saveFile, loadFile } = useFileStorage("report");
   const { t, i18n } = useTranslation();
   const [dragActive, setDragActive] = useState(false);
   const { openSignIn } = useClerk();
@@ -41,6 +41,8 @@ const Analyzer = () => {
   const { data, loading, translated, error, statusCode } = useSelector(
     (state) => state.report
   );
+  const paymentId = useSelector((state) => state.payment.paymentId);
+  const progress = useSelector((state) => state.report.progress);
   const [isReportSent, setIsReportSent] = useState(data?.data?.ispro || false);
   let inquiriesCombined = [];
   const chartRef = useRef();
@@ -49,7 +51,7 @@ const Analyzer = () => {
   // const [result, setResult] = useState(data?.data);
   const [creditData, setcreditData] = useState({});
   const [isReset, setIsReset] = useState(false);
-  const selectedLanguage = localStorage.getItem("selectedLanguage") || "en";
+  const selectedLanguage = localStorage.getItem("preferLanguage") || "en";
   const fileInputRef = useRef(null);
   const location = useLocation();
   const referrer = location.state?.from;
@@ -60,16 +62,26 @@ const Analyzer = () => {
 
   const handleTranslate = async () => {
     try {
-      let creditReportFortranslate = creditData;
+      console.log("creditData", creditData);
+
+      let creditReportFortranslate = {
+        improvementPotential: creditData.improvementPotential,
+        keyAreasForImprovement: creditData.keyAreasForImprovement,
+        rating: creditData.rating,
+        score: creditData.score,
+      };
       // if (i18n.language != "en") {
       //   creditReportFortranslate = JSON.parse(localStorage.getItem("creditReportFortranslate"));
       // }
       const token = await getToken({ template: "hasura" });
+      dispatch(resetData());
       dispatch(
         translateObject({
-          object: creditReportFortranslate,
+          object:
+            paymentStatus === "paid" ? creditData : creditReportFortranslate,
           targetLanguage: i18n.language,
           token,
+          onProgress: (p) => dispatch(setProgress(p)),
         })
       );
       // localStorage.setItem("selectedLanguage", "");
@@ -78,50 +90,56 @@ const Analyzer = () => {
     }
   };
 
-const exportChartAsImage = async () => {
-  const svg = chartRef.current?.querySelector("svg");
-  if (!svg) return null;
+  const exportChartAsImage = async () => {
+    const svg = chartRef.current?.querySelector("svg");
+    if (!svg) return null;
 
-  const svgData = new XMLSerializer().serializeToString(svg);
-  const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
-  const url = URL.createObjectURL(svgBlob);
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const svgBlob = new Blob([svgData], {
+      type: "image/svg+xml;charset=utf-8",
+    });
+    const url = URL.createObjectURL(svgBlob);
 
-  // Return a Promise that resolves when image is loaded and canvas is drawn
-  const base64Image = await new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => {
-      const viewBox = svg.getAttribute("viewBox");
-      let width, height;
+    // Return a Promise that resolves when image is loaded and canvas is drawn
+    const base64Image = await new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const viewBox = svg.getAttribute("viewBox");
+        let width, height;
 
-      if (viewBox) {
-        const [, , vbWidth, vbHeight] = viewBox.split(" ").map(Number);
-        width = vbWidth;
-        height = vbHeight;
-      } else {
-        width = svg.clientWidth;
-        height = svg.clientHeight;
-      }
+        if (viewBox) {
+          const [, , vbWidth, vbHeight] = viewBox.split(" ").map(Number);
+          width = vbWidth;
+          height = vbHeight;
+        } else {
+          width = svg.clientWidth;
+          height = svg.clientHeight;
+        }
 
-      const canvas = document.createElement("canvas");
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext("2d");
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
 
-      ctx.drawImage(img, 0, 0, width, height);
+        ctx.drawImage(img, 0, 0, width, height);
 
-      URL.revokeObjectURL(url);
-      resolve(canvas.toDataURL("image/png")); // Return the Base64 string
-    };
+        URL.revokeObjectURL(url);
+        resolve(canvas.toDataURL("image/png")); // Return the Base64 string
+      };
 
-    img.src = url;
-  });
+      img.src = url;
+    });
 
-  return base64Image;
-};
+    return base64Image;
+  };
 
   useEffect(() => {
     if (translated) {
+      console.log("translated", translated);
+      // localStorage.removeItem("creditReport");
       setcreditData(translated);
+      data?.data?.ispro === false &&
+        localStorage.setItem("creditReport", JSON.stringify(translated));
     }
   }, [translated]);
 
@@ -431,22 +449,20 @@ const exportChartAsImage = async () => {
       drawSubHeading(
         `${t("analyzePage.revolving")} ${t("analyzePage.accounts")}:`
       );
-      summary?.tradelines?.revolving.forEach((t) => drawText(`• ${t}`));
+      summary?.tradelines?.revolving;
       drawSubHeading(
         `${t("analyzePage.installment")} ${t("analyzePage.accounts")}:`
       );
-      summary?.tradelines?.installment.forEach((t) => drawText(`• ${t}`));
+      summary?.tradelines?.installment;
       drawSubHeading(`${t("analyzePage.open")} ${t("analyzePage.accounts")}:`);
-      summary?.tradelines.open.forEach((t) => drawText(`• ${t}`));
+      summary?.tradelines.open;
       drawSubHeading(`${t("analyzePage.mortgage")}:`);
-      summary?.tradelines?.mortgage.forEach((t) => drawText(`• ${t}`));
+      summary?.tradelines?.mortgage;
       y -= 10;
       drawText(
-        `${t("analyzePage.paymentHistory")}: ${
-          creditData?.summary?.paymentHistory?.allCurrent
-            ? t("analyzePage.allCurrent")
-            : t("analyzePage.issuesDetected")
-        } ${summary?.paymentHistory?.missedOrLatePast24Months} ${t(
+        `${t("analyzePage.paymentHistory")}: ${t(
+          "analyzePage.issuesDetected"
+        )} ${summary?.paymentHistory?.missedOrLatePast24Months} ${t(
           "analyzePage.missedLate24Months"
         )}`
       );
@@ -455,31 +471,31 @@ const exportChartAsImage = async () => {
           creditData?.scoreProgress?.creditSummary?.onTimePayments
         }`
       );
-      if (
-        creditData?.securedLoan &&
-        typeof creditData.securedLoan === "object"
-      ) {
-        const loan = creditData?.securedLoan;
-        drawWrappedText(
-          `${t("analyzePage.securedLoan")}: ${loan.lender} | ${t(
-            "analyzePage.registered"
-          )}: ${loan.registered} | ${t("analyzePage.amount")}: $${
-            loan.amount
-          } | ${t("analyzePage.maturity")}: ${loan.maturity}`,
-          font,
-          fontSize
-        );
-      }
+      // if (
+      //   creditData?.securedLoan &&
+      //   typeof creditData.securedLoan === "object"
+      // ) {
+      //   const loan = creditData?.securedLoan;
+      //   drawWrappedText(
+      //     `${t("analyzePage.securedLoan")}: ${loan.lender} | ${t(
+      //       "analyzePage.registered"
+      //     )}: ${loan.registered} | ${t("analyzePage.amount")}: $${
+      //       loan.amount
+      //     } | ${t("analyzePage.maturity")}: ${loan.maturity}`,
+      //     font,
+      //     fontSize
+      //   );
+      // }
       drawText(
         `${t("analyzePage.goodStanding")} ${
           creditData?.scoreProgress?.creditSummary?.activeAccounts
         }`
       );
-      drawText(
-        `${t("analyzePage.derogatoryMarks")} ${
-          creditData?.scoreProgress?.creditSummary?.derogatoryMarks
-        }`
-      );
+      // drawText(
+      //   `${t("analyzePage.derogatoryMarks")} ${
+      //     creditData?.scoreProgress?.creditSummary?.derogatoryMarks
+      //   }`
+      // );
 
       drawSubHeading(`${t("analyzePage.inquiries")}`);
       drawText(
@@ -521,11 +537,11 @@ const exportChartAsImage = async () => {
           summary.creditAge.averageAgeYears
         } ${t("analyzePage.years")}`
       );
-      drawSubHeading(`${t("analyzePage.collections")} :`);
-      drawText(`${summary.collections}`);
-      drawSubHeading(`${t("analyzePage.judgments")} :`);
+      // drawSubHeading(`${t("analyzePage.collections")} :`);
+      // drawText(`${summary.collections}`);
+      // drawSubHeading(`${t("analyzePage.judgments")} :`);
 
-      drawText(`${summary.judgments}`);
+      // drawText(`${summary.judgments}`);
 
       if (creditData.accountsAndBalances?.length) {
         y -= 10;
@@ -548,14 +564,14 @@ const exportChartAsImage = async () => {
           acc.openDate || t("analyzePage.na"),
           acc.limit ? `$${acc.limit}` : t("analyzePage.na"),
           acc.balance ? `$${acc.balance}` : t("analyzePage.na"),
-          acc.status === "open"
+          acc.status?.toLowerCase() === "open"
             ? t("analyzePage.open")
-            : acc.status === "closed"
+            : acc.status?.toLowerCase() === "closed"
             ? t("analyzePage.closed")
             : acc.status || t("analyzePage.na"),
-          acc.closed === true
+          acc.closed?.toLowerCase() === true
             ? t("analyzePage.yes")
-            : acc.closed === false
+            : acc.closed?.toLowerCase() === false
             ? t("analyzePage.no")
             : t("analyzePage.na"),
           acc.pastDue ? `$${acc.pastDue}` : t("analyzePage.na"),
@@ -568,22 +584,22 @@ const exportChartAsImage = async () => {
         const headers = [
           t("analyzePage.date"),
           t("analyzePage.lender"),
-          t("analyzePage.type"),
-          t("analyzePage.affectsScore"),
+          // t("analyzePage.type"),
+          // t("analyzePage.affectsScore"),
         ];
         const rows = creditData.inquiries.map((i) => [
           i.date,
           i.lender,
-          i.type === "soft"
-            ? t("analyzePage.soft")
-            : i.type === "hard"
-            ? t("analyzePage.hard")
-            : t("analyzePage.na"),
-          i.affectsScore === true
-            ? t("analyzePage.yes")
-            : i.affectsScore === false
-            ? t("analyzePage.no")
-            : t("analyzePage.na"),
+          // i.type === "soft"
+          //   ? t("analyzePage.soft")
+          //   : i.type === "hard"
+          //   ? t("analyzePage.hard")
+          //   : t("analyzePage.na"),
+          // i.affectsScore === true
+          //   ? t("analyzePage.yes")
+          //   : i.affectsScore === false
+          //   ? t("analyzePage.no")
+          //   : t("analyzePage.na"),
         ]);
         drawTable(headers, rows);
         y -= 10;
@@ -592,8 +608,9 @@ const exportChartAsImage = async () => {
       if (creditData.accountsAndBalances?.length) {
         drawSectionHeader(`${t("analyzePage.creditEvaluation")}`);
         const headers = [t("analyzePage.metric"), t("analyzePage.analysis")];
-        const rows = Object.entries(creditData.creditEvaluation).map(
-          ([key, value], i) => [
+        const rows = Object.entries(creditData.creditEvaluation)
+          .slice(0, 7)
+          .map(([key, value], i) => [
             i === 0
               ? t("analyzePage.utilization")
               : i === 1
@@ -610,8 +627,7 @@ const exportChartAsImage = async () => {
               ? t("analyzePage.fileDepth")
               : t("analyzePage.na"),
             value || t("analyzePage.na"),
-          ]
-        );
+          ]);
         drawTable(headers, rows);
         y -= 20;
       }
@@ -619,14 +635,14 @@ const exportChartAsImage = async () => {
       if (creditData.scoreForecast?.length) {
         drawSectionHeader(`${t("analyzePage.scoreForecast")}`);
         const headers = [
-          t("analyzePage.action"),
+          // t("analyzePage.action"),
           t("analyzePage.impact"),
           t("analyzePage.timeline"),
           t("analyzePage.priority"),
           t("analyzePage.confidence"),
         ];
         const rows = creditData.scoreForecast.map((f) => [
-          f.action,
+          // f.action,
           f.estimatedImpact,
           f.timeline,
           f.priority,
@@ -636,23 +652,23 @@ const exportChartAsImage = async () => {
         y -= 20;
       }
 
-      if (creditData.actionPlan?.length) {
-        drawSectionHeader(`${t("analyzePage.aiActionPlan")}`);
-        const headers = [
-          t("analyzePage.recommendation"),
-          t("analyzePage.description"),
-          t("analyzePage.priority"),
-          t("analyzePage.timeline"),
-        ];
-        const rows = creditData.actionPlan.map((a) => [
-          a.recommendation,
-          a.description,
-          a.priority,
-          a.timeline,
-        ]);
-        drawTable(headers, rows, "actionPlan");
-        y -= 10;
-      }
+      // if (creditData.actionPlan?.length) {
+      //   drawSectionHeader(`${t("analyzePage.aiActionPlan")}`);
+      //   const headers = [
+      //     t("analyzePage.recommendation"),
+      //     t("analyzePage.description"),
+      //     t("analyzePage.priority"),
+      //     t("analyzePage.timeline"),
+      //   ];
+      //   const rows = creditData.actionPlan.map((a) => [
+      //     a.recommendation,
+      //     a.description,
+      //     a.priority,
+      //     a.timeline,
+      //   ]);
+      //   drawTable(headers, rows, "actionPlan");
+      //   y -= 10;
+      // }
 
       const disputeHeading = `${t("analyzePage.dispute")} & ${t(
         "analyzePage.removal"
@@ -695,7 +711,7 @@ const exportChartAsImage = async () => {
         drawSubHeading(`${t("analyzePage.actionChecklist")}: `);
         drawChecklist(creditData.scoreProgress.checklist);
         const chartImage = await exportChartAsImage();
-        
+
         if (chartImage) {
           drawSubHeading(`${t("analyzePage.progressProjection")}: `);
           const base64 = chartImage.split(",")[1]; // remove prefix
@@ -741,7 +757,8 @@ const exportChartAsImage = async () => {
       if (
         referrer === "paymentSuccess" &&
         creditData?.isEmailSent === false &&
-        data?.data?.ispro && isReportSent === false
+        data?.data?.ispro &&
+        isReportSent === false
       ) {
         await sendMail(blob);
         return;
@@ -771,7 +788,7 @@ const exportChartAsImage = async () => {
       );
       if (status === 200) {
         toast.success("Report sent successfully to your email.");
-        setIsReportSent(true)
+        setIsReportSent(true);
       }
       // console.log("Uploaded successfully", response.data);
     } catch (err) {
@@ -876,7 +893,9 @@ const exportChartAsImage = async () => {
     setThumbnail(null);
     setIsReport(false);
     setIsReset(true);
-    localStorage.removeItem("creditReport");
+    setPaymentStatus("false");
+    dispatch(resetData());
+    // localStorage.removeItem("creditReport");
   };
 
   const onUnlock = async () => {
@@ -888,7 +907,7 @@ const exportChartAsImage = async () => {
     const hasCreditData = creditData && Object.keys(creditData).length > 0;
     const reportId = creditData?._id;
 
-    if (!hasCreditData || !reportId) {
+    if (!hasCreditData) {
       toast.error("Invalid data");
       return;
     }
@@ -897,10 +916,11 @@ const exportChartAsImage = async () => {
       const token = await getToken({ template: "hasura" });
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/checkout`,
-        JSON.stringify({
-          // userId: user?.id,
-          reportId,
-        }),
+        // JSON.stringify({
+        //   // userId: user?.id,
+        //   reportId,
+        // }),
+        {},
         {
           headers: {
             "Content-Type": "application/json",
@@ -924,18 +944,57 @@ const exportChartAsImage = async () => {
   };
 
   const onAnalyze = async () => {
-    if (!pdfFile) {
+    // if (referrer != "paymentSuccess") {
+    console.log("patmentid", paymentId);
+    const isPaymentReferrer = referrer === "paymentSuccess" && !!paymentId;
+    console.log("isPaymentReferrer", isPaymentReferrer);
+
+    let storedFile;
+    storedFile = await loadFile();
+    if (isPaymentReferrer === true) {
+      console.log("Loaded file from IndexedDB:", storedFile);
+    }
+    console.log("pdfFile", pdfFile, storedFile, tmpFile);
+
+    if (!pdfFile && !storedFile) {
       toast.error("No file selected.");
       return;
     }
+    // }
     try {
+      // !isPaymentReferrer && saveFile(pdfFile);
       const token = await getToken({ template: "hasura" });
       const formData = new FormData();
-      formData.append("file", pdfFile);
+      formData.append("file", isPaymentReferrer ? storedFile : pdfFile);
       // formData.append("userId", user?.id ? user.id : "");
-      formData.append("reportId", data?.result?._id ? data?.result._id : "");
+      console.log("paymentId", paymentId);
+
+      isPaymentReferrer &&
+        formData.append("paymentId", paymentId ? paymentId : "");
       dispatch(resetReportErrorAndStatus());
-      dispatch(fetchReport({ formData, token, language: i18n.language }));
+
+      if (!isPaymentReferrer) {
+        saveFile(pdfFile);
+        dispatch(
+          fetchReport({
+            formData,
+            token,
+            language: i18n.language,
+            onProgress: (p) => dispatch(setProgress(p)),
+          })
+        );
+      } else {
+        dispatch(
+          fetchPaidReport({
+            formData,
+            token,
+            language: i18n.language,
+            onProgress: (p) => dispatch(setProgress(p)),
+          })
+        );
+        dispatch(clearPaymentId());
+        localStorage.removeItem("creditReport");
+      }
     } catch (error) {
       console.log("error", error);
 
@@ -967,7 +1026,13 @@ const exportChartAsImage = async () => {
   const getReport = async () => {
     try {
       if (isSignedIn) {
-        dispatch(getReportByReportId(user.id));
+        const userId = user.id;
+        dispatch(
+          getReportByReportId({
+            userId,
+            onProgress: (p) => dispatch(setProgress(p)),
+          })
+        );
       }
     } catch (error) {
       setIsReport(false);
@@ -987,23 +1052,36 @@ const exportChartAsImage = async () => {
     }
 
     const hasSavedData = savedData && Object.keys(savedData).length > 0;
-
     if (referrer === "paymentSuccess") {
-      getReport();
+      onAnalyze();
     } else if (!hasSavedData && loading === false) {
       getReport();
     }
 
     if (hasSavedData && loading === false) {
+      console.log("issign inn", savedData);
+      const preferLanguage = localStorage.getItem("preferLanguage");
+      i18n.changeLanguage(creditData.preferLanguage || preferLanguage);
       setIsReport(true);
-      setcreditData(savedData);
+      if (
+        creditData?.preferLanguage === undefined ||
+        creditData?.preferLanguage == ""
+      ) {
+        setcreditData({ ...savedData, preferLanguage: preferLanguage });
+      } else {
+        setcreditData(savedData);
+      }
+      localStorage.setItem("sessionId", "");
     }
+    console.log("isSignedIn");
   }, [isSignedIn]);
 
   useEffect(() => {
+    if (loading === false) dispatch(resetProgress());
     if (!data) return;
 
     const savedData = JSON.parse(localStorage.getItem("creditReport"));
+    console.log("here1", savedData);
 
     const hasNoData = data?.data?.count === 0;
     const hasData = data?.data?.count > 0;
@@ -1016,39 +1094,65 @@ const exportChartAsImage = async () => {
     }
 
     if (savedData && Object.keys(savedData).length > 0 && loading === false) {
+      console.log("here2", savedData);
+
       setIsReport(true);
       setcreditData(savedData);
+      localStorage.setItem("sessionId", "");
+      // return;
     }
 
     if (hasData) {
+      // localStorage.removeItem("creditReport");
       const result = data.data.result;
       setcreditData(result);
       setPaymentStatus(data.data.ispro ? "paid" : "fail");
       setIsReport(true);
-      inquiriesCombined = [
-        ...(result.summary.inquiries.hard || []),
-        ...(result.summary.inquiries.soft || []),
-      ];
-      inquiriesCombined.sort((a, b) => new Date(b.date) - new Date(a.date));
-      setcreditData({
-        ...result,
-        inquiries: inquiriesCombined,
-      });
-      i18n.changeLanguage(result?.preferLanguage);
-      if (!isSignedIn) {
-        localStorage.setItem(
-          "creditReport",
-          JSON.stringify({
-            ...result,
-            inquiries: inquiriesCombined,
-          })
-        );
-      }
-      if (isSignedIn) {
+      if (data.data.ispro === true) {
+        inquiriesCombined = [
+          ...(result?.summary?.inquiries?.hard || []),
+          ...(result?.summary?.inquiries?.soft || []),
+        ];
+        inquiriesCombined.sort((a, b) => new Date(b.date) - new Date(a.date));
+        setcreditData({
+          ...result,
+          inquiries: inquiriesCombined,
+        });
+        // localStorage.setItem(
+        //   "creditReport",
+        //   JSON.stringify({
+        //     ...result,
+        //     inquiries: inquiriesCombined,
+        //   })
+        // );
+        clearPaymentId();
+        localStorage.setItem("sessionId", result.sessionId);
         localStorage.removeItem("creditReport");
+      }
+
+      if (data.data.ispro === false) {
+        localStorage.setItem("creditReport", JSON.stringify(result));
+      }
+      console.log(data.data);
+
+      i18n.changeLanguage(result?.preferLanguage);
+      // if (!isSignedIn) {
+      //   localStorage.setItem(
+      //     "creditReport",
+      //     JSON.stringify({
+      //       ...result,
+      //       inquiries: inquiriesCombined,
+      //     })
+      //   );
+      // }
+      if (isSignedIn) {
+        // localStorage.removeItem("creditReport");
         // if (i18n.language === "en") {
         // localStorage.setItem("creditReportFortranslate", JSON.stringify(result))
         // }
+        console.log("dataaaaaaaaaaa");
+
+        // localStorage.setItem("creditReport", JSON.stringify(result));
       }
     }
   }, [data]);
@@ -1067,10 +1171,9 @@ const exportChartAsImage = async () => {
       data?.data?.ispro
     ) {
       setTimeout(() => {
-          generateActionPlanPDF();
-        }, 5000);
+        generateActionPlanPDF();
+      }, 5000);
     }
-
   }, [creditData]);
 
   useEffect(() => {
@@ -1258,7 +1361,6 @@ const exportChartAsImage = async () => {
                           ? "bg-green-300 cursor-not-allowed text-white"
                           : "bg-green-600 hover:bg-green-700 text-white"
                       }`}
-                      // disabled={fileName.length === 0}
                       onClick={handleReset}
                     >
                       {t("analyzePage.resetButton")}
@@ -1267,1356 +1369,31 @@ const exportChartAsImage = async () => {
                 </>
               )}
               <>
-                {Object.keys(creditData || {}).length > 0 && isReport && (
-                  <div className="max-w-full md:max-w-7xl lg:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="p-4 sm:p-6 text-black">
-                      <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-3">
-                        {t("analyzePage.planTitle")}
-                      </h2>
-
-                      <section className="space-y-0 border border-slate-200 shadow-lg mt-4 rounded-md">
-                        <div className="p-4 bg-white rounded-2xl space-y-0">
-                          <h2 className="text-2xl font-bold">
-                            {t("analyzePage.creditSummary")}
-                          </h2>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm mt-1">
-                            <div>
-                              <p>
-                                <span className="font-semibold text-xl">
-                                  {t("analyzePage.score")}:{" "}
-                                </span>
-                                <span className="pr-1">
-                                  {creditData?.summary.score ??
-                                    t("analyzePage.none")}
-                                </span>
-                                {creditData?.summary.rating ?? ""}
-                              </p>
-                              <h3 className="font-semibold text-xl">
-                                {t("analyzePage.tradelines")}:
-                              </h3>
-                              <ul className="list-disc list-inside space-y-2">
-                                <li>
-                                  <span className="font-semibold text-xl">
-                                    {t("analyzePage.revolving")} (
-                                    {creditData?.summary.tradelines.revolving
-                                      ?.length || 0}{" "}
-                                    {t("analyzePage.accounts")}):
-                                  </span>
-                                  <ul className="list-disc list-inside pl-4">
-                                    {creditData?.summary.tradelines.revolving
-                                      ?.length > 0 ? (
-                                      creditData.summary.tradelines.revolving.map(
-                                        (account, index) => (
-                                          <li
-                                            key={index}
-                                            className={`p-1 ${
-                                              index > 0
-                                                ? paymentStatus === "paid" &&
-                                                  !isReset
-                                                  ? ""
-                                                  : "bg-gray-200 italic text-gray-400"
-                                                : ""
-                                            }`}
-                                          >
-                                            {index > 0
-                                              ? paymentStatus === "paid" &&
-                                                !isReset
-                                                ? `${account
-                                                    .split("(")[0]
-                                                    .trim()} (${
-                                                    account.includes(
-                                                      t("analyzePage.close")
-                                                    )
-                                                      ? t("analyzePage.close")
-                                                      : t("analyzePage.open")
-                                                  })`
-                                                : t(
-                                                    "analyzePage.availableAfterPayment"
-                                                  )
-                                              : `${account
-                                                  .split("(")[0]
-                                                  .trim()} (${
-                                                  account.includes(
-                                                    t("analyzePage.close")
-                                                  )
-                                                    ? t("analyzePage.close")
-                                                    : t("analyzePage.open")
-                                                })`}
-                                          </li>
-                                        )
-                                      )
-                                    ) : (
-                                      <li>{t("analyzePage.none")}</li>
-                                    )}
-                                  </ul>
-                                </li>
-                                <li>
-                                  <span className="font-semibold text-xl">
-                                    {t("analyzePage.installment")} (
-                                    {creditData?.summary.tradelines.installment
-                                      ?.length || 0}{" "}
-                                    {t("analyzePage.accounts")}
-                                    ):
-                                  </span>
-                                  <ul className="list-disc list-inside pl-4 p-1">
-                                    {creditData?.summary.tradelines.installment
-                                      ?.length > 0 ? (
-                                      creditData.summary.tradelines.installment.map(
-                                        (account, index) => (
-                                          <li
-                                            key={index}
-                                            className={`p-1 ${
-                                              index > 0
-                                                ? paymentStatus === "paid" &&
-                                                  !isReset
-                                                  ? ""
-                                                  : "bg-gray-200 italic text-gray-400"
-                                                : ""
-                                            }`}
-                                          >
-                                            {index > 0
-                                              ? paymentStatus === "paid" &&
-                                                !isReset
-                                                ? `${account
-                                                    .split("(")[0]
-                                                    .trim()}`
-                                                : t(
-                                                    "analyzePage.availableAfterPayment"
-                                                  )
-                                              : `${account
-                                                  .split("(")[0]
-                                                  .trim()}`}
-                                          </li>
-                                        )
-                                      )
-                                    ) : (
-                                      <li className="p-1">
-                                        {t("analyzePage.none")}
-                                      </li>
-                                    )}
-                                  </ul>
-                                </li>
-                                <li>
-                                  <span className="font-semibold text-xl">
-                                    {t("analyzePage.open")} (
-                                    {creditData?.summary.tradelines.open
-                                      ?.length || 0}{" "}
-                                    {t("analyzePage.accounts")}
-                                    ):
-                                  </span>
-                                  <ul className="list-disc list-inside pl-4 p-1">
-                                    {creditData?.summary.tradelines.open
-                                      ?.length > 0 ? (
-                                      creditData.summary.tradelines.open.map(
-                                        (account, index) => (
-                                          <li
-                                            key={index}
-                                            className={`p-1 ${
-                                              index > 0
-                                                ? paymentStatus === "paid" &&
-                                                  !isReset
-                                                  ? ""
-                                                  : "bg-gray-200 italic text-gray-400"
-                                                : ""
-                                            }`}
-                                          >
-                                            {index > 0
-                                              ? paymentStatus === "paid" &&
-                                                !isReset
-                                                ? `${account
-                                                    .split("(")[0]
-                                                    .trim()}`
-                                                : t(
-                                                    "analyzePage.availableAfterPayment"
-                                                  )
-                                              : `${account
-                                                  .split("(")[0]
-                                                  .trim()}`}
-                                          </li>
-                                        )
-                                      )
-                                    ) : (
-                                      <li className="p-1">
-                                        {t("analyzePage.none")}
-                                      </li>
-                                    )}
-                                  </ul>
-                                </li>
-                                <li>
-                                  <span className="font-semibold text-xl">
-                                    {t("analyzePage.mortgage")} (
-                                    {creditData?.summary.tradelines.mortgage
-                                      ?.length || 0}{" "}
-                                    {t("analyzePage.accounts")}
-                                    ):
-                                  </span>
-                                  <ul className="list-disc list-inside pl-4">
-                                    {creditData?.summary.tradelines.mortgage
-                                      ?.length > 0 ? (
-                                      creditData.summary.tradelines.mortgage.map(
-                                        (account, index) => (
-                                          <li
-                                            key={index}
-                                            className={`p-1 ${
-                                              index > 0
-                                                ? paymentStatus === "paid" &&
-                                                  !isReset
-                                                  ? ""
-                                                  : "bg-gray-200 italic text-gray-400"
-                                                : ""
-                                            }`}
-                                          >
-                                            {index > 0
-                                              ? paymentStatus === "paid" &&
-                                                !isReset
-                                                ? `${account
-                                                    .split("(")[0]
-                                                    .trim()}`
-                                                : t(
-                                                    "analyzePage.availableAfterPayment"
-                                                  )
-                                              : `${account
-                                                  .split("(")[0]
-                                                  .trim()}`}
-                                          </li>
-                                        )
-                                      )
-                                    ) : (
-                                      <li className="p-1">
-                                        {t("analyzePage.none")}
-                                      </li>
-                                    )}
-                                  </ul>
-                                </li>
-                              </ul>
-                            </div>
-
-                            <div>
-                              <p>
-                                <span className="font-semibold text-xl">
-                                  {t("analyzePage.paymentHistory")}:{" "}
-                                </span>
-                                {creditData?.summary.paymentHistory
-                                  ? `${
-                                      creditData.summary.paymentHistory
-                                        .allCurrent
-                                        ? t("analyzePage.allCurrent")
-                                        : t("analyzePage.issuesDetected")
-                                    } (${
-                                      creditData.summary.paymentHistory
-                                        .missedOrLatePast24Months
-                                    } ${t("analyzePage.missedLate24Months")})`
-                                  : t("analyzePage.none")}
-                              </p>
-                              <p>
-                                <span className="font-semibold text-xl">
-                                  {t("analyzePage.onTimePayments")}:{" "}
-                                </span>
-                                {creditData?.scoreProgress.creditSummary
-                                  ? `${creditData.scoreProgress.creditSummary.onTimePayments}`
-                                  : t("analyzePage.none")}
-                              </p>
-                              <p>
-                                <span className="font-semibold text-xl">
-                                  {t("analyzePage.securedLoan")}:
-                                </span>{" "}
-                                {creditData?.securedLoan?.lender
-                                  ? `${creditData.securedLoan.lender} - ${t(
-                                      "analyzePage.registered"
-                                    )}:
-                                    ${creditData.securedLoan.registered}
-                                 , ${t("analyzePage.amount")}: ${
-                                      creditData.securedLoan?.amount
-                                        ? "$" + creditData.securedLoan?.amount
-                                        : t("analyzePage.na")
-                                    }, ${t("analyzePage.maturity")}: ${
-                                      creditData.securedLoan.maturity
-                                    }`
-                                  : t("analyzePage.none")}
-                              </p>
-                              <p>
-                                <span className="font-semibold text-xl">
-                                  {t("analyzePage.goodStanding")}:{" "}
-                                </span>
-                                {creditData?.scoreProgress.creditSummary
-                                  ? `${creditData.scoreProgress.creditSummary.activeAccounts}`
-                                  : t("analyzePage.none")}
-                              </p>
-                              <p>
-                                <span className="font-semibold text-xl">
-                                  {t("analyzePage.derogatoryMarks")}:{" "}
-                                </span>
-                                {creditData?.scoreProgress.creditSummary
-                                  ? `${creditData.scoreProgress.creditSummary.derogatoryMarks}`
-                                  : t("analyzePage.none")}
-                              </p>
-                              <p className="mt-2">
-                                <span className="font-semibold text-xl">
-                                  {t("analyzePage.collections")}:{" "}
-                                </span>
-                                {creditData?.summary.collections !== undefined
-                                  ? creditData.summary.collections
-                                  : t("analyzePage.none")}
-                              </p>
-                              <p className="mt-1">
-                                <span className="font-semibold text-xl">
-                                  {t("analyzePage.judgments")}:{" "}
-                                </span>
-                                {creditData?.summary.judgments !== undefined
-                                  ? creditData.summary.judgments
-                                  : t("analyzePage.none")}
-                              </p>
-                              <h3 className="font-semibold mb-1 text-xl">
-                                {t("analyzePage.inquiries")}:
-                                {/* ({creditData?.summary.inquiries.total || "0"}): */}
-                              </h3>
-                              <ul className="list-disc list-inside space-y-2">
-                                <li className="p-1">
-                                  {t("analyzePage.hardInquiries")}:{" "}
-                                  {creditData?.summary.inquiries.hard?.length >
-                                  0
-                                    ? creditData.summary.inquiries.hard.length
-                                    : t("analyzePage.none")}{" "}
-                                </li>
-                                <li className={`p-1`}>
-                                  {t("analyzePage.softInquiries")}:{" "}
-                                  <span
-                                    className={`${
-                                      paymentStatus === "paid" && !isReset
-                                        ? ""
-                                        : "bg-gray-200 italic text-gray-400"
-                                    }`}
-                                  >
-                                    {creditData?.summary.inquiries.soft
-                                      ?.length > 0
-                                      ? paymentStatus === "paid" && !isReset
-                                        ? creditData.summary.inquiries.soft
-                                            ?.length
-                                        : t("analyzePage.availableAfterPayment")
-                                      : t("analyzePage.none")}
-                                  </span>
-                                </li>
-                              </ul>
-                              <h3 className="font-semibold text-xl">
-                                {t("analyzePage.creditUtilization")}:
-                              </h3>
-                              <ul className="list-disc list-inside space-y-1">
-                                <li className="p-1">
-                                  {t("analyzePage.totalLimit")}:{" "}
-                                  {creditData?.summary?.creditUtilization
-                                    ?.totalLimit
-                                    ? `$${creditData?.summary?.creditUtilization?.totalLimit?.toLocaleString()}`
-                                    : t("analyzePage.none")}
-                                </li>
-                                <li className={`p-1`}>
-                                  {t("analyzePage.totalBalance")}:{" "}
-                                  <span
-                                    className={`${
-                                      paymentStatus === "paid" && !isReset
-                                        ? ""
-                                        : "bg-gray-200 italic text-gray-400"
-                                    }`}
-                                  >
-                                    {creditData?.summary?.creditUtilization
-                                      ?.totalBalance
-                                      ? paymentStatus === "paid" && !isReset
-                                        ? `$${creditData.summary.creditUtilization.totalBalance.toLocaleString()}`
-                                        : t("analyzePage.availableAfterPayment")
-                                      : t("analyzePage.none")}
-                                  </span>
-                                </li>
-                                <li className="p-1">
-                                  {t("analyzePage.utilizationRate")}:{" "}
-                                  {creditData?.summary?.creditUtilization
-                                    ?.utilizationRate
-                                    ? `${creditData.summary.creditUtilization.utilizationRate}% ✅ ${creditData.summary.creditUtilization.rating}`
-                                    : t("analyzePage.none")}
-                                </li>
-                              </ul>
-                              <h3 className="font-semibold mt-1 text-xl">
-                                {t("analyzePage.creditAge")}:
-                              </h3>
-                              <ul className="list-disc list-inside space-y-1">
-                                <li className="p-1">
-                                  {t("analyzePage.oldestAccount")}:{" "}
-                                  {creditData?.summary?.creditAge?.oldest
-                                    .account
-                                    ? `${
-                                        creditData.summary.creditAge.oldest
-                                          .account
-                                      } (Opened ${new Date(
-                                        creditData.summary.creditAge.oldest.opened
-                                      ).toLocaleDateString("en-US", {
-                                        month: "short",
-                                        year: "numeric",
-                                      })})`
-                                    : t("analyzePage.none")}
-                                </li>
-                                <li className="p-1">
-                                  {t("analyzePage.newestAccount")}:{" "}
-                                  <span
-                                    className={`${
-                                      paymentStatus === "paid" && !isReset
-                                        ? ""
-                                        : "bg-gray-200 italic text-gray-400"
-                                    }`}
-                                  >
-                                    {creditData?.summary?.creditAge?.newest
-                                      .account
-                                      ? paymentStatus === "paid" && !isReset
-                                        ? `${
-                                            creditData.summary.creditAge.newest
-                                              .account
-                                          } (Opened ${new Date(
-                                            creditData.summary.creditAge.newest.opened
-                                          ).toLocaleDateString("en-US", {
-                                            month: "short",
-                                            year: "numeric",
-                                          })})`
-                                        : t("analyzePage.availableAfterPayment")
-                                      : t("analyzePage.none")}
-                                  </span>
-                                </li>
-                                <li className="p-1">
-                                  {t("analyzePage.averageAge")}:{" "}
-                                  {creditData?.summary?.creditAge
-                                    ?.averageAgeYears
-                                    ? `${
-                                        creditData.summary.creditAge
-                                          .averageAgeYears
-                                      } ${t("analyzePage.years")}`
-                                    : t("analyzePage.none")}
-                                </li>
-                              </ul>
-                            </div>
-                          </div>
-                        </div>
-                      </section>
-
-                      <section className="space-y-0 border border-slate-200 shadow-lg mt-4 rounded-md">
-                        <div className="p-4">
-                          <h2 className="text-2xl font-semibold">
-                            {t("analyzePage.structuredData")}
-                          </h2>
-                          <h3 className="text-xl font-semibold mt-1">
-                            {t("analyzePage.accountsAndBalances")}
-                          </h3>
-                          <div className="overflow-x-auto">
-                            <table className="w-full text-sm border-collapse rounded-xl overflow-hidden shadow-sm">
-                              <thead>
-                                <tr className="border-b bg-slate-100 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">
-                                  <th className="text-left p-2">
-                                    {t("analyzePage.type")}
-                                  </th>
-                                  <th className="text-left p-2">
-                                    {t("analyzePage.lender")}
-                                  </th>
-                                  <th className="text-left p-2">
-                                    {t("analyzePage.openDate")}
-                                  </th>
-                                  <th className="text-left p-2">
-                                    {t("analyzePage.limit")}
-                                  </th>
-                                  <th className="text-left p-2">
-                                    {t("analyzePage.balance")}
-                                  </th>
-                                  <th className="text-left p-2">
-                                    {t("analyzePage.status")}
-                                  </th>
-                                  <th className="text-left p-2">
-                                    {t("analyzePage.closed")}
-                                  </th>
-                                  <th className="text-left p-2">
-                                    {t("analyzePage.pastDue")}
-                                  </th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {creditData?.accountsAndBalances?.length > 0 ? (
-                                  creditData.accountsAndBalances.map(
-                                    (account, i) =>
-                                      i > 2 &&
-                                      (paymentStatus !== "paid" || isReset) ? (
-                                        <tr
-                                          key={i}
-                                          className={`border-t hover:bg-slate-50 transition-colors italic text-gray-400 bg-gray-200`}
-                                          style={{ textAlign: "center" }}
-                                        >
-                                          <td
-                                            style={{ textAlign: "center" }}
-                                            colSpan={8}
-                                            className="p-3 text-sm text-center align-middle"
-                                          >
-                                            {t(
-                                              "analyzePage.availableAfterPayment"
-                                            )}
-                                          </td>
-                                        </tr>
-                                      ) : (
-                                        <tr
-                                          key={i}
-                                          className={`border-t hover:bg-slate-50 transition-colors ${
-                                            i % 2 === 0
-                                              ? "bg-white"
-                                              : "bg-slate-50"
-                                          }`}
-                                        >
-                                          <td className="p-3 text-sm whitespace-nowrap">
-                                            {account.type
-                                              ? account.type
-                                                  .charAt(0)
-                                                  .toUpperCase() +
-                                                account.type.slice(1)
-                                              : t("analyzePage.na")}
-                                          </td>
-                                          <td className="p-3 text-sm text-slate-700 whitespace-nowrap">
-                                            {account.lender ||
-                                              t("analyzePage.na")}
-                                          </td>
-                                          <td className="p-2">
-                                            {account.openDate &&
-                                            !isNaN(
-                                              new Date(
-                                                account.openDate
-                                              ).getTime()
-                                            )
-                                              ? new Date(
-                                                  account.openDate
-                                                ).toLocaleDateString("en-US", {
-                                                  month: "short",
-                                                  year: "numeric",
-                                                })
-                                              : "Unknown"}
-                                          </td>
-                                          <td className="p-2">
-                                            {account.limit
-                                              ? `$${account.limit.toLocaleString()}`
-                                              : t("analyzePage.na")}
-                                          </td>
-                                          <td className="p-2">
-                                            {account.balance
-                                              ? `$${account.balance.toLocaleString()}`
-                                              : "$0"}
-                                          </td>
-                                          <td className="p-2">
-                                            {account.status === "open"
-                                              ? t("analyzePage.open")
-                                              : account.status === "closed"
-                                              ? t("analyzePage.closed")
-                                              : account.status ||
-                                                t("analyzePage.na")}
-                                          </td>
-                                          <td className="p-2">
-                                            {account.closed
-                                              ? t("analyzePage.yes")
-                                              : t("analyzePage.no")}
-                                          </td>
-                                          <td className="p-2">
-                                            {account.pastDue
-                                              ? `$${account.pastDue.toLocaleString()}`
-                                              : "$0"}
-                                          </td>
-                                        </tr>
-                                      )
-                                  )
-                                ) : (
-                                  <tr>
-                                    <td
-                                      colSpan={8}
-                                      className="p-3 text-sm text-slate-700 text-center"
-                                    >
-                                      {t("analyzePage.none")}
-                                    </td>
-                                  </tr>
-                                )}
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
-                        <div className="p-4">
-                          <h3 className="text-xl font-semibold">
-                            {t("analyzePage.inquiryRecords")}
-                          </h3>
-                          <div className="overflow-x-auto">
-                            <table className="w-full min-w-[600px] text-sm border-collapse rounded-xl overflow-hidden shadow-sm">
-                              <thead>
-                                <tr className="border-b bg-slate-100 text-slate-600 uppercase tracking-wide text-xs font-semibold">
-                                  <th className="p-3 text-left text-xs font-medium text-slate-600 tracking-wider">
-                                    {t("analyzePage.date")}
-                                  </th>
-                                  <th className="p-3 text-left text-xs font-medium text-slate-600 tracking-wider">
-                                    {t("analyzePage.lender")}
-                                  </th>
-                                  <th className="p-3 text-left text-xs font-medium text-slate-600 tracking-wider">
-                                    {t("analyzePage.type")}
-                                  </th>
-                                  <th className="p-3 text-left text-xs font-medium text-slate-600 tracking-wider">
-                                    {t("analyzePage.affectsScore")}
-                                  </th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {Array.isArray(creditData?.inquiries) &&
-                                creditData.inquiries.length > 0 ? (
-                                  creditData.inquiries.map((inq, i) =>
-                                    i > 2 &&
-                                    (paymentStatus !== "paid" || isReset) ? (
-                                      <tr
-                                        key={i}
-                                        className={`border-t hover:bg-slate-50 transition-colors italic text-gray-400 bg-gray-200`}
-                                      >
-                                        <td
-                                          style={{ textAlign: "center" }}
-                                          colSpan={4}
-                                          className="p-3 text-sm text-center align-middle"
-                                        >
-                                          {t(
-                                            "analyzePage.availableAfterPayment"
-                                          )}
-                                        </td>
-                                      </tr>
-                                    ) : (
-                                      <tr
-                                        key={i}
-                                        className={`border-t hover:bg-slate-50 transition-colors ${
-                                          i % 2 === 0
-                                            ? "bg-white"
-                                            : "bg-slate-50"
-                                        }`}
-                                      >
-                                        <td className="p-3 text-sm text-slate-700 whitespace-nowrap">
-                                          {inq.date &&
-                                          !isNaN(new Date(inq.date).getTime())
-                                            ? new Date(
-                                                inq.date
-                                              ).toLocaleDateString("en-US", {
-                                                month: "short",
-                                                year: "numeric",
-                                              })
-                                            : "Unknown"}
-                                        </td>
-                                        <td className="p-3 text-sm text-slate-700 whitespace-nowrap">
-                                          {inq.lender || t("analyzePage.na")}
-                                        </td>
-                                        <td className="p-3 text-sm text-slate-700 whitespace-nowrap">
-                                          {inq.type === "soft"
-                                            ? t("analyzePage.soft")
-                                            : t("analyzePage.hard") ||
-                                              t("analyzePage.na")}
-                                        </td>
-                                        <td className="p-3 text-sm text-slate-700 whitespace-nowrap">
-                                          {typeof inq.affectsScore === "boolean"
-                                            ? inq.affectsScore
-                                              ? t("analyzePage.yes")
-                                              : t("analyzePage.no")
-                                            : t("analyzePage.na")}
-                                        </td>
-                                      </tr>
-                                    )
-                                  )
-                                ) : (
-                                  <tr>
-                                    <td
-                                      colSpan={4}
-                                      className="p-3 text-sm text-slate-700 text-center"
-                                    >
-                                      {t("analyzePage.none")}
-                                    </td>
-                                  </tr>
-                                )}
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
-                      </section>
-
-                      <section className="space-y-0 border border-slate-200 shadow-lg mt-4 rounded-md">
-                        <div className="p-4">
-                          <h2 className="text-2xl font-semibold mb-2">
-                            {t("analyzePage.creditEvaluation")}
-                          </h2>
-                          <div className="overflow-x-auto">
-                            <table className="w-full min-w-[600px] text-sm border-collapse rounded-xl overflow-hidden shadow-sm">
-                              <thead>
-                                <tr className="border-b bg-slate-100 text-slate-600 uppercase tracking-wide text-xs font-semibold">
-                                  <th className="p-3 text-left text-xs font-medium text-slate-600 tracking-wider">
-                                    {t("analyzePage.metric")}
-                                  </th>
-                                  <th className="p-3 text-left text-xs font-medium text-slate-600 tracking-wider">
-                                    {t("analyzePage.analysis")}
-                                  </th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {creditData?.creditEvaluation ? (
-                                  Object.entries(
-                                    creditData.creditEvaluation
-                                  ).map(([metric, analysis], i) =>
-                                    i > 2 &&
-                                    (paymentStatus !== "paid" || isReset) ? (
-                                      <tr
-                                        key={i}
-                                        className={`border-t hover:bg-slate-50 transition-colors italic text-gray-400 bg-gray-200`}
-                                      >
-                                        <td
-                                          style={{ textAlign: "center" }}
-                                          colSpan={2}
-                                          className="p-3 text-sm text-center align-middle"
-                                        >
-                                          {t(
-                                            "analyzePage.availableAfterPayment"
-                                          )}
-                                        </td>
-                                      </tr>
-                                    ) : (
-                                      <tr
-                                        key={i}
-                                        className={`border-t hover:bg-slate-50 transition-colors ${
-                                          i % 2 === 0
-                                            ? "bg-white"
-                                            : "bg-slate-50"
-                                        }`}
-                                      >
-                                        <td className="p-3 text-sm text-slate-700 whitespace-nowrap">
-                                          {/* {metric
-                                            ? metric.charAt(0).toUpperCase() +
-                                              metric.slice(1)
-                                            : t("analyzePage.na")} */}
-                                          {i === 0
-                                            ? t("analyzePage.utilization")
-                                            : i === 1
-                                            ? t("analyzePage.creditMix")
-                                            : i === 2
-                                            ? t("analyzePage.paymentHistory")
-                                            : i === 3
-                                            ? t("analyzePage.delinquency")
-                                            : i === 4
-                                            ? t("analyzePage.inquiryFrequency")
-                                            : i === 5
-                                            ? t("analyzePage.derogatoryMarks")
-                                            : i === 6
-                                            ? t("analyzePage.fileDepth")
-                                            : ""}
-                                        </td>
-                                        <td className="p-3 text-sm text-slate-700 whitespace-nowrap">
-                                          {analysis || t("analyzePage.none")}
-                                        </td>
-                                      </tr>
-                                    )
-                                  )
-                                ) : (
-                                  <tr>
-                                    <td
-                                      colSpan={2}
-                                      className="p-3 text-sm text-slate-700 text-center"
-                                    >
-                                      {t("analyzePage.none")}
-                                    </td>
-                                  </tr>
-                                )}
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
-                      </section>
-
-                      <section className="space-y-0 border border-slate-200 shadow-lg mt-4 rounded-md">
-                        <div className="p-4 overflow-x-auto w-full max-w-full">
-                          <h2 className="text-2xl font-semibold">
-                            {t("analyzePage.scoreForecast")}
-                          </h2>
-                          <table className="w-full min-w-[600px] text-sm border-collapse rounded-xl overflow-hidden shadow-sm">
-                            <thead>
-                              <tr className="border-b bg-slate-100 text-slate-600 uppercase tracking-wide text-xs font-semibold">
-                                <th className="text-left p-2">
-                                  {t("analyzePage.action")}
-                                </th>
-                                <th className="text-left p-2">
-                                  {t("analyzePage.impact")}
-                                </th>
-                                <th className="text-left p-2">
-                                  {t("analyzePage.timeline")}
-                                </th>
-                                <th className="text-left p-2">
-                                  {t("analyzePage.priority")}
-                                </th>
-                                <th className="text-left p-2">
-                                  {t("analyzePage.confidence")}
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {creditData?.scoreForecast?.length > 0 ? (
-                                creditData.scoreForecast.map((forecast, i) =>
-                                  i > 1 &&
-                                  (paymentStatus !== "paid" || isReset) ? (
-                                    <tr
-                                      key={i}
-                                      className={`border-t hover:bg-slate-50 transition-colors italic text-gray-400 bg-gray-200`}
-                                    >
-                                      <td
-                                        style={{ textAlign: "center" }}
-                                        colSpan={5}
-                                        className="p-3 text-sm text-slate-700 text-center align-middle"
-                                      >
-                                        {t("analyzePage.availableAfterPayment")}
-                                      </td>
-                                    </tr>
-                                  ) : (
-                                    <tr
-                                      key={i}
-                                      className={`border-t hover:bg-slate-50 transition-colors ${
-                                        i % 2 === 0 ? "bg-white" : "bg-slate-50"
-                                      }`}
-                                    >
-                                      <td className="p-2">
-                                        {forecast.action || t("analyzePage.na")}
-                                      </td>
-                                      <td className="p-2">
-                                        {forecast.estimatedImpact ||
-                                          t("analyzePage.na")}
-                                      </td>
-                                      <td className="p-2">
-                                        {forecast.timeline ||
-                                          t("analyzePage.na")}
-                                      </td>
-                                      <td className="p-2">
-                                        {forecast.priority ||
-                                          t("analyzePage.na")}
-                                      </td>
-                                      <td className="p-2">
-                                        {forecast.confidence ||
-                                          t("analyzePage.na")}
-                                      </td>
-                                    </tr>
-                                  )
-                                )
-                              ) : (
-                                <tr>
-                                  <td
-                                    colSpan={5}
-                                    className="p-3 text-sm text-slate-700 text-center"
-                                  >
-                                    {t("analyzePage.none")}
-                                  </td>
-                                </tr>
-                              )}
-                            </tbody>
-                          </table>
-                        </div>
-                      </section>
-
-                      <section className="space-y-0 border border-slate-200 shadow-lg mt-4 rounded-md">
-                        <div className="p-4 overflow-x-auto w-full max-w-full">
-                          <h2 className="text-2xl font-semibold">
-                            {t("analyzePage.aiActionPlan")}
-                          </h2>
-                          <table className="w-full min-w-[600px] text-sm border-collapse rounded-xl overflow-hidden shadow-sm">
-                            <thead>
-                              <tr className="border-b bg-slate-100 text-slate-600 uppercase tracking-wide text-xs font-semibold">
-                                <th className="text-left p-2">
-                                  {t("analyzePage.recommendation")}
-                                </th>
-                                <th className="text-left p-2">
-                                  {t("analyzePage.description")}
-                                </th>
-                                <th className="text-left p-2">
-                                  {t("analyzePage.priority")}
-                                </th>
-                                <th className="text-left p-2">
-                                  {t("analyzePage.timeline")}
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {creditData?.actionPlan?.length > 0 ? (
-                                creditData.actionPlan.map((forecast, i) =>
-                                  i > 1 &&
-                                  (paymentStatus !== "paid" || isReset) ? (
-                                    <tr
-                                      key={i}
-                                      className={`border-t hover:bg-slate-50 transition-colors italic text-gray-400 bg-gray-200`}
-                                    >
-                                      <td
-                                        style={{ textAlign: "center" }}
-                                        colSpan={5}
-                                        className="p-3 text-sm text-slate-700 text-center align-middle"
-                                      >
-                                        {t("analyzePage.availableAfterPayment")}
-                                      </td>
-                                    </tr>
-                                  ) : (
-                                    <tr
-                                      key={i}
-                                      className={`border-t hover:bg-slate-50 transition-colors ${
-                                        i % 2 === 0 ? "bg-white" : "bg-slate-50"
-                                      }`}
-                                    >
-                                      <td className="p-2">
-                                        {forecast.recommendation ||
-                                          t("analyzePage.na")}
-                                      </td>
-                                      <td className="p-2">
-                                        {forecast.description ||
-                                          t("analyzePage.na")}
-                                      </td>
-                                      <td className="p-2">
-                                        {forecast.priority ||
-                                          t("analyzePage.na")}
-                                      </td>
-                                      <td className="p-2">
-                                        {forecast.timeline ||
-                                          t("analyzePage.na")}
-                                      </td>
-                                    </tr>
-                                  )
-                                )
-                              ) : (
-                                <tr>
-                                  <td
-                                    colSpan={5}
-                                    className="p-3 text-sm text-slate-700 text-center"
-                                  >
-                                    {t("analyzePage.none")}
-                                  </td>
-                                </tr>
-                              )}
-                            </tbody>
-                          </table>
-                        </div>
-                      </section>
-
-                      <section className="space-y-0 border border-slate-200 shadow-lg mt-4 rounded-md">
-                        <div className="p-4">
-                          <h2 className="text-2xl font-semibold">
-                            {t("analyzePage.dispute")} &{" "}
-                            {t("analyzePage.removal") +
-                              " " +
-                              t("analyzePage.toolkit")}
-                          </h2>
-                          <h3 className="text-xl font-semibold mb-2">
-                            {t("analyzePage.dispute") +
-                              " " +
-                              t("analyzePage.letter")}
-                          </h3>
-                          <div className="bg-white border rounded-lg p-4 text-sm font-mono whitespace-pre-wrap">
-                            {creditData?.disputeToolkit?.disputeLetter ? (
-                              <p ref={disputeRef}>
-                                {creditData?.disputeToolkit.disputeLetter}
-                              </p>
-                            ) : (
-                              <p>{t("analyzePage.none")}</p>
-                            )}
-                          </div>
-                        </div>
-                        <div className="p-4">
-                          <h3 className="text-xl font-semibold mb-2">
-                            {t("analyzePage.goodwill") +
-                              " " +
-                              t("analyzePage.removal") +
-                              " " +
-                              t("analyzePage.letter")}
-                          </h3>
-                          <div
-                            className={`${
-                              paymentStatus === "paid" && !isReset
-                                ? "bg-white"
-                                : "text-gray-400 bg-gray-200 italic text-center"
-                            } border rounded-lg p-4 text-sm font-mono whitespace-pre-wrap`}
-                          >
-                            <span ref={goodWillRef}>
-                              {creditData?.disputeToolkit?.goodwillScript
-                                ? paymentStatus === "paid" && !isReset
-                                  ? creditData.disputeToolkit.goodwillScript
-                                  : t("analyzePage.availableAfterPayment")
-                                : t("analyzePage.none")}
-                            </span>
-                          </div>
-                        </div>
-                      </section>
-
-                      <section className="space-y-0 border border-slate-200 shadow-lg mt-4 rounded-md">
-                        <div className="p-4 overflow-x-auto">
-                          <h2 className="text-2xl font-semibold">
-                            {t("analyzePage.scoreProgressTracker")}
-                          </h2>
-                          <h3 className="text-lg font-semibold">
-                            {t("analyzePage.scoreSimulator")}
-                          </h3>
-                          <table className="w-full min-w-[600px] text-sm border-collapse rounded-xl overflow-hidden shadow-sm">
-                            <thead>
-                              <tr className="border-b bg-slate-100 text-slate-600 uppercase tracking-wide text-xs font-semibold">
-                                <th className="text-left p-2">
-                                  {t("analyzePage.scenario")}
-                                </th>
-                                <th className="text-left p-2">
-                                  {t("analyzePage.description")}
-                                </th>
-                                <th className="text-left p-2">
-                                  {t("analyzePage.scoreChange")}
-                                </th>
-                                <th className="text-left p-2">
-                                  {t("analyzePage.impact")}
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {creditData?.scoreProgress?.scoreSimulator
-                                ?.length > 0 ? (
-                                creditData.scoreProgress.scoreSimulator.map(
-                                  (scenario, i) =>
-                                    i > 1 &&
-                                    (paymentStatus !== "paid" || isReset) ? (
-                                      <tr
-                                        key={i}
-                                        className={`border-t hover:bg-slate-50 transition-colors italic text-gray-400 bg-gray-200`}
-                                      >
-                                        <td
-                                          style={{ textAlign: "center" }}
-                                          colSpan={5}
-                                          className="p-3 text-sm text-slate-700 text-center align-middle"
-                                        >
-                                          {t(
-                                            "analyzePage.availableAfterPayment"
-                                          )}
-                                        </td>
-                                      </tr>
-                                    ) : (
-                                      <tr
-                                        key={i}
-                                        className={`border-t hover:bg-slate-50 transition-colors ${
-                                          i % 2 === 0
-                                            ? "bg-white"
-                                            : "bg-slate-50"
-                                        }`}
-                                      >
-                                        <td className="p-2">
-                                          {scenario.scenario ||
-                                            t("analyzePage.na")}
-                                        </td>
-                                        <td className="p-2">
-                                          {scenario.description ||
-                                            t("analyzePage.na")}
-                                        </td>
-                                        <td className="p-2">
-                                          {scenario.projectedScoreChange ||
-                                            t("analyzePage.na")}
-                                        </td>
-                                        <td className="p-2">
-                                          {scenario.impactType ||
-                                            t("analyzePage.na")}
-                                        </td>
-                                      </tr>
-                                    )
-                                )
-                              ) : (
-                                <tr>
-                                  <td
-                                    colSpan={5}
-                                    className="p-3 text-sm text-slate-700 text-center"
-                                  >
-                                    {t("analyzePage.none")}
-                                  </td>
-                                </tr>
-                              )}
-                            </tbody>
-                          </table>
-                        </div>
-
-                        <div className="p-4 overflow-x-auto">
-                          <h3 className="text-lg font-semibold mb-4">
-                            {t("analyzePage.actionChecklist")}
-                          </h3>
-                          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {creditData?.scoreProgress?.checklist ? (
-                              Object.values(
-                                creditData.scoreProgress.checklist
-                              ).map((item, i) => {
-                                const desc = item?.desc ?? t("analyzePage.na");
-                                const istrue = item?.istrue ?? false;
-
-                                if (
-                                  i > 2 &&
-                                  (paymentStatus !== "paid" || isReset)
-                                ) {
-                                  return (
-                                    <li
-                                      key={i}
-                                      className="bg-gray-200 italic text-gray-400 col-span-1 sm:col-span-2 p-4 text-sm"
-                                      aria-label="Restricted checklist item"
-                                    >
-                                      {t("analyzePage.availableAfterPayment")}
-                                    </li>
-                                  );
-                                }
-
-                                return (
-                                  <li
-                                    key={i}
-                                    className={`flex items-center gap-3 p-4 rounded-lg border shadow-sm ${
-                                      istrue
-                                        ? "bg-gradient-to-r from-white to-blue-50 border-blue-200"
-                                        : "bg-slate-50 border-slate-200"
-                                    }`}
-                                  >
-                                    <span>
-                                      {istrue ? (
-                                        <svg
-                                          className="w-8 h-8 text-green-500 dark:text-white"
-                                          aria-hidden="true"
-                                          xmlns="http://www.w3.org/2000/svg"
-                                          width="24"
-                                          height="24"
-                                          fill="none"
-                                          viewBox="0 0 24 24"
-                                        >
-                                          <path
-                                            stroke="currentColor"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth="2"
-                                            d="M5 11.917 9.724 16.5 19 7.5"
-                                          />
-                                        </svg>
-                                      ) : (
-                                        <svg
-                                          className="w-8 h-8 text-red-500 dark:text-white"
-                                          aria-hidden="true"
-                                          xmlns="http://www.w3.org/2000/svg"
-                                          width="24"
-                                          height="24"
-                                          fill="none"
-                                          viewBox="0 0 24 24"
-                                        >
-                                          <path
-                                            stroke="currentColor"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth="2"
-                                            d="M6 18 17.94 6M18 18 6.06 6"
-                                          />
-                                        </svg>
-                                      )}
-                                    </span>
-                                    <span className="text-sm">{desc}</span>
-                                  </li>
-                                );
-                              })
-                            ) : (
-                              <li className="col-span-2 p-4 text-sm text-slate-700">
-                                {t("analyzePage.none")}
-                              </li>
-                            )}
-                          </ul>
-                        </div>
-
-                        {/* ref={chartRef} */}
-                        <div className="p-4">
-                          <h3 className="text-lg font-semibold mb-2">
-                            {t("analyzePage.progressProjection")}
-                          </h3>
-                          <ResponsiveContainer width="100%" height={300}>
-                            <LineChart
-                              data={
-                                creditData?.scoreProgress?.forecastChart?.dataPoints?.map(
-                                  (point) => ({
-                                    name: point?.date,
-                                    [t("analyzePage.score")]: point?.score,
-                                  })
-                                ) || []
-                              }
-                            >
-                              <CartesianGrid strokeDasharray="3 3" />
-                              <XAxis dataKey="name" />
-                              <YAxis domain={[650, 720]} />
-                              <Tooltip />
-                              <Line
-                                type="monotone"
-                                dataKey={t("analyzePage.score")}
-                                stroke="#3b82f6"
-                                strokeWidth={2}
-                              />
-                            </LineChart>
-                          </ResponsiveContainer>
-                        </div>
-
-                        <div
-                          ref={chartRef}
-                          style={{
-                            width: 1120,
-                            height: 400,
-                            position: "absolute",
-                            top: -9999,
-                            left: -9999,
-                            visibility: "hidden",
-                          }}
-                        >
-                          <ResponsiveContainer width="100%" height={400}>
-                            <LineChart
-                              data={
-                                creditData?.scoreProgress?.forecastChart?.dataPoints?.map(
-                                  (point) => ({
-                                    name: point?.date,
-                                    [t("analyzePage.score")]: point?.score,
-                                  })
-                                ) || []
-                              }
-                            >
-                              <CartesianGrid strokeDasharray="3 3" />
-                              <XAxis dataKey="name" />
-                              <YAxis domain={[650, 720]} />
-                              <Tooltip />
-                              <Line
-                                type="monotone"
-                                dataKey={t("analyzePage.score")}
-                                stroke="#3b82f6"
-                                strokeWidth={2}
-                              />
-                            </LineChart>
-                          </ResponsiveContainer>
-                        </div>
-                      </section>
-
-                      <section className="space-y-0 border border-slate-200 shadow-lg mt-4 rounded-md">
-                        <div className="p-4 overflow-x-auto w-full max-w-full">
-                          <h2 className="text-2xl font-semibold">
-                            {t("analyzePage.aiReminderEngine")}
-                          </h2>
-                          <div className="overflow-auto">
-                            <table className="w-full min-w-[600px] text-sm border-collapse rounded-xl overflow-hidden shadow-sm">
-                              <thead>
-                                <tr className="border-b bg-slate-100 text-slate-600 uppercase tracking-wide text-xs font-semibold">
-                                  <th className="text-left p-2">
-                                    {t("analyzePage.event")}
-                                  </th>
-                                  <th className="text-left p-2">
-                                    {t("analyzePage.reminderDate")}
-                                  </th>
-                                  <th className="text-left p-2">
-                                    {t("analyzePage.action")}
-                                  </th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {creditData?.reminders?.length > 0 ? (
-                                  creditData.reminders.map((reminder, i) =>
-                                    i > 1 &&
-                                    (paymentStatus !== "paid" || isReset) ? (
-                                      <tr
-                                        key={i}
-                                        className={`border-t hover:bg-slate-50 transition-colors 
-                                            text-gray-400 bg-gray-200 italic text-center
-                                        `}
-                                      >
-                                        <td
-                                          colSpan={3}
-                                          style={{ textAlign: "center" }}
-                                          className="p-3 text-sm text-center align-middle"
-                                        >
-                                          {t(
-                                            "analyzePage.availableAfterPayment"
-                                          )}
-                                        </td>
-                                      </tr>
-                                    ) : (
-                                      <tr
-                                        key={i}
-                                        className={`border-t hover:bg-slate-50 transition-colors ${
-                                          i % 2 === 0
-                                            ? "bg-white"
-                                            : "bg-slate-50"
-                                        }`}
-                                      >
-                                        <td className="p-2">
-                                          {reminder.event ||
-                                            t("analyzePage.na")}
-                                        </td>
-                                        <td className="p-2">
-                                          {reminder.reminderDate &&
-                                          !isNaN(
-                                            new Date(
-                                              reminder.reminderDate
-                                            ).getTime()
-                                          )
-                                            ? new Date(
-                                                reminder.reminderDate
-                                              ).toLocaleDateString("en-US", {
-                                                month: "long",
-                                                day: "numeric",
-                                                year: "numeric",
-                                              })
-                                            : "Unknown"}
-                                        </td>
-                                        <td className="p-2">
-                                          {reminder.action ||
-                                            t("analyzePage.na")}
-                                        </td>
-                                      </tr>
-                                    )
-                                  )
-                                ) : (
-                                  <tr>
-                                    <td
-                                      colSpan={3}
-                                      className="p-3 text-sm text-slate-700 text-center"
-                                    >
-                                      {t("analyzePage.none")}
-                                    </td>
-                                  </tr>
-                                )}
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
-                      </section>
-                      <div className="flex justify-center mt-6 gap-4">
-                        {(isReset || paymentStatus != "paid") && (
-                          <button
-                            disabled={loading}
-                            onClick={onUnlock}
-                            className={`cursor-pointer px-4 sm:px-6 py-2 sm:py-3 rounded-lg transition-all duration-300 text-white font-semibold text-sm sm:text-base ${
-                              loading
-                                ? "bg-blue-300 cursor-not-allowed text-white"
-                                : "bg-blue-600 hover:bg-blue-700 text-white"
-                            }`}
-                          >
-                            {t("analyzePage.unlockButton")}
-                          </button>
-                        )}
-                        <button
-                          disabled={loading}
-                          onClick={handleReset}
-                          className={`cursor-pointer px-4 sm:px-6 py-2 sm:py-3 rounded-lg transition-all duration-300 text-white font-semibold text-sm sm:text-base ${
-                            loading
-                              ? "bg-blue-300 cursor-not-allowed text-white"
-                              : "bg-green-600 hover:bg-green-700 text-white"
-                          }`}
-                        >
-                          {t("analyzePage.resetButton")}
-                        </button>
-                        {paymentStatus === "paid" && data?.data?.ispro && (
-                          <button
-                            disabled={loading}
-                            onClick={generateActionPlanPDF}
-                            className={`cursor-pointer px-4 sm:px-6 py-2 sm:py-3 rounded-lg transition-all duration-300 text-white font-semibold text-sm sm:text-base ${
-                              loading
-                                ? "bg-blue-300 cursor-not-allowed text-white"
-                                : "bg-blue-600 hover:bg-blue-700 text-white"
-                            }`}
-                          >
-                            {t("analyzePage.downloadActionPlan")}
-                          </button>
-                        )}
-                      </div>
-
-                      {/* {!isReport && (
-                        <p className="text-xs text-center mt-2 sm:mt-3 opacity-80">
-                          {t("analyzePage.processingTime")}
-                        </p>
-                      )} */}
-                    </div>
-                  </div>
-                )}
+                {Object.keys(creditData || {}).length > 0 &&
+                  isReport &&
+                  (paymentStatus === "fail" || paymentStatus === "false") && (
+                    <TestReport
+                      result={creditData}
+                      onUnlock={onUnlock}
+                      handleReset={handleReset}
+                    />
+                  )}
+              </>
+              <>
+                {Object.keys(creditData || {}).length > 0 &&
+                  isReport &&
+                  paymentStatus === "paid" && (
+                    <PaidReport
+                      creditData={creditData}
+                      chartRef={chartRef}
+                      onUnlock={onUnlock}
+                      handleReset={handleReset}
+                      isReset={isReset}
+                      paymentStatus={paymentStatus}
+                      loading={loading}
+                      generateActionPlanPDF={generateActionPlanPDF}
+                    />
+                  )}
                 {/* {isEmpty && isReport && (
                   <div className="flex flex-col items-center justify-center p-6 rounded-lg">
                     <div className="text-3xl mb-2">⚠️</div>
@@ -2669,7 +1446,13 @@ const exportChartAsImage = async () => {
               />
             </svg>
             <span className="mt-4 text-center text-sm sm:text-base md:text-lg px-4">
-              {t("analyzePage.analysisInProgress")}
+              {t("analyzePage.analysisInProgress")} <br />
+              <br />
+              <ProgressBar
+                completed={progress}
+                maxCompleted={100}
+                bgColor="#155dfc"
+              />
             </span>
           </div>
         </div>

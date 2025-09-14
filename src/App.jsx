@@ -1,21 +1,18 @@
 import React, { useEffect } from "react";
 import "./App.css";
 import Home from "./pages/Home";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import Analyzer from "./pages/Analyzer";
 import "./i18n";
 import Privacypolicy from "./pages/Privacypolicy";
 import Paymentsuccess from "./pages/Paymentsuccess";
 import Paymentfail from "./pages/Paymentfail";
-import { useUser } from "@clerk/clerk-react";
+import { useAuth, useUser } from "@clerk/clerk-react";
 
 const App = () => {
   const { isSignedIn, user } = useUser();
+  const { userId } = useAuth();
   
   useEffect(() => {
     if (isSignedIn) {
@@ -43,6 +40,12 @@ const App = () => {
       };
     }
   }, [isSignedIn, user?.fullName]);
+
+  useEffect(() => {
+    if (userId === null) {
+      localStorage.clear();
+    }
+  }, [userId]);
 
   return (
     <Router>

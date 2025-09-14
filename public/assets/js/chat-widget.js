@@ -509,7 +509,7 @@ window.setName = function (name) {
         height: 85vh !important;
         bottom: 0 !important;
         right: 0 !important;
-        border-radius: 0 !important;
+        border-radius: 16px !important;
     }
     }
 
@@ -576,10 +576,10 @@ window.setName = function (name) {
                 </button>
                 <div class="chat-widget-header-content">
                     <div class="chat-widget-avatar">
-                        <img src="chatbotavatar.svg" height="30" width="30">
+                        <img src="chatbotavatar.svg" height="35" width="35">
                     </div>
                     <div class="chat-widget-info">
-                        <h3>Ai Assistant</h3>
+                        <h3>Support Assistant</h3>
                         <!-- <p>We typically reply instantly</p> -->
                     </div>
                 </div>
@@ -698,7 +698,7 @@ window.setName = function (name) {
         if (this.socket) {
           this.socket.disconnect();
         }
-      
+
         this.socket = io(socketUrl, { auth: { uid } });
 
         this.socket.on("message", (msg) => {
@@ -710,7 +710,7 @@ window.setName = function (name) {
         <img src="chatbotavatar.svg" height="30" width="30">
       </div>
       <div class="chat-widget-message-content">
-        ${msg}
+        <span style="white-space: pre-line">${msg}</span>
         <div class="chat-widget-message-time">${currentTime}</div>
       </div>
     `;
@@ -728,9 +728,17 @@ window.setName = function (name) {
     }
 
     toggleChat() {
+      !this.isMaximized
+        ? (this.button.hidden = false)
+        : (this.button.hidden = true);
+      
       if (this.isOpen) {
         this.closeChat();
+        //   this.button.classList.add("inactive");
+        // this.button.classList.remove("active");
       } else {
+        //   this.button.classList.remove("inactive");
+        // this.button.classList.add("active");
         this.openChat();
       }
     }
@@ -738,6 +746,7 @@ window.setName = function (name) {
     openChat() {
       this.isOpen = true;
       this.container.classList.add("active");
+      this.button.classList.remove("inactive");
       this.button.classList.add("active");
       this.messageInput.focus();
       //   this.hideNotification();
@@ -747,9 +756,14 @@ window.setName = function (name) {
     }
 
     closeChat() {
+      this.button.classList.add("inactive");
+      this.button.classList.remove("active");
       this.isOpen = false;
       this.container.classList.remove("active");
-      this.button.classList.remove("active");
+      // this.button.classList.add("inactive");
+      if (window.innerWidth < 769) {
+        this.button.classList.remove("active");
+      }
       this.button.hidden = false;
     }
 
@@ -784,7 +798,8 @@ window.setName = function (name) {
       //   } else {
       messageDiv.innerHTML = `<div class="chat-widget-message-content">${text}<div class="chat-widget-message-time">${currentTime}</div></div>`;
       const preferLanguage = localStorage.getItem("preferLanguage") || "en";
-      this.socket.emit("message", text, preferLanguage);
+      const sessionId = localStorage.getItem("sessionId") || "";
+      this.socket.emit("message", text, preferLanguage, sessionId);
       // }
       this.messages.appendChild(messageDiv);
       this.showTyping();
@@ -840,9 +855,11 @@ window.setName = function (name) {
         this.container.classList.toggle("maximized", this.isMaximized);
         this.messages.style.height = "625px";
         this.maximizeButton.hidden = false;
+        this.button.hidden = true;
       }
       if (!this.isMaximized) {
         this.messages.style.height = "260px";
+        this.button.hidden = false;
         // this.messageTime.style.marginTop = "70px";
       } else {
         // this.messageTime.style.marginTop = "32px";
@@ -856,5 +873,9 @@ window.setName = function (name) {
   // Define the global function
   window.updateTokenAndReconnect = function () {
     window.chatWidget.connectSocket(); // Call instance method
+  };
+
+  window.handleChat = function () {
+    window.chatWidget.toggleChat(); // Call instance method
   };
 })();

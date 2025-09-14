@@ -23,10 +23,12 @@ const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const toggleMenu = () => setIsOpen(!isOpen);
   const { i18n, t } = useTranslation();
-  const { preferLanguage, loading, error } = useSelector(
+  const { data, preferLanguage, loading, error } = useSelector(
     (state) => state.report
   );
-  const [userPreferLanguage, setuserPreferLanguage] = useState("en");
+  const selectedLanguage = localStorage.getItem("preferLanguage") || "en";
+  // const [userPreferLanguage, setuserPreferLanguage] =
+  //   useState(selectedLanguage);
   const changeLanguage = async (lng) => {
     localStorage.setItem("preferLanguage", lng);
     await updateLanguagePreference(lng);
@@ -35,7 +37,12 @@ const Header = () => {
   };
 
   const updateLanguagePreference = async (lng) => {
-    if (isSignedIn && user?.id) {
+    if (
+      isSignedIn &&
+      user?.id &&
+      data?.data?.ispro != undefined &&
+      data?.data?.ispro == true
+    ) {
       try {
         const token = await getToken({ template: "hasura" });
         const response = await axios.patch(
@@ -47,6 +54,7 @@ const Header = () => {
             },
           }
         );
+        localStorage.setItem("preferLanguage", preferLanguage);
         console.log("Language updated successfully", response.data);
       } catch (err) {
         console.error("Language update failed", err);
@@ -81,12 +89,14 @@ const Header = () => {
     }
     if (preferLanguage && preferLanguage !== i18n.language) {
       i18n.changeLanguage(preferLanguage);
-      setuserPreferLanguage(preferLanguage);
+      // setuserPreferLanguage(preferLanguage);
+      localStorage.setItem("preferLanguage", preferLanguage);
     }
   }, [loading]);
 
   useEffect(() => {
-    setuserPreferLanguage(i18n.language);
+    // setuserPreferLanguage(selectedLanguage);
+    console.log(selectedLanguage);
   }, [i18n.language]);
 
   const languages = [
@@ -218,7 +228,7 @@ const Header = () => {
             <select
               className="border-0 focus:outline-none block px-3 py-1 rounded hover:bg-white hover:text-black transition"
               onChange={(e) => changeLanguage(e.target.value)}
-              value={userPreferLanguage}
+              value={i18n.language}
             >
               {languages.map((lang) => (
                 <option

@@ -6,12 +6,15 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "@clerk/clerk-react";
 import { toast } from "react-toastify";
+import { setPaymentId } from "../store/paymentSlice";
+import { useDispatch } from "react-redux";
 
 const Paymentsuccess = () => {
   const navigate = useNavigate();
   const [sessionDetails, setSessionDetails] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const { getToken } = useAuth();
+  const dispatch = useDispatch();
 
   const handleDownload = async () => {
     const doc = new jsPDF();
@@ -118,6 +121,7 @@ const Paymentsuccess = () => {
             import.meta.env.VITE_API_URL
           }/paymentdetails?session_id=${sessionId}`
         );
+        dispatch(setPaymentId(data.id));
         // setIsLoading(false);
         setSessionDetails(data);
       } catch (error) {
