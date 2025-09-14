@@ -62,8 +62,6 @@ const Analyzer = () => {
 
   const handleTranslate = async () => {
     try {
-      console.log("creditData", creditData);
-
       let creditReportFortranslate = {
         improvementPotential: creditData.improvementPotential,
         keyAreasForImprovement: creditData.keyAreasForImprovement,
@@ -74,7 +72,6 @@ const Analyzer = () => {
       //   creditReportFortranslate = JSON.parse(localStorage.getItem("creditReportFortranslate"));
       // }
       const token = await getToken({ template: "hasura" });
-      dispatch(resetData());
       dispatch(
         translateObject({
           object:
@@ -135,10 +132,8 @@ const Analyzer = () => {
 
   useEffect(() => {
     if (translated) {
-      console.log("translated", translated);
-      // localStorage.removeItem("creditReport");
       setcreditData(translated);
-      data?.data?.ispro === false &&
+      paymentStatus != "paid" &&
         localStorage.setItem("creditReport", JSON.stringify(translated));
     }
   }, [translated]);
@@ -1177,13 +1172,14 @@ const Analyzer = () => {
   }, [creditData]);
 
   useEffect(() => {
-    if(Object.keys(creditData).length < 1) return;
-    if (
-      i18n?.language != creditData?.preferLanguage
-    ) {
+    if (Object.keys(creditData).length < 1) return;
+    if (i18n?.language != creditData?.preferLanguage) {
+      console.log("i18n.language", i18n.language);
+
+      dispatch(resetData());
       handleTranslate();
     }
-    localStorage.setItem("preferLanguage", i18n.language)
+    localStorage.setItem("preferLanguage", i18n.language);
     // i18n.changeLanguage(selectedLanguage);
   }, [i18n.language]);
 
