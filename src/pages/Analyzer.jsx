@@ -1125,8 +1125,11 @@ const Analyzer = () => {
         localStorage.removeItem("creditReport");
       }
 
-      if (data.data.ispro === false) {
+      if (data.data.ispro === false && result?.score !== undefined) {
         localStorage.setItem("creditReport", JSON.stringify(result));
+      } else if (data.data.ispro === false && result?.summary) {
+        handleReset()
+        toast.warning("Please reupload the file and try again!");
       }
       console.log(data.data);
 
