@@ -62,20 +62,32 @@ const Analyzer = () => {
 
   const handleTranslate = async () => {
     try {
-      let creditReportFortranslate = {
-        improvementPotential: creditData.improvementPotential,
-        keyAreasForImprovement: creditData.keyAreasForImprovement,
-        rating: creditData.rating,
-        score: creditData.score,
-      };
+      let creditReportFortranslate;
+      if (paymentStatus === "paid") {
+        creditReportFortranslate = {
+          _id: creditData._id,
+          accountsAndBalances: creditData.accountsAndBalances,
+          creditEvaluation: creditData.creditEvaluation,
+          reminders: creditData.reminders,
+          scoreChanges: creditData.scoreChanges,
+          scoreForecast: creditData.scoreForecast,
+          scoreProgress: creditData.scoreProgress,
+        };
+      } else {
+        creditReportFortranslate = {
+          improvementPotential: creditData.improvementPotential,
+          keyAreasForImprovement: creditData.keyAreasForImprovement,
+          rating: creditData.rating,
+          score: creditData.score,
+        };
+      }
       // if (i18n.language != "en") {
       //   creditReportFortranslate = JSON.parse(localStorage.getItem("creditReportFortranslate"));
       // }
       const token = await getToken({ template: "hasura" });
       dispatch(
         translateObject({
-          object:
-            paymentStatus === "paid" ? creditData : creditReportFortranslate,
+          object: creditReportFortranslate,
           targetLanguage: i18n.language,
           token,
           onProgress: (p) => dispatch(setProgress(p)),
@@ -133,7 +145,7 @@ const Analyzer = () => {
   useEffect(() => {
     if (translated) {
       setcreditData(translated);
-      paymentStatus != "paid" &&
+      if (paymentStatus != "paid" && location.pathname === "/analyzer")
         localStorage.setItem("creditReport", JSON.stringify(translated));
     }
   }, [translated]);
@@ -1124,11 +1136,14 @@ const Analyzer = () => {
         localStorage.setItem("sessionId", result.sessionId);
         localStorage.removeItem("creditReport");
       }
-
-      if (data.data.ispro === false && result?.score !== undefined) {
+      if (
+        data.data.ispro === false &&
+        result?.score !== undefined &&
+        location.pathname === "/analyzer"
+      ) {
         localStorage.setItem("creditReport", JSON.stringify(result));
       } else if (data.data.ispro === false && result?.summary) {
-        handleReset()
+        handleReset();
         toast.warning("Please reupload the file and try again!");
       }
       console.log(data.data);
@@ -1179,7 +1194,8 @@ const Analyzer = () => {
     if (i18n?.language != creditData?.preferLanguage) {
       console.log("i18n.language", i18n.language);
 
-      dispatch(resetData());
+      // dispatch(resetData());
+      localStorage.removeItem("creditReport");
       handleTranslate();
     }
     localStorage.setItem("preferLanguage", i18n.language);

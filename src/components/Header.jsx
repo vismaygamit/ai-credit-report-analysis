@@ -40,8 +40,7 @@ const Header = () => {
     if (
       isSignedIn &&
       user?.id &&
-      data?.data?.ispro != undefined &&
-      data?.data?.ispro == true
+      location.pathname != "/analyzer"
     ) {
       try {
         const token = await getToken({ template: "hasura" });
