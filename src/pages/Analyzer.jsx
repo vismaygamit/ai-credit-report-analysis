@@ -146,7 +146,7 @@ const Analyzer = () => {
   useEffect(() => {
     if (translated) {
       setcreditData(translated);
-      if (paymentStatus != "paid" && location.pathname === "/analyzer")
+      if (paymentStatus != "paid" && translated?.score !== undefined && location.pathname === "/analyzer")
         localStorage.setItem("creditReport", JSON.stringify(translated));
     }
   }, [translated]);
@@ -1067,7 +1067,6 @@ const Analyzer = () => {
     }
 
     if (hasSavedData && loading === false) {
-      console.log("issign inn", savedData);
       const preferLanguage = localStorage.getItem("preferLanguage");
       i18n.changeLanguage(creditData.preferLanguage || preferLanguage);
       setIsReport(true);
@@ -1136,7 +1135,7 @@ const Analyzer = () => {
         clearPaymentId();
         localStorage.setItem("sessionId", result.sessionId);
         localStorage.removeItem("creditReport");
-      }
+      }  
       if (
         data.data.ispro === false &&
         result?.score !== undefined &&
