@@ -80,24 +80,6 @@ const Header = () => {
     }
   }, [isSignedIn]);
 
-  useEffect(() => {
-    if (loading) return; // wait for loading to finish{
-    if (error) {
-      console.error("Error fetching preferred language:", error);
-      return;
-    }
-    if (preferLanguage && preferLanguage !== i18n.language) {
-      i18n.changeLanguage(preferLanguage);
-      // setuserPreferLanguage(preferLanguage);
-      localStorage.setItem("preferLanguage", preferLanguage);
-    }
-  }, [loading]);
-
-  useEffect(() => {
-    // setuserPreferLanguage(selectedLanguage);
-    console.log(selectedLanguage);
-  }, [i18n.language]);
-
   const languages = [
     { code: "en", label: "English" },
     { code: "ru", label: "Русский" },

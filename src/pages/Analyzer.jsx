@@ -85,6 +85,7 @@ const Analyzer = () => {
       //   creditReportFortranslate = JSON.parse(localStorage.getItem("creditReportFortranslate"));
       // }
       const token = await getToken({ template: "hasura" });
+      dispatch(resetData());
       dispatch(
         translateObject({
           object: creditReportFortranslate,
@@ -1147,7 +1148,6 @@ const Analyzer = () => {
         toast.warning("Please reupload the file and try again!");
       }
       console.log(data.data);
-
       i18n.changeLanguage(result?.preferLanguage);
       // if (!isSignedIn) {
       //   localStorage.setItem(
@@ -1158,15 +1158,6 @@ const Analyzer = () => {
       //     })
       //   );
       // }
-      if (isSignedIn) {
-        // localStorage.removeItem("creditReport");
-        // if (i18n.language === "en") {
-        // localStorage.setItem("creditReportFortranslate", JSON.stringify(result))
-        // }
-        console.log("dataaaaaaaaaaa");
-
-        // localStorage.setItem("creditReport", JSON.stringify(result));
-      }
     }
   }, [data]);
 
@@ -1194,7 +1185,6 @@ const Analyzer = () => {
     if (i18n?.language != creditData?.preferLanguage) {
       console.log("i18n.language", i18n.language);
 
-      // dispatch(resetData());
       localStorage.removeItem("creditReport");
       handleTranslate();
     }
