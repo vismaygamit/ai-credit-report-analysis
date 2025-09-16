@@ -146,7 +146,11 @@ const Analyzer = () => {
   useEffect(() => {
     if (translated) {
       setcreditData(translated);
-      if (paymentStatus != "paid" && translated?.score !== undefined && location.pathname === "/analyzer")
+      if (
+        paymentStatus != "paid" &&
+        translated?.score !== undefined &&
+        location.pathname === "/analyzer"
+      )
         localStorage.setItem("creditReport", JSON.stringify(translated));
     }
   }, [translated]);
@@ -982,7 +986,7 @@ const Analyzer = () => {
       dispatch(resetReportErrorAndStatus());
 
       if (!isPaymentReferrer) {
-        saveFile(pdfFile);
+        await saveFile(pdfFile);
         dispatch(
           fetchReport({
             formData,
@@ -1002,9 +1006,6 @@ const Analyzer = () => {
         );
         dispatch(clearPaymentId());
         localStorage.removeItem("creditReport");
-        console.log("fetchPaidReport");
-        
-        deleteFile()
       }
     } catch (error) {
       console.log("error", error);
@@ -1073,7 +1074,7 @@ const Analyzer = () => {
     if (hasSavedData && loading === false) {
       const preferLanguage = localStorage.getItem("preferLanguage");
       console.log("set language");
-      
+
       // i18n.changeLanguage(creditData.preferLanguage || preferLanguage);
       setIsReport(true);
       if (
@@ -1141,10 +1142,7 @@ const Analyzer = () => {
         clearPaymentId();
         localStorage.setItem("sessionId", result.sessionId);
         localStorage.removeItem("creditReport");
-        console.log("ispro true");
-        
-        deleteFile()
-      }  
+        }
       if (
         data.data.ispro === false &&
         result?.score !== undefined &&

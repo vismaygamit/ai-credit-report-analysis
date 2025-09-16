@@ -45,8 +45,8 @@ const App = () => {
 
   useEffect(() => {
     if (userId === null) {
-      // deleteFile()
-      // localStorage.clear();
+      deleteFile()
+      localStorage.clear();
     }
   }, [userId]);
 
