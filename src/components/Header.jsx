@@ -12,7 +12,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import Hero from "./Hero";
-import { getPreferLanguage } from "../store/reportSlice";
+// import { getPreferLanguage } from "../store/reportSlice";
 import axios from "axios";
 
 const Header = () => {
@@ -23,62 +23,73 @@ const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const toggleMenu = () => setIsOpen(!isOpen);
   const { i18n, t } = useTranslation();
-  const { data, preferLanguage, loading, error } = useSelector(
-    (state) => state.report
-  );
+  const { data, loading, error } = useSelector((state) => state.report);
   const selectedLanguage = localStorage.getItem("preferLanguage") || "en";
   // const [userPreferLanguage, setuserPreferLanguage] =
   //   useState(selectedLanguage);
   const changeLanguage = async (lng) => {
     localStorage.setItem("preferLanguage", lng);
-    await updateLanguagePreference(lng);
+    // await updateLanguagePreference(lng);
     i18n.changeLanguage(lng); // this updates globally
     toggleMenu(); // close the menu after changing language
   };
 
-  const updateLanguagePreference = async (lng) => {
-    if (
-      isSignedIn &&
-      user?.id &&
-      location.pathname != "/analyzer"
-    ) {
-      try {
-        const token = await getToken({ template: "hasura" });
-        const response = await axios.patch(
-          `${import.meta.env.VITE_API_URL}/updateuserlanguage/${lng}`,
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        localStorage.setItem("preferLanguage", preferLanguage);
-        console.log("Language updated successfully", response.data);
-      } catch (err) {
-        console.error("Language update failed", err);
-      }
-    }
-  };
+  // const updateLanguagePreference = async (lng) => {
+  //   if (
+  //     isSignedIn &&
+  //     user?.id &&
+  //     location.pathname != "/analyzer"
+  //   ) {
+  //     try {
+  //       const token = await getToken({ template: "hasura" });
+  //       const response = await axios.patch(
+  //         `${import.meta.env.VITE_API_URL}/updateuserlanguage/${lng}`,
+  //         {},
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${token}`,
+  //           },
+  //         }
+  //       );
+  //       localStorage.setItem("preferLanguage", preferLanguage);
+  //       console.log("Language updated successfully", response.data);
+  //     } catch (err) {
+  //       console.error("Language update failed", err);
+  //     }
+  //   }
+  // };
 
-  useEffect(() => {
-    const fetchAndDispatch = async () => {
-      try {
-        dispatch(
-          getPreferLanguage({
-            // language: i18n.language || "en",
-            userId: user?.id,
-          })
-        );
-      } catch (err) {
-        console.error("Failed to fetch token:", err);
-      }
-    };
-    if (isSignedIn && user?.id && location.pathname != "/analyzer") {
-      // if (isSignedIn && user?.id) {
-      fetchAndDispatch();
-    }
-  }, [isSignedIn]);
+  // useEffect(() => {
+  //   const fetchAndDispatch = async () => {
+  //     try {
+  //       dispatch(
+  //         getPreferLanguage({
+  //           // language: i18n.language || "en",
+  //           userId: user?.id,
+  //         })
+  //       );
+  //     } catch (err) {
+  //       console.error("Failed to fetch token:", err);
+  //     }
+  //   };
+  //   if (isSignedIn && user?.id && location.pathname != "/analyzer") {
+  //     // if (isSignedIn && user?.id) {
+  //     fetchAndDispatch();
+  //   }
+  // }, [isSignedIn]);
+
+  // useEffect(() => {
+  //   if (loading) return; // wait for loading to finish{
+  //   if (error) {
+  //     console.error("Error fetching preferred language:", error);
+  //     return;
+  //   }
+  //   if (preferLanguage && preferLanguage !== i18n.language) {
+  //     i18n.changeLanguage(preferLanguage);
+  //     // setuserPreferLanguage(preferLanguage);
+  //     localStorage.setItem("preferLanguage", preferLanguage);
+  //   }
+  // }, [preferLanguage]);
 
   const languages = [
     { code: "en", label: "English" },
@@ -89,6 +100,11 @@ const Header = () => {
     // { code: "ar", label: "العربية" },
     { code: "hi", label: "हिंदी" },
   ];
+
+  useEffect(() => {
+    const preferLanguage = localStorage.getItem("preferLanguage") || "en";
+    i18n.changeLanguage(preferLanguage);
+  }, []);
 
   return (
     <header className="w-full bg-[#eaf0fe]">

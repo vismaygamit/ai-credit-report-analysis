@@ -29,7 +29,7 @@ import { clearPaymentId } from "../store/paymentSlice";
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 const Analyzer = () => {
-  const { tmpFile, saveFile, loadFile } = useFileStorage("report");
+  const { tmpFile, saveFile, loadFile, deleteFile } = useFileStorage("report");
   const { t, i18n } = useTranslation();
   const [dragActive, setDragActive] = useState(false);
   const { openSignIn } = useClerk();
@@ -51,7 +51,7 @@ const Analyzer = () => {
   // const [result, setResult] = useState(data?.data);
   const [creditData, setcreditData] = useState({});
   const [isReset, setIsReset] = useState(false);
-  const selectedLanguage = localStorage.getItem("preferLanguage") || "en";
+  // const selectedLanguage = localStorage.getItem("preferLanguage") || "en";
   const fileInputRef = useRef(null);
   const location = useLocation();
   const referrer = location.state?.from;
@@ -1002,6 +1002,7 @@ const Analyzer = () => {
         );
         dispatch(clearPaymentId());
         localStorage.removeItem("creditReport");
+        deleteFile()
       }
     } catch (error) {
       console.log("error", error);
@@ -1038,6 +1039,7 @@ const Analyzer = () => {
         dispatch(
           getReportByReportId({
             userId,
+            language: i18n.language,
             onProgress: (p) => dispatch(setProgress(p)),
           })
         );
@@ -1068,7 +1070,9 @@ const Analyzer = () => {
 
     if (hasSavedData && loading === false) {
       const preferLanguage = localStorage.getItem("preferLanguage");
-      i18n.changeLanguage(creditData.preferLanguage || preferLanguage);
+      console.log("set language");
+      
+      // i18n.changeLanguage(creditData.preferLanguage || preferLanguage);
       setIsReport(true);
       if (
         creditData?.preferLanguage === undefined ||
@@ -1135,6 +1139,7 @@ const Analyzer = () => {
         clearPaymentId();
         localStorage.setItem("sessionId", result.sessionId);
         localStorage.removeItem("creditReport");
+        deleteFile()
       }  
       if (
         data.data.ispro === false &&
@@ -1147,7 +1152,7 @@ const Analyzer = () => {
         toast.warning("Please reupload the file and try again!");
       }
       console.log(data.data);
-      i18n.changeLanguage(result?.preferLanguage);
+      // i18n.changeLanguage(result?.preferLanguage);
       // if (!isSignedIn) {
       //   localStorage.setItem(
       //     "creditReport",

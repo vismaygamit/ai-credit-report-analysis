@@ -85,7 +85,7 @@ export const fetchPaidReport = createAsyncThunk(
 
 export const getReportByReportId = createAsyncThunk(
   "report/getReportByReportId",
-  async ({ userId, onProgress }, { rejectWithValue }) => {
+  async ({ userId, language, onProgress }, { rejectWithValue }) => {
     try {
       let fake = 0;
       const timer = setInterval(() => {
@@ -96,6 +96,9 @@ export const getReportByReportId = createAsyncThunk(
       const response = await axios.get(
         `${import.meta.env.VITE_API_URL}/report/${userId}`,
         {
+          params: {
+            language: language, // 👈 pass your language variable here
+          },
           onDownloadProgress: (e) => {
             if (e.total) {
               const percent = Math.round((e.loaded * 100) / e.total);
@@ -216,7 +219,7 @@ const reportSlice = createSlice({
     },
     resetData: (state) => {
       state.data = null;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -234,7 +237,7 @@ const reportSlice = createSlice({
         state.error = action.payload;
         state.statusCode = action.payload?.statusCode;
       });
-      builder
+    builder
       .addCase(fetchPaidReport.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -304,6 +307,6 @@ export const {
   setPreferLanguage,
   setProgress,
   resetProgress,
-  resetData
+  resetData,
 } = reportSlice.actions;
 export default reportSlice.reducer;
