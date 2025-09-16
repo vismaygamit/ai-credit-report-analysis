@@ -1002,6 +1002,8 @@ const Analyzer = () => {
         );
         dispatch(clearPaymentId());
         localStorage.removeItem("creditReport");
+        console.log("fetchPaidReport");
+        
         deleteFile()
       }
     } catch (error) {
@@ -1139,6 +1141,8 @@ const Analyzer = () => {
         clearPaymentId();
         localStorage.setItem("sessionId", result.sessionId);
         localStorage.removeItem("creditReport");
+        console.log("ispro true");
+        
         deleteFile()
       }  
       if (
