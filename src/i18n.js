@@ -223,73 +223,96 @@ i18n
           },
           privacyPage: {
             title: "Privacy Policy",
-            effectiveDate: "Effective Date: June 13, 2025",
-            intro:
-              "SCOREWISE (https://www.scorewise.ca) is committed to protecting your privacy. This policy outlines how we collect, use, and protect your data when you use our credit report analysis services.",
+            effectiveDate: "Last updated: ",
             sections: {
-              whoWeAre: {
-                title: "1. Who We Are",
+              aboutScorewise: {
+                title: "1. About Scorewise",
                 content:
-                  "SCOREWISE is a Canadian credit wellness platform. Our tools analyze credit reports submitted by users to provide insights and improvement strategies.",
+                  "Scorewise helps Canadians analyze their credit reports and generate personalized improvement strategies and dispute letter templates. We are **not a credit bureau, bank, lender, or law firm**. We cannot guarantee results. Our services are for **educational and informational purposes only**.",
               },
-              whatWeCollect: {
-                title: "2. What We Collect",
-                items: [
-                  "Uploaded credit reports (PDF format from Equifax or TransUnion)",
-                  "Device, browser, and language metadata",
-                  "User interactions for session-based analysis only",
-                ],
-                note: "We do not collect your name, SIN, banking, or address details unless you explicitly provide them in the uploaded document.",
-              },
-              howWeUse: {
-                title: "3. How We Use Your Data",
-                intro: "Your credit report is analyzed using AI to:",
-                items: [
-                  "Display a preview of problematic items",
-                  "Generate improvement letters and strategies (upon purchase)",
-                  "Offer tailored insights — fully automated, no human viewing",
+              howServiceWorks: {
+                title: "2. How the Service Works",
+                steps: [
+                  "You log in securely using **Clerk (magic link)**.",
+                  "You upload your credit report (Equifax or TransUnion).",
+                  "Our system analyzes your file and provides a preview summary.",
+                  "For **$25 CAD**, you unlock your **full downloadable report + dispute letters + step-by-step recommendations**.",
+                  "Your uploaded credit file is **deleted automatically after processing**.",
                 ],
               },
-              retention: {
-                title: "4. Retention & Deletion",
-                content:
-                  "Uploaded files are deleted automatically within minutes after analysis. We do not store your data long-term, and no copies are retained beyond session use.",
-              },
-              security: {
-                title: "5. Security Measures",
-                items: [
-                  "SSL encryption for all file transfers",
-                  "All processing takes place on secure Canadian servers",
-                  "No tracking scripts or marketing pixels are embedded",
+              informationWeCollect: {
+                title: "3. Information We Collect",
+                intro: "We minimize data collection to protect your privacy.",
+                required: [
+                  "Your email (via Clerk) for secure login.",
+                  "Payment confirmation (via Stripe or equivalent).",
+                ],
+                temporary: [
+                  "Your uploaded credit report (used only for analysis).",
+                ],
+                notStored: [
+                  "Your credit report PDFs.",
+                  "Your report summaries.",
+                  "Your dispute letters.",
                 ],
               },
-              compliance: {
-                title: "6. Canadian Compliance",
-                intro: "SCOREWISE complies with:",
+              howWeUseInformation: {
+                title: "4. How We Use Your Information",
+                intro: "We use your information solely to:",
                 items: [
-                  "PIPEDA – Personal Information Protection and Electronic Documents Act",
-                  "CASL – Canada’s Anti-Spam Legislation",
+                  "Authenticate your account (via Clerk).",
+                  "Process payments (via Stripe).",
+                  "Generate your credit analysis and downloadable report.",
                 ],
-                note: "This service is available exclusively to Canadian users.",
+                note: "**We never sell, rent, or trade your data.**",
               },
-              languages: {
-                title: "7. Language Support",
-                content:
-                  "We support English, French, Spanish, Arabic, Russian, Hindi, and Ukrainian. This policy is legally binding in English only.",
+              securityPractices: {
+                title: "5. Security Practices",
+                items: [
+                  "All communication is encrypted using HTTPS.",
+                  "Uploaded credit reports are processed in real time and then **permanently deleted**.",
+                  "Clerk and Stripe handle login and payments securely.",
+                  "We apply industry-standard safeguards to protect against unauthorized access.",
+                ],
+              },
+              paymentsRefunds: {
+                title: "6. Payments & Refunds",
+                items: [
+                  "The cost of a full analysis is **$25 CAD per report**.",
+                  "All payments are processed through **Stripe or an equivalent PCI-compliant provider**.",
+                  "Because each report is customized, **all sales are final**, unless you were charged but did not receive your report.",
+                ],
               },
               rights: {
-                title: "8. Your Rights",
-                intro: "You may contact us at any time to:",
+                title: "7. Your Rights (Canada-Wide)",
+                intro:
+                  "As per **PIPEDA** and provincial privacy laws, you have the right to:",
                 items: [
-                  "Request deletion of your report (if still on our server)",
-                  "Access a session-based summary of data processed",
+                  "Request access to any personal data we hold about you (limited to Clerk login email and billing record).",
+                  "Request correction of inaccurate information.",
+                  "Request deletion of your account and billing records (**credit reports are never stored**).",
                 ],
-                contact: "Contact us at privacy@scorewise.ca",
               },
-              updates: {
-                title: "9. Updates",
+              disclaimers: {
+                title: "8. Disclaimers",
+                items: [
+                  "Scorewise is not a credit bureau and is not affiliated with Equifax, TransUnion, or any financial institution.",
+                  "We cannot guarantee that creditors or bureaus will accept disputes or remove accurate negative items.",
+                  "Our tools and guidance are **for educational purposes only**.",
+                ],
+              },
+              limitationLiability: {
+                title: "9. Limitation of Liability",
+                intro: "To the fullest extent permitted by Canadian law:",
+                items: [
+                  "Scorewise is not responsible for any losses, damages, or consequences arising from the use of our service.",
+                  "You agree that your sole remedy in case of dissatisfaction is discontinuing use of the platform.",
+                ],
+              },
+              governingLaw: {
+                title: "10. Governing Law",
                 content:
-                  "We will post any future changes to this policy directly on this page. Continued use of our service implies acceptance of the latest terms.",
+                  "This agreement is governed by the laws of **Canada** and the province of **Ontario**, unless local provincial laws apply. By using Scorewise, you agree to these terms.",
               },
             },
           },
@@ -502,73 +525,98 @@ i18n
           },
           privacyPage: {
             title: "Политика конфиденциальности",
-            effectiveDate: "Дата вступления в силу: 13 июня 2025 года",
-            intro:
-              "SCOREWISE (https://www.scorewise.ca) стремится защищать вашу конфиденциальность. В этой политике описывается, как мы собираем, используем и защищаем ваши данные при использовании наших услуг анализа кредитных отчетов.",
+            effectiveDate: "Последнее обновление: ",
             sections: {
-              whoWeAre: {
-                title: "1. Кто мы такие",
+              aboutScorewise: {
+                title: "1. О Scorewise",
                 content:
-                  "SCOREWISE — это канадская платформа по улучшению кредитной истории. Наши инструменты анализируют предоставленные пользователями кредитные отчеты, чтобы предложить рекомендации по улучшению.",
+                  "Scorewise помогает канадцам анализировать свои кредитные отчёты и создавать персонализированные стратегии улучшения и шаблоны писем по спорам. Мы **не являемся кредитным бюро, банком, кредитором или юридической фирмой**. Мы не можем гарантировать результат. Наши услуги предназначены **только для образовательных и информационных целей**.",
               },
-              whatWeCollect: {
-                title: "2. Что мы собираем",
-                items: [
-                  "Загруженные кредитные отчеты (в формате PDF от Equifax или TransUnion)",
-                  "Данные об устройстве, браузере и языке",
-                  "Действия пользователя для анализа в рамках сессии",
-                ],
-                note: "Мы не собираем ваше имя, SIN, банковские или адресные данные, если вы явно не укажете их в загружаемом документе.",
-              },
-              howWeUse: {
-                title: "3. Как мы используем ваши данные",
-                intro: "Ваш кредитный отчет анализируется с помощью ИИ для:",
-                items: [
-                  "Предварительного просмотра проблемных пунктов",
-                  "Создания писем и стратегий улучшения (после оплаты)",
-                  "Предоставления персонализированных советов — полностью автоматически, без участия человека",
+              howServiceWorks: {
+                title: "2. Как работает сервис",
+                steps: [
+                  "Вы безопасно входите через **Clerk (magic link)**.",
+                  "Вы загружаете свой кредитный отчёт (Equifax или TransUnion).",
+                  "Наша система анализирует ваш файл и предоставляет предварительное резюме.",
+                  "За **25 CAD** вы получаете **полный отчёт для скачивания + письма по спорам + пошаговые рекомендации**.",
+                  "Ваш загруженный кредитный файл **автоматически удаляется после обработки**.",
                 ],
               },
-              retention: {
-                title: "4. Хранение и удаление",
-                content:
-                  "Загруженные файлы автоматически удаляются через несколько минут после анализа. Мы не храним ваши данные долгое время, и копии не сохраняются после сессии.",
+              informationWeCollect: {
+                title: "3. Информация, которую мы собираем",
+                intro:
+                  "Мы минимизируем сбор данных, чтобы защитить вашу конфиденциальность.",
+                required: [
+                  "Ваш email (через Clerk) для безопасного входа.",
+                  "Подтверждение оплаты (через Stripe или аналог).",
+                ],
+                temporary: [
+                  "Ваш загруженный кредитный отчёт (используется только для анализа).",
+                ],
+                notStored: [
+                  "Ваши PDF кредитных отчётов.",
+                  "Ваши резюме отчётов.",
+                  "Ваши письма по спорам.",
+                ],
               },
-              security: {
+              howWeUseInformation: {
+                title: "4. Как мы используем вашу информацию",
+                intro: "Мы используем вашу информацию исключительно для:",
+                items: [
+                  "Аутентификации вашей учетной записи (через Clerk).",
+                  "Обработки платежей (через Stripe).",
+                  "Создания вашего кредитного анализа и отчёта для скачивания.",
+                ],
+                note: "**Мы никогда не продаём, не сдаём в аренду и не передаём ваши данные.**",
+              },
+              securityPractices: {
                 title: "5. Меры безопасности",
                 items: [
-                  "SSL-шифрование для всех передач файлов",
-                  "Обработка данных только на защищенных серверах в Канаде",
-                  "Отсутствие трекинговых скриптов и маркетинговых пикселей",
+                  "Вся связь шифруется с помощью HTTPS.",
+                  "Загруженные кредитные отчёты обрабатываются в реальном времени и затем **навсегда удаляются**.",
+                  "Clerk и Stripe безопасно обрабатывают вход и платежи.",
+                  "Мы применяем отраслевые стандарты защиты от несанкционированного доступа.",
                 ],
               },
-              compliance: {
-                title: "6. Соответствие канадским нормам",
-                intro: "SCOREWISE соответствует требованиям:",
+              paymentsRefunds: {
+                title: "6. Платежи и возвраты",
                 items: [
-                  "PIPEDA — Закон о защите личной информации и электронных документах",
-                  "CASL — Канадский закон о борьбе со спамом",
+                  "Стоимость полного анализа — **25 CAD за отчёт**.",
+                  "Все платежи проходят через **Stripe или другого поставщика, соответствующего PCI**.",
+                  "Так как каждый отчёт индивидуален, **все продажи окончательны**, если только вам не списали деньги, но вы не получили отчёт.",
                 ],
-                note: "Сервис доступен исключительно для пользователей из Канады.",
-              },
-              languages: {
-                title: "7. Языковая поддержка",
-                content:
-                  "Мы поддерживаем английский, французский, испанский, арабский, русский, хинди и украинский. Эта политика имеет юридическую силу только на английском языке.",
               },
               rights: {
-                title: "8. Ваши права",
-                intro: "Вы можете связаться с нами в любое время, чтобы:",
+                title: "7. Ваши права (по Канаде)",
+                intro:
+                  "Согласно **PIPEDA** и провинциальным законам о конфиденциальности, вы имеете право:",
                 items: [
-                  "Запросить удаление вашего отчета (если он еще на сервере)",
-                  "Получить сводку об обработанных данных за сессию",
+                  "Запросить доступ к персональным данным, которые мы храним о вас (ограничивается email входа через Clerk и записью о платеже).",
+                  "Запросить исправление неточной информации.",
+                  "Запросить удаление вашей учетной записи и платежных записей (**кредитные отчёты никогда не хранятся**).",
                 ],
-                contact: "Свяжитесь с нами по адресу privacy@scorewise.ca",
               },
-              updates: {
-                title: "9. Обновления",
+              disclaimers: {
+                title: "8. Отказы от ответственности",
+                items: [
+                  "Scorewise не является кредитным бюро и не аффилирован с Equifax, TransUnion или другими финансовыми учреждениями.",
+                  "Мы не можем гарантировать, что кредиторы или бюро примут споры или удалят точные отрицательные элементы.",
+                  "Наши инструменты и рекомендации предназначены **только для образовательных целей**.",
+                ],
+              },
+              limitationLiability: {
+                title: "9. Ограничение ответственности",
+                intro:
+                  "В максимально возможной степени, разрешенной канадским законодательством:",
+                items: [
+                  "Scorewise не несёт ответственности за любые убытки, ущерб или последствия, возникшие при использовании нашего сервиса.",
+                  "Вы соглашаетесь, что вашим единственным средством при неудовлетворенности является прекращение использования платформы.",
+                ],
+              },
+              governingLaw: {
+                title: "10. Применимое право",
                 content:
-                  "Мы будем публиковать все будущие изменения этой политики на этой странице. Дальнейшее использование нашего сервиса означает согласие с обновленными условиями.",
+                  "Это соглашение регулируется законами **Канады** и провинции **Онтарио**, если только не применяются местные провинциальные законы. Используя Scorewise, вы соглашаетесь с этими условиями.",
               },
             },
           },
@@ -783,73 +831,98 @@ i18n
           },
           privacyPage: {
             title: "Політика конфіденційності",
-            effectiveDate: "Дата набрання чинності: 13 червня 2025 року",
-            intro:
-              "SCOREWISE (https://www.scorewise.ca) прагне захистити вашу конфіденційність. У цій політиці викладено, як ми збираємо, використовуємо та захищаємо ваші дані під час користування нашими послугами з аналізу кредитних звітів.",
+            effectiveDate: "Останнє оновлення: ",
             sections: {
-              whoWeAre: {
-                title: "1. Хто ми",
+              aboutScorewise: {
+                title: "1. Про Scorewise",
                 content:
-                  "SCOREWISE — це канадська платформа для покращення кредитного рейтингу. Наші інструменти аналізують кредитні звіти користувачів для надання порад і стратегій покращення.",
+                  "Scorewise допомагає канадцям аналізувати свої кредитні звіти та створювати персоналізовані стратегії покращення та шаблони листів для спорів. Ми **не є кредитним бюро, банком, кредитором чи юридичною фірмою**. Ми не можемо гарантувати результат. Наші послуги призначені **лише для освітніх та інформаційних цілей**.",
               },
-              whatWeCollect: {
-                title: "2. Що ми збираємо",
-                items: [
-                  "Завантажені кредитні звіти (PDF з Equifax або TransUnion)",
-                  "Дані про пристрій, браузер та мову",
-                  "Взаємодії користувача для сеансового аналізу",
-                ],
-                note: "Ми не збираємо ваше ім’я, SIN, банківські або адресні дані, якщо ви їх явно не зазначили у документі.",
-              },
-              howWeUse: {
-                title: "3. Як ми використовуємо ваші дані",
-                intro: "Ваш кредитний звіт аналізується за допомогою ШІ для:",
-                items: [
-                  "Попереднього перегляду проблемних пунктів",
-                  "Генерації листів та стратегій покращення (після оплати)",
-                  "Надання персоналізованих порад — повністю автоматично, без участі людини",
+              howServiceWorks: {
+                title: "2. Як працює сервіс",
+                steps: [
+                  "Ви безпечно входите через **Clerk (magic link)**.",
+                  "Ви завантажуєте свій кредитний звіт (Equifax або TransUnion).",
+                  "Наша система аналізує ваш файл і надає попереднє резюме.",
+                  "За **25 CAD** ви отримуєте **повний звіт для завантаження + листи для спорів + покрокові рекомендації**.",
+                  "Ваш завантажений кредитний файл **автоматично видаляється після обробки**.",
                 ],
               },
-              retention: {
-                title: "4. Зберігання та видалення",
-                content:
-                  "Завантажені файли автоматично видаляються через декілька хвилин після аналізу. Ми не зберігаємо ваші дані надовго.",
+              informationWeCollect: {
+                title: "3. Інформація, яку ми збираємо",
+                intro:
+                  "Ми мінімізуємо збір даних для захисту вашої конфіденційності.",
+                required: [
+                  "Ваша електронна пошта (через Clerk) для безпечного входу.",
+                  "Підтвердження оплати (через Stripe або еквівалент).",
+                ],
+                temporary: [
+                  "Ваш завантажений кредитний звіт (використовується лише для аналізу).",
+                ],
+                notStored: [
+                  "Ваші PDF кредитних звітів.",
+                  "Ваші резюме звітів.",
+                  "Ваші листи для спорів.",
+                ],
               },
-              security: {
+              howWeUseInformation: {
+                title: "4. Як ми використовуємо вашу інформацію",
+                intro: "Ми використовуємо вашу інформацію виключно для:",
+                items: [
+                  "Автентифікації вашого облікового запису (через Clerk).",
+                  "Обробки платежів (через Stripe).",
+                  "Створення вашого кредитного аналізу та звіту для завантаження.",
+                ],
+                note: "**Ми ніколи не продаємо, не здаємо в оренду та не передаємо ваші дані.**",
+              },
+              securityPractices: {
                 title: "5. Заходи безпеки",
                 items: [
-                  "SSL-шифрування для всіх передач файлів",
-                  "Уся обробка відбувається на захищених канадських серверах",
-                  "Відсутні трекінг-скрипти або маркетингові пікселі",
+                  "Усі комунікації шифруються за допомогою HTTPS.",
+                  "Завантажені кредитні звіти обробляються в режимі реального часу та потім **назавжди видаляються**.",
+                  "Clerk і Stripe безпечно обробляють вхід та платежі.",
+                  "Ми застосовуємо галузеві стандарти для захисту від несанкціонованого доступу.",
                 ],
               },
-              compliance: {
-                title: "6. Відповідність канадським нормам",
-                intro: "SCOREWISE дотримується вимог:",
+              paymentsRefunds: {
+                title: "6. Платежі та повернення",
                 items: [
-                  "PIPEDA — Закон про захист персональної інформації та електронних документів",
-                  "CASL — Канадський закон про боротьбу зі спамом",
+                  "Вартість повного аналізу — **25 CAD за звіт**.",
+                  "Усі платежі обробляються через **Stripe або іншого постачальника, що відповідає PCI**.",
+                  "Оскільки кожен звіт є індивідуальним, **усі продажі остаточні**, якщо тільки з вас не зняли кошти, але ви не отримали звіт.",
                 ],
-                note: "Послуга доступна лише для користувачів з Канади.",
-              },
-              languages: {
-                title: "7. Підтримка мов",
-                content:
-                  "Ми підтримуємо англійську, французьку, іспанську, арабську, російську, хінді та українську мови. Ця політика юридично обов’язкова лише англійською мовою.",
               },
               rights: {
-                title: "8. Ваші права",
-                intro: "Ви можете зв’язатися з нами, щоб:",
+                title: "7. Ваші права (по Канаді)",
+                intro:
+                  "Згідно з **PIPEDA** та провінційними законами про конфіденційність, ви маєте право:",
                 items: [
-                  "Запросити видалення вашого звіту (якщо він ще на сервері)",
-                  "Отримати сесійну інформацію про оброблені дані",
+                  "Запросити доступ до персональних даних, які ми зберігаємо про вас (обмежується email входу через Clerk та записом про оплату).",
+                  "Запросити виправлення неточної інформації.",
+                  "Запросити видалення вашого облікового запису та записів про оплату (**кредитні звіти ніколи не зберігаються**).",
                 ],
-                contact: "Напишіть нам: privacy@scorewise.ca",
               },
-              updates: {
-                title: "9. Оновлення",
+              disclaimers: {
+                title: "8. Відмови від відповідальності",
+                items: [
+                  "Scorewise не є кредитним бюро і не пов’язаний з Equifax, TransUnion чи будь-якою фінансовою установою.",
+                  "Ми не можемо гарантувати, що кредитори або бюро приймуть спори або видалять точні негативні елементи.",
+                  "Наші інструменти та поради призначені **лише для освітніх цілей**.",
+                ],
+              },
+              limitationLiability: {
+                title: "9. Обмеження відповідальності",
+                intro:
+                  "У максимально можливій мірі, дозволеній канадським законодавством:",
+                items: [
+                  "Scorewise не несе відповідальності за будь-які втрати, збитки або наслідки, що виникли при використанні нашого сервісу.",
+                  "Ви погоджуєтеся, що вашим єдиним засобом у разі невдоволення є припинення використання платформи.",
+                ],
+              },
+              governingLaw: {
+                title: "10. Застосовне право",
                 content:
-                  "Ми опублікуємо всі майбутні зміни на цій сторінці. Подальше використання сервісу означає згоду з оновленими умовами.",
+                  "Ця угода регулюється законами **Канади** та провінції **Онтаріо**, якщо не застосовуються місцеві провінційні закони. Використовуючи Scorewise, ви погоджуєтеся з цими умовами.",
               },
             },
           },
@@ -1064,73 +1137,97 @@ i18n
           },
           privacyPage: {
             title: "Política de Privacidad",
-            effectiveDate: "Fecha de entrada en vigor: 13 de junio de 2025",
-            intro:
-              "SCOREWISE (https://www.scorewise.ca) se compromete a proteger su privacidad. Esta política describe cómo recopilamos, usamos y protegemos sus datos cuando utiliza nuestros servicios de análisis de informes crediticios.",
+            effectiveDate: "Última actualización: ",
             sections: {
-              whoWeAre: {
-                title: "1. Quiénes somos",
+              aboutScorewise: {
+                title: "1. Acerca de Scorewise",
                 content:
-                  "SCOREWISE es una plataforma canadiense de bienestar crediticio. Nuestros instrumentos analizan informes crediticios proporcionados por los usuarios para ofrecer recomendaciones y estrategias de mejora.",
+                  "Scorewise ayuda a los canadienses a analizar sus informes de crédito y generar estrategias de mejora personalizadas y plantillas de cartas de disputa. No somos **una agencia de crédito, banco, prestamista ni firma legal**. No podemos garantizar resultados. Nuestros servicios son **solo con fines educativos e informativos**.",
               },
-              whatWeCollect: {
-                title: "2. Qué recopilamos",
-                items: [
-                  "Informes crediticios subidos (formato PDF de Equifax o TransUnion)",
-                  "Metadatos del dispositivo, navegador e idioma",
-                  "Interacciones del usuario para análisis basado en la sesión",
-                ],
-                note: "No recopilamos su nombre, SIN, datos bancarios o de dirección a menos que los proporcione explícitamente en el documento cargado.",
-              },
-              howWeUse: {
-                title: "3. Cómo usamos sus datos",
-                intro: "Su informe crediticio se analiza con IA para:",
-                items: [
-                  "Mostrar una vista previa de los elementos problemáticos",
-                  "Generar cartas y estrategias de mejora (con compra)",
-                  "Ofrecer ideas personalizadas — totalmente automatizado, sin intervención humana",
+              howServiceWorks: {
+                title: "2. Cómo funciona el servicio",
+                steps: [
+                  "Inicias sesión de forma segura usando **Clerk (magic link)**.",
+                  "Subes tu informe de crédito (Equifax o TransUnion).",
+                  "Nuestro sistema analiza tu archivo y proporciona un resumen previo.",
+                  "Por **25 CAD**, desbloqueas tu **informe completo descargable + cartas de disputa + recomendaciones paso a paso**.",
+                  "Tu archivo de crédito subido se **elimina automáticamente después del procesamiento**.",
                 ],
               },
-              retention: {
-                title: "4. Retención y eliminación",
-                content:
-                  "Los archivos subidos se eliminan automáticamente unos minutos después del análisis. No almacenamos sus datos a largo plazo ni guardamos copias.",
-              },
-              security: {
-                title: "5. Medidas de seguridad",
-                items: [
-                  "Cifrado SSL para todas las transferencias de archivos",
-                  "Procesamiento en servidores seguros canadienses",
-                  "Sin scripts de seguimiento ni píxeles de marketing",
+              informationWeCollect: {
+                title: "3. Información que recopilamos",
+                intro:
+                  "Minimizamos la recopilación de datos para proteger tu privacidad.",
+                required: [
+                  "Tu correo electrónico (a través de Clerk) para un inicio de sesión seguro.",
+                  "Confirmación de pago (a través de Stripe o equivalente).",
+                ],
+                temporary: [
+                  "Tu informe de crédito subido (solo para análisis).",
+                ],
+                notStored: [
+                  "Tus PDFs de informes de crédito.",
+                  "Tus resúmenes de informes.",
+                  "Tus cartas de disputa.",
                 ],
               },
-              compliance: {
-                title: "6. Cumplimiento canadiense",
-                intro: "SCOREWISE cumple con:",
+              howWeUseInformation: {
+                title: "4. Cómo usamos tu información",
+                intro: "Usamos tu información únicamente para:",
                 items: [
-                  "PIPEDA – Ley de Protección de Información Personal y Documentos Electrónicos",
-                  "CASL – Ley Antispam de Canadá",
+                  "Autenticar tu cuenta (a través de Clerk).",
+                  "Procesar pagos (a través de Stripe).",
+                  "Generar tu análisis de crédito e informe descargable.",
                 ],
-                note: "Este servicio está disponible exclusivamente para usuarios en Canadá.",
+                note: "**Nunca vendemos, alquilamos ni comercializamos tus datos.**",
               },
-              languages: {
-                title: "7. Soporte de idiomas",
-                content:
-                  "Admitimos inglés, francés, español, árabe, ruso, hindi y ucraniano. Esta política es legalmente vinculante solo en inglés.",
+              securityPractices: {
+                title: "5. Prácticas de seguridad",
+                items: [
+                  "Toda la comunicación se cifra mediante HTTPS.",
+                  "Los informes de crédito subidos se procesan en tiempo real y luego se **eliminan permanentemente**.",
+                  "Clerk y Stripe manejan de forma segura el inicio de sesión y los pagos.",
+                  "Aplicamos salvaguardias estándar de la industria para proteger contra el acceso no autorizado.",
+                ],
+              },
+              paymentsRefunds: {
+                title: "6. Pagos y reembolsos",
+                items: [
+                  "El costo de un análisis completo es **25 CAD por informe**.",
+                  "Todos los pagos se procesan a través de **Stripe o un proveedor equivalente compatible con PCI**.",
+                  "Debido a que cada informe es personalizado, **todas las ventas son finales**, a menos que se te haya cobrado y no hayas recibido tu informe.",
+                ],
               },
               rights: {
-                title: "8. Sus derechos",
-                intro: "Puede contactarnos en cualquier momento para:",
+                title: "7. Tus derechos (en todo Canadá)",
+                intro:
+                  "De acuerdo con **PIPEDA** y las leyes provinciales de privacidad, tienes derecho a:",
                 items: [
-                  "Solicitar la eliminación de su informe (si aún está en el servidor)",
-                  "Acceder a un resumen de los datos procesados durante la sesión",
+                  "Solicitar acceso a cualquier dato personal que tengamos sobre ti (limitado al correo de inicio de sesión de Clerk y registro de facturación).",
+                  "Solicitar la corrección de información inexacta.",
+                  "Solicitar la eliminación de tu cuenta y registros de facturación (**los informes de crédito nunca se almacenan**).",
                 ],
-                contact: "Contáctenos: privacy@scorewise.ca",
               },
-              updates: {
-                title: "9. Actualizaciones",
+              disclaimers: {
+                title: "8. Avisos legales",
+                items: [
+                  "Scorewise no es una agencia de crédito ni está afiliada con Equifax, TransUnion o ninguna institución financiera.",
+                  "No podemos garantizar que los acreedores o las agencias acepten disputas o eliminen elementos negativos precisos.",
+                  "Nuestras herramientas y orientación son **solo con fines educativos**.",
+                ],
+              },
+              limitationLiability: {
+                title: "9. Limitación de responsabilidad",
+                intro: "En la máxima medida permitida por la ley canadiense:",
+                items: [
+                  "Scorewise no es responsable de ninguna pérdida, daño o consecuencia derivada del uso de nuestro servicio.",
+                  "Aceptas que tu único recurso en caso de insatisfacción es dejar de usar la plataforma.",
+                ],
+              },
+              governingLaw: {
+                title: "10. Ley aplicable",
                 content:
-                  "Publicaremos cualquier cambio futuro en esta página. El uso continuado del servicio implica la aceptación de los términos actualizados.",
+                  "Este acuerdo se rige por las leyes de **Canadá** y la provincia de **Ontario**, salvo que se apliquen leyes provinciales locales. Al usar Scorewise, aceptas estos términos.",
               },
             },
           },
@@ -1344,74 +1441,108 @@ i18n
             ],
           },
           privacyPage: {
-            title: "Politique de confidentialité",
-            effectiveDate: "Date d'entrée en vigueur : 13 juin 2025",
-            intro:
-              "SCOREWISE (https://www.scorewise.ca) s'engage à protéger votre vie privée. Cette politique explique comment nous collectons, utilisons et protégeons vos données lors de l'utilisation de nos services d'analyse de rapports de crédit.",
+            title: "Politique de Confidentialité",
+            effectiveDate: "Dernière mise à jour : ",
+
             sections: {
-              whoWeAre: {
-                title: "1. Qui nous sommes",
+              aboutScorewise: {
+                title: "1. À Propos de Scorewise",
                 content:
-                  "SCOREWISE est une plateforme canadienne de bien-être financier. Nos outils analysent les rapports de crédit fournis par les utilisateurs afin de proposer des stratégies d'amélioration.",
+                  "Scorewise aide les Canadiens à analyser leurs rapports de crédit et à générer des stratégies d'amélioration personnalisées et des modèles de lettres de contestation. Nous ne sommes **pas un bureau de crédit, une banque, un prêteur ou un cabinet d'avocats**. Nous ne pouvons pas garantir les résultats. Nos services sont à **des fins éducatives et informatives uniquement**.",
               },
-              whatWeCollect: {
-                title: "2. Ce que nous collectons",
-                items: [
-                  "Rapports de crédit téléchargés (format PDF d'Equifax ou TransUnion)",
-                  "Métadonnées de l'appareil, du navigateur et de la langue",
-                  "Interactions utilisateur pour analyse de session uniquement",
-                ],
-                note: "Nous ne collectons pas votre nom, SIN, coordonnées bancaires ou adresse, sauf si vous les fournissez dans le document téléchargé.",
-              },
-              howWeUse: {
-                title: "3. Comment nous utilisons vos données",
-                intro: "Votre rapport de crédit est analysé par l'IA pour :",
-                items: [
-                  "Afficher un aperçu des éléments problématiques",
-                  "Générer des lettres et stratégies d'amélioration (après achat)",
-                  "Offrir des recommandations personnalisées — entièrement automatisé, sans intervention humaine",
+
+              howServiceWorks: {
+                title: "2. Comment le Service Fonctionne",
+                steps: [
+                  "Vous vous connectez en toute sécurité en utilisant **Clerk (lien magique)**.",
+                  "Vous téléchargez votre rapport de crédit (Equifax ou TransUnion).",
+                  "Notre système analyse votre fichier et fournit un résumé de prévisualisation.",
+                  "Pour **25 $ CAD**, vous débloquez votre **rapport complet téléchargeable + lettres de contestation + recommandations étape par étape**.",
+                  "Votre fichier de crédit téléchargé est **supprimé automatiquement après traitement**.",
                 ],
               },
-              retention: {
-                title: "4. Conservation et suppression",
-                content:
-                  "Les fichiers téléchargés sont supprimés automatiquement quelques minutes après l’analyse. Nous ne conservons aucune donnée à long terme ni copies.",
-              },
-              security: {
-                title: "5. Mesures de sécurité",
-                items: [
-                  "Chiffrement SSL pour tous les transferts de fichiers",
-                  "Traitement sur des serveurs canadiens sécurisés",
-                  "Aucun script de suivi ou pixel marketing",
+
+              informationWeCollect: {
+                title: "3. Informations que Nous Collectons",
+                intro:
+                  "Nous minimisons la collecte de données pour protéger votre vie privée.",
+                required: [
+                  "Votre email (via Clerk) pour la connexion sécurisée.",
+                  "Confirmation de paiement (via Stripe ou équivalent).",
+                ],
+                temporary: [
+                  "Votre rapport de crédit téléchargé (utilisé uniquement pour l'analyse).",
+                ],
+                notStored: [
+                  "Vos PDFs de rapport de crédit.",
+                  "Vos résumés de rapport.",
+                  "Vos lettres de contestation.",
                 ],
               },
-              compliance: {
-                title: "6. Conformité canadienne",
-                intro: "SCOREWISE respecte :",
+
+              howWeUseInformation: {
+                title: "4. Comment Nous Utilisons Vos Informations",
+                intro: "Nous utilisons vos informations uniquement pour :",
                 items: [
-                  "PIPEDA — Loi sur la protection des renseignements personnels et les documents électroniques",
-                  "CASL — Loi canadienne anti-pourriel",
+                  "Authentifier votre compte (via Clerk).",
+                  "Traiter les paiements (via Stripe).",
+                  "Générer votre analyse de crédit et rapport téléchargeable.",
                 ],
-                note: "Ce service est exclusivement réservé aux utilisateurs canadiens.",
+                note: "**Nous ne vendons, ne louons, ni n'échangeons jamais vos données.**",
               },
-              languages: {
-                title: "7. Prise en charge des langues",
-                content:
-                  "Nous prenons en charge l’anglais, le français, l’espagnol, l’arabe, le russe, l’hindi et l’ukrainien. Cette politique n’a de valeur juridique qu’en anglais.",
+
+              securityPractices: {
+                title: "5. Pratiques de Sécurité",
+                items: [
+                  "Toute communication est chiffrée en utilisant HTTPS.",
+                  "Les rapports de crédit téléchargés sont traités en temps réel puis **supprimés définitivement**.",
+                  "Clerk et Stripe gèrent la connexion et les paiements de manière sécurisée.",
+                  "Nous appliquons des mesures de protection standard de l'industrie contre l'accès non autorisé.",
+                ],
               },
+
+              paymentsRefunds: {
+                title: "6. Paiements et Remboursements",
+                items: [
+                  "Le coût d'une analyse complète est de **25 $ CAD par rapport**.",
+                  "Tous les paiements sont traités via **Stripe ou un fournisseur équivalent conforme PCI**.",
+                  "Parce que chaque rapport est personnalisé, **toutes les ventes sont définitives**, sauf si vous avez été facturé mais n'avez pas reçu votre rapport.",
+                ],
+              },
+
               rights: {
-                title: "8. Vos droits",
-                intro: "Vous pouvez nous contacter à tout moment pour :",
+                title: "7. Vos Droits (Canada)",
+                intro:
+                  "Selon **PIPEDA** et les lois provinciales sur la vie privée, vous avez le droit de :",
                 items: [
-                  "Demander la suppression de votre rapport (s’il est encore sur notre serveur)",
-                  "Obtenir un résumé de session des données traitées",
+                  "Demander l'accès à toutes les données personnelles que nous détenons sur vous (limité à l'email de connexion Clerk et au dossier de facturation).",
+                  "Demander la correction d'informations inexactes.",
+                  "Demander la suppression de votre compte et des dossiers de facturation (**les rapports de crédit ne sont jamais stockés**).",
                 ],
-                contact: "Contactez-nous à : privacy@scorewise.ca",
               },
-              updates: {
-                title: "9. Mises à jour",
+
+              disclaimers: {
+                title: "8. Avis de Non-Responsabilité",
+                items: [
+                  "Scorewise n'est pas un bureau de crédit et n'est pas affilié à Equifax, TransUnion ou toute institution financière.",
+                  "Nous ne pouvons pas garantir que les créanciers ou bureaux accepteront les contestations ou supprimeront les éléments négatifs exacts.",
+                  "Nos outils et conseils sont **à des fins éducatives uniquement**.",
+                ],
+              },
+
+              limitationLiability: {
+                title: "9. Limitation de Responsabilité",
+                intro: "Dans toute la mesure permise par la loi canadienne :",
+                items: [
+                  "Scorewise n'est pas responsable des pertes, dommages ou conséquences découlant de l'utilisation de notre service.",
+                  "Vous acceptez que votre seul recours en cas d'insatisfaction soit d'arrêter d'utiliser la plateforme.",
+                ],
+              },
+
+              governingLaw: {
+                title: "10. Loi Applicable",
                 content:
-                  "Toute modification future de cette politique sera publiée sur cette page. L'utilisation continue du service vaut acceptation des nouvelles conditions.",
+                  "Cet accord est régi par les lois du **Canada** et de la province d'**Ontario**, sauf si les lois provinciales locales s'appliquent. En utilisant Scorewise, vous acceptez ces conditions.",
               },
             },
           },
@@ -1861,75 +1992,101 @@ i18n
             ],
           },
           privacyPage: {
-            title: "गोपनीयता नीति",
-            effectiveDate: "प्रभावी तिथि: 13 जून 2025",
-            intro:
-              "SCOREWISE (https://www.scorewise.ca) आपकी गोपनीयता की सुरक्षा के लिए प्रतिबद्ध है। यह नीति बताती है कि हम आपके डेटा को कैसे एकत्रित, उपयोग और सुरक्षित करते हैं जब आप हमारे क्रेडिट रिपोर्ट विश्लेषण सेवा का उपयोग करते हैं।",
-            sections: {
-              whoWeAre: {
-                title: "1. हम कौन हैं",
-                content:
-                  "SCOREWISE एक कनाडाई क्रेडिट वेलनेस प्लेटफ़ॉर्म है। हमारे टूल्स उपयोगकर्ताओं द्वारा प्रदान की गई क्रेडिट रिपोर्ट्स का विश्लेषण करते हैं और सुधार रणनीतियाँ प्रदान करते हैं।",
-              },
-              whatWeCollect: {
-                title: "2. हम क्या एकत्र करते हैं",
-                items: [
-                  "क्रेडिट रिपोर्ट्स (PDF फॉर्मेट में Equifax या TransUnion से)",
-                  "डिवाइस, ब्राउज़र और भाषा की जानकारी",
-                  "सेशन आधारित विश्लेषण के लिए उपयोगकर्ता की इंटरैक्शन",
-                ],
-                note: "जब तक आप स्पष्ट रूप से न दें, हम आपका नाम, SIN, बैंकिंग या पता संबंधी जानकारी एकत्र नहीं करते।",
-              },
-              howWeUse: {
-                title: "3. हम आपके डेटा का उपयोग कैसे करते हैं",
-                intro:
-                  "आपकी क्रेडिट रिपोर्ट का विश्लेषण AI से किया जाता है ताकि:",
-                items: [
-                  "समस्यात्मक आइटम्स की पूर्वावलोकन दिखाया जा सके",
-                  "सुधार पत्र और रणनीतियाँ उत्पन्न की जा सकें (खरीद के बाद)",
-                  "व्यक्तिगत सुझाव प्रदान किए जा सकें — पूर्णतः स्वचालित, बिना मानवीय हस्तक्षेप के",
-                ],
-              },
-              retention: {
-                title: "4. संग्रहण और हटाना",
-                content:
-                  "अपलोड की गई फ़ाइलें विश्लेषण के कुछ ही मिनटों बाद स्वचालित रूप से हटा दी जाती हैं। हम डेटा को लंबे समय तक संग्रहित नहीं करते।",
-              },
-              security: {
-                title: "5. सुरक्षा उपाय",
-                items: [
-                  "सभी फ़ाइल ट्रांसफ़र के लिए SSL एन्क्रिप्शन",
-                  "सभी प्रोसेसिंग सुरक्षित कनाडाई सर्वरों पर होती है",
-                  "कोई ट्रैकिंग स्क्रिप्ट या मार्केटिंग पिक्सेल नहीं हैं",
-                ],
-              },
-              compliance: {
-                title: "6. कनाडाई अनुपालन",
-                intro: "SCOREWISE निम्नलिखित के अनुरूप है:",
-                items: [
-                  "PIPEDA – व्यक्तिगत जानकारी संरक्षण और इलेक्ट्रॉनिक दस्तावेज़ अधिनियम",
-                  "CASL – कनाडा का एंटी-स्पैम कानून",
-                ],
-                note: "यह सेवा केवल कनाडा के उपयोगकर्ताओं के लिए उपलब्ध है।",
-              },
-              languages: {
-                title: "7. भाषा समर्थन",
-                content:
-                  "हम अंग्रेज़ी, फ्रेंच, स्पेनिश, अरबी, रूसी, हिंदी और यूक्रेनी का समर्थन करते हैं। यह नीति केवल अंग्रेज़ी में कानूनी रूप से बाध्यकारी है।",
-              },
-              rights: {
-                title: "8. आपके अधिकार",
-                intro: "आप किसी भी समय हमसे संपर्क कर सकते हैं:",
-                items: [
-                  "अपनी रिपोर्ट हटवाने का अनुरोध करने के लिए (यदि यह अभी भी सर्वर पर है)",
-                  "प्रोसेस किए गए डेटा का सेशन-आधारित सारांश प्राप्त करने के लिए",
-                ],
-                contact: "संपर्क करें: privacy@scorewise.ca",
-              },
-              updates: {
-                title: "9. अपडेट्स",
-                content:
-                  "हम इस पृष्ठ पर भविष्य के किसी भी परिवर्तन को पोस्ट करेंगे। हमारी सेवा का निरंतर उपयोग इन शर्तों की स्वीकृति दर्शाता है।",
+            privacyPage: {
+              title: "गोपनीयता नीति",
+              effectiveDate: "अंतिम अपडेट: ",
+              sections: {
+                aboutScorewise: {
+                  title: "1. Scorewise के बारे में",
+                  content:
+                    "Scorewise कनाडाई नागरिकों को उनके क्रेडिट रिपोर्ट का विश्लेषण करने और व्यक्तिगत सुधार रणनीतियाँ व विवाद पत्र टेम्पलेट तैयार करने में मदद करता है। हम **क्रेडिट ब्यूरो, बैंक, ऋणदाता या लॉ फर्म नहीं हैं**। हम परिणाम की गारंटी नहीं दे सकते। हमारी सेवाएँ **केवल शैक्षिक और सूचनात्मक उद्देश्यों के लिए हैं**।",
+                },
+                howServiceWorks: {
+                  title: "2. सेवा कैसे काम करती है",
+                  steps: [
+                    "आप **Clerk (magic link)** का उपयोग करके सुरक्षित रूप से लॉगिन करते हैं।",
+                    "आप अपनी क्रेडिट रिपोर्ट (Equifax या TransUnion) अपलोड करते हैं।",
+                    "हमारी प्रणाली आपकी फ़ाइल का विश्लेषण करती है और एक पूर्वावलोकन सारांश प्रदान करती है।",
+                    "**25 CAD** में, आप अपनी **पूरी डाउनलोड करने योग्य रिपोर्ट + विवाद पत्र + चरण-दर-चरण सिफारिशें** अनलॉक करते हैं।",
+                    "आपकी अपलोड की गई क्रेडिट फ़ाइल **प्रोसेसिंग के बाद स्वचालित रूप से हटा दी जाती है**।",
+                  ],
+                },
+                informationWeCollect: {
+                  title: "3. हम कौन सी जानकारी इकट्ठा करते हैं",
+                  intro:
+                    "हम आपकी गोपनीयता की सुरक्षा के लिए डेटा संग्रह को न्यूनतम रखते हैं।",
+                  required: [
+                    "सुरक्षित लॉगिन के लिए आपका ईमेल (Clerk के माध्यम से)।",
+                    "भुगतान की पुष्टि (Stripe या समकक्ष के माध्यम से)।",
+                  ],
+                  temporary: [
+                    "आपकी अपलोड की गई क्रेडिट रिपोर्ट (केवल विश्लेषण के लिए उपयोग)।",
+                  ],
+                  notStored: [
+                    "आपकी क्रेडिट रिपोर्ट PDFs।",
+                    "आपकी रिपोर्ट सारांश।",
+                    "आपके विवाद पत्र।",
+                  ],
+                },
+                howWeUseInformation: {
+                  title: "4. हम आपकी जानकारी का उपयोग कैसे करते हैं",
+                  intro:
+                    "हम आपकी जानकारी का उपयोग केवल इन उद्देश्यों के लिए करते हैं:",
+                  items: [
+                    "आपके खाते का प्रमाणीकरण (Clerk के माध्यम से)।",
+                    "भुगतान संसाधित करना (Stripe के माध्यम से)।",
+                    "आपका क्रेडिट विश्लेषण और डाउनलोड करने योग्य रिपोर्ट तैयार करना।",
+                  ],
+                  note: "**हम कभी भी आपका डेटा नहीं बेचते, किराए पर नहीं देते या साझा नहीं करते।**",
+                },
+                securityPractices: {
+                  title: "5. सुरक्षा उपाय",
+                  items: [
+                    "सभी संचार HTTPS के माध्यम से एन्क्रिप्टेड हैं।",
+                    "अपलोड की गई क्रेडिट रिपोर्ट वास्तविक समय में प्रोसेस होती है और फिर **स्थायी रूप से हटा दी जाती है**।",
+                    "Clerk और Stripe लॉगिन और भुगतान को सुरक्षित रूप से संभालते हैं।",
+                    "हम अनधिकृत पहुंच से सुरक्षा के लिए उद्योग मानक उपाय लागू करते हैं।",
+                  ],
+                },
+                paymentsRefunds: {
+                  title: "6. भुगतान और रिफंड",
+                  items: [
+                    "पूर्ण विश्लेषण की लागत **25 CAD प्रति रिपोर्ट** है।",
+                    "सभी भुगतान **Stripe या PCI-अनुपालन प्रदाता** के माध्यम से प्रोसेस किए जाते हैं।",
+                    "क्योंकि प्रत्येक रिपोर्ट कस्टमाइज़ होती है, **सभी बिक्री अंतिम हैं**, जब तक कि आपसे शुल्क लिया गया हो लेकिन आपको रिपोर्ट न मिली हो।",
+                  ],
+                },
+                rights: {
+                  title: "7. आपके अधिकार (कनाडा-भर)",
+                  intro:
+                    "**PIPEDA** और प्रांतीय गोपनीयता कानूनों के अनुसार, आपको इन अधिकारों का लाभ है:",
+                  items: [
+                    "हमारे पास आपके बारे में मौजूद व्यक्तिगत डेटा तक पहुँच का अनुरोध करना (Clerk लॉगिन ईमेल और बिलिंग रिकॉर्ड तक सीमित)।",
+                    "गलत जानकारी को ठीक करने का अनुरोध।",
+                    "अपने खाते और बिलिंग रिकॉर्ड को हटाने का अनुरोध (**क्रेडिट रिपोर्ट कभी भी संग्रहीत नहीं होती**)।",
+                  ],
+                },
+                disclaimers: {
+                  title: "8. अस्वीकरण",
+                  items: [
+                    "Scorewise एक क्रेडिट ब्यूरो नहीं है और न ही Equifax, TransUnion या किसी वित्तीय संस्था से संबद्ध है।",
+                    "हम गारंटी नहीं दे सकते कि लेनदार या ब्यूरो विवाद स्वीकार करेंगे या सटीक नकारात्मक आइटम हटाएँगे।",
+                    "हमारे उपकरण और मार्गदर्शन **केवल शैक्षिक उद्देश्यों के लिए हैं**।",
+                  ],
+                },
+                limitationLiability: {
+                  title: "9. दायित्व की सीमा",
+                  intro: "कनाडाई कानून द्वारा अनुमत अधिकतम सीमा तक:",
+                  items: [
+                    "Scorewise हमारी सेवा के उपयोग से उत्पन्न किसी भी हानि, नुकसान या परिणामों के लिए जिम्मेदार नहीं है।",
+                    "आप सहमत हैं कि असंतोष की स्थिति में आपका एकमात्र उपाय प्लेटफ़ॉर्म का उपयोग बंद करना है।",
+                  ],
+                },
+                governingLaw: {
+                  title: "10. लागू कानून",
+                  content:
+                    "यह समझौता **कनाडा** और **ओंटारियो** प्रांत के कानूनों द्वारा शासित है, जब तक कि स्थानीय प्रांतीय कानून लागू न हों। Scorewise का उपयोग करके, आप इन शर्तों से सहमत होते हैं।",
+                },
               },
             },
           },

@@ -611,7 +611,7 @@ window.setName = function (name) {
 
             <div class="chat-widget-input">
                 <div class="chat-widget-input-container">
-                    <input type="text" class="chat-widget-message-input" id="chatWidgetMessageInput" placeholder="Type your message...">
+                    <input type="text" class="chat-widget-message-input" autocomplete="off" id="chatWidgetMessageInput" placeholder="Type your message...">
                     <button class="chat-widget-send-button" id="chatWidgetSendButton">
                         <svg viewBox="0 0 24 24">
                             <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
@@ -710,7 +710,7 @@ window.setName = function (name) {
         <img src="chatbotavatar.svg" height="30" width="30">
       </div>
       <div class="chat-widget-message-content">
-        <span style="white-space: pre-line">${msg}</span>
+        <span style="white-space: pre-line">${this.linkify(msg)}</span>
         <div class="chat-widget-message-time">${currentTime}</div>
       </div>
     `;
@@ -731,7 +731,7 @@ window.setName = function (name) {
       !this.isMaximized
         ? (this.button.hidden = false)
         : (this.button.hidden = true);
-      
+
       if (this.isOpen) {
         this.closeChat();
         //   this.button.classList.add("inactive");
@@ -778,6 +778,15 @@ window.setName = function (name) {
       //   setTimeout(() => this.addBotResponse(), Math.random() * 2000 + 1500);
     }
 
+    linkify(text) {
+      console.log("linkify", text);
+      
+      const urlRegex = /(https?:\/\/[^\s]+)/g;
+      return text.replace(urlRegex, (url) => {
+        return `<a href="${url}" class="text-blue-500 underline" target="_blank" rel="noopener noreferrer">${url}</a>`;
+      });
+    }
+
     addMessage(text, sender) {
       const messageDiv = document.createElement("div");
       messageDiv.className = `chat-widget-message ${sender}`;
@@ -796,7 +805,7 @@ window.setName = function (name) {
 
       //                 `;
       //   } else {
-      messageDiv.innerHTML = `<div class="chat-widget-message-content">${text}<div class="chat-widget-message-time">${currentTime}</div></div>`;
+      messageDiv.innerHTML = `<div class="chat-widget-message-content">${this.linkify(text)}<div class="chat-widget-message-time">${currentTime}</div></div>`;
       const preferLanguage = localStorage.getItem("i18nextLng") || "en";
       const sessionId = localStorage.getItem("sessionId") || "";
       this.socket.emit("message", text, preferLanguage, sessionId);
